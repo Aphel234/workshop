@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f4e78">
+  <meta name="description" content="Lokale Workshop-Zuteilung direkt im Browser">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>Workshop-Zuteilung</title>
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">GitHub-Pages-Version · Daten bleiben im Browser</p>
+      <h1>Workshop-Zuteilung</h1>
+    </div>
+    <div class="header-actions">
+      <span id="saveState" class="status-pill">lokal gespeichert</span>
+      <button id="optimizeBtn" class="button primary">Zuteilung berechnen</button>
+    </div>
+  </header>
+
+  <div class="privacy-banner">
+    <strong>Datenschutz:</strong> Die Anwendung überträgt keine Teilnehmerdaten an einen Server. Nicht versehentlich echte Schülerdaten in das öffentliche GitHub-Repository hochladen.
+  </div>
+
+  <main class="shell">
+    <aside class="sidebar">
+      <label class="field-label" for="eventName">Veranstaltung</label>
+      <input id="eventName" class="text-input" type="text" autocomplete="off">
+
+      <nav id="tabs" class="tabs" aria-label="Bereiche">
+        <button data-tab="dashboard" class="tab active">Übersicht</button>
+        <button data-tab="workshops" class="tab">Workshops</button>
+        <button data-tab="participants" class="tab">Teilnehmer</button>
+        <button data-tab="locks" class="tab">Sperrungen</button>
+        <button data-tab="results" class="tab">Ergebnis</button>
+      </nav>
+
+      <section class="side-card">
+        <h2>Daten</h2>
+        <button id="sampleBtn" class="button full">Beispieldaten laden</button>
+        <button id="jsonExportBtn" class="button full">JSON sichern</button>
+        <button id="jsonImportBtn" class="button full">JSON laden</button>
+        <button id="excelImportBtn" class="button full">Excel importieren</button>
+        <button id="excelExportBtn" class="button full">Excel exportieren</button>
+        <input id="jsonFile" type="file" accept="application/json,.json" hidden>
+        <input id="excelFile" type="file" accept=".xlsx,.xls" hidden>
+      </section>
+
+      <section class="side-card">
+        <h2>Listen</h2>
+        <button id="coursePdfBtn" class="button full">Kurslisten als PDF-ZIP</button>
+        <button id="classPdfBtn" class="button full">Klassenlisten als PDF-ZIP</button>
+      </section>
+    </aside>
+
+    <section class="content">
+      <section id="dashboard" class="panel active-panel" data-panel="dashboard">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Status</p><h2>Übersicht</h2></div>
+        </div>
+        <div id="stats" class="stats-grid"></div>
+        <div class="grid two-col">
+          <article class="card">
+            <h3>Einstellungen</h3>
+            <div class="form-grid">
+              <label>Außerhalb der Wünsche zulassen?
+                <select id="allowOutside"><option value="false">Nein</option><option value="true">Ja</option></select>
+              </label>
+              <label>Standard für neue Kurse
+                <select id="defaultMode"><option>Pflicht</option><option>Optional</option></select>
+              </label>
+              <label>Belastungsausgleich
+                <input id="balanceWeight" type="number" min="0" max="100" step="1">
+                <small>0 = nur Wünsche, 1 = leichter Ausgleich</small>
+              </label>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Prüfung</h3>
+            <div id="validationSummary" class="message-list muted">Noch nicht geprüft.</div>
+          </article>
+        </div>
+        <article class="card">
+          <h3>So funktioniert die Berechnung</h3>
+          <ol class="steps">
+            <li>Pflichtkurse und feste Setzungen werden zwingend geöffnet.</li>
+            <li>Zweit-, Dritt- und Viertwünsche dürfen Mindestbelegungen sichern.</li>
+            <li>Optionale Kurse öffnen nur, wenn ihre Mindestbelegung gemeinsam erreichbar ist.</li>
+            <li>Die Zielbelegung wird automatisch als möglichst gleichmäßige absolute Gruppengröße berechnet.</li>
+            <li>Bei ähnlich guten Wunschlösungen wird die Lehrerbelastung ausgeglichen.</li>
+          </ol>
+        </article>
+      </section>
+
+      <section class="panel" data-panel="workshops">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Maximal 30</p><h2>Workshops</h2></div>
+          <button id="addWorkshopBtn" class="button">Workshop hinzufügen</button>
+        </div>
+        <div class="table-wrap"><table id="workshopsTable"></table></div>
+      </section>
+
+      <section class="panel" data-panel="participants">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Maximal 500</p><h2>Teilnehmer</h2></div>
+          <div class="inline-actions">
+            <input id="participantSearch" class="text-input compact" type="search" placeholder="Suchen …">
+            <button id="addParticipantBtn" class="button">Teilnehmer hinzufügen</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="participantsTable"></table></div>
+      </section>
+
+      <section class="panel" data-panel="locks">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Zusätzliche Regeln</p><h2>Sperrungen</h2></div>
+          <button id="addLockBtn" class="button">Sperrung hinzufügen</button>
+        </div>
+        <div class="table-wrap"><table id="locksTable"></table></div>
+      </section>
+
+      <section class="panel" data-panel="results">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Nach der Berechnung</p><h2>Ergebnis</h2></div>
+          <button id="optimizeBtnSecondary" class="button primary">Neu berechnen</button>
+        </div>
+        <div id="resultPlaceholder" class="empty-state">Noch keine Zuteilung berechnet.</div>
+        <div id="resultContent" hidden>
+          <div id="resultStats" class="stats-grid"></div>
+          <article class="card">
+            <h3>Kursübersicht</h3>
+            <div class="table-wrap"><table id="courseResultsTable"></table></div>
+          </article>
+          <article class="card">
+            <h3>Teilnehmerzuordnung</h3>
+            <div class="table-wrap"><table id="participantResultsTable"></table></div>
+          </article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <dialog id="messageDialog">
+    <form method="dialog">
+      <h2 id="dialogTitle">Hinweis</h2>
+      <div id="dialogBody" class="message-list"></div>
+      <button class="button primary" value="close">Schließen</button>
+    </form>
+  </dialog>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>
