@@ -41,10 +41,15 @@
 
       <section class="side-card">
         <h2>Daten</h2>
+        <div class="template-box">
+          <strong>Kursanwahl erfassen</strong>
+          <p>Vorlage mit den aktuell eingetragenen Workshops herunterladen, ausfüllen und danach wieder importieren.</p>
+          <button id="templateBtn" class="button full template-button">Vorlage mit aktuellen Kursarten herunterladen</button>
+        </div>
+        <button id="excelImportBtn" class="button full">Ausgefüllte Vorlage importieren</button>
         <button id="sampleBtn" class="button full">Beispieldaten laden</button>
         <button id="jsonExportBtn" class="button full">JSON sichern</button>
         <button id="jsonImportBtn" class="button full">JSON laden</button>
-        <button id="excelImportBtn" class="button full">Excel importieren</button>
         <button id="excelExportBtn" class="button full">Excel exportieren</button>
         <input id="jsonFile" type="file" accept="application/json,.json" hidden>
         <input id="excelFile" type="file" accept=".xlsx,.xls" hidden>
@@ -77,6 +82,10 @@
                 <input id="balanceWeight" type="number" min="0" max="100" step="1">
                 <small>0 = nur Wünsche, 1 = leichter Ausgleich</small>
               </label>
+              <label>Mindestgruppe Jahrgang + Bildungsgang
+                <input id="cohortMin" type="number" min="0" max="20" step="1">
+                <small>0 = aus; empfohlen 2 oder 3. Pro Durchführung kann der Wert überschrieben werden.</small>
+              </label>
             </div>
           </article>
           <article class="card">
@@ -87,18 +96,18 @@
         <article class="card">
           <h3>So funktioniert die Berechnung</h3>
           <ol class="steps">
-            <li>Pflichtkurse und feste Setzungen werden zwingend geöffnet.</li>
-            <li>Zweit-, Dritt- und Viertwünsche dürfen Mindestbelegungen sichern.</li>
-            <li>Optionale Kurse öffnen nur, wenn ihre Mindestbelegung gemeinsam erreichbar ist.</li>
-            <li>Die Zielbelegung wird automatisch als möglichst gleichmäßige absolute Gruppengröße berechnet.</li>
-            <li>Bei ähnlich guten Wunschlösungen wird die Lehrerbelastung ausgeglichen.</li>
+            <li>Die Einwahl erfolgt nach <strong>Kursarten</strong>. Mehrere Durchführungen derselben Kursart zählen als derselbe Wunsch.</li>
+            <li>Pflichtkurse und feste Setzungen werden zwingend geöffnet; Zweit-, Dritt- und Viertwünsche dürfen Mindestbelegungen sichern.</li>
+            <li>Für jede Durchführung gilt zusätzlich die Mindestgruppe aus <strong>Jahrgang + Bildungsgang</strong>: vertretene Kohorten müssen 0 oder mindestens N Personen haben.</li>
+            <li>Optionale Durchführungen dürfen entfallen, wenn ihre Mindestbelegung nicht erreichbar ist.</li>
+            <li>Die Zielbelegung wird automatisch berechnet; bei ähnlich guten Wunschlösungen wird die Lehrerbelastung ausgeglichen.</li>
           </ol>
         </article>
       </section>
 
       <section class="panel" data-panel="workshops">
         <div class="panel-heading">
-          <div><p class="eyebrow">Maximal 30</p><h2>Workshops</h2></div>
+          <div><p class="eyebrow">Maximal 30 Durchführungen</p><h2>Kursarten & Durchführungen</h2><p class="section-help">Gleiche Kursart-ID = derselbe Wunsch. Mit ＋ legst du eine weitere Gruppe derselben Kursart an.</p></div>
           <button id="addWorkshopBtn" class="button">Workshop hinzufügen</button>
         </div>
         <div class="table-wrap"><table id="workshopsTable"></table></div>
