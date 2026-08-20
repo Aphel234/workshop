@@ -115,300 +115,1563 @@ CMapName currentdict /CMap defineresource pop
 end
 end`};e.events.push(["putFont",function(a){(function(o){var s=o.font,A=o.out,u=o.newObject,l=o.putStream;if(s.metadata instanceof t.API.TTFFont&&s.encoding==="Identity-H"){for(var c=s.metadata.Unicode.widths,f=s.metadata.subset.encode(s.metadata.glyIdsUsed,1),h="",d=0;d<f.length;d++)h+=String.fromCharCode(f[d]);var g=u();l({data:h,addLength1:!0,objectId:g}),A("endobj");var p=u();l({data:n(s.metadata.toUnicode),addLength1:!0,objectId:p}),A("endobj");var v=u();A("<<"),A("/Type /FontDescriptor"),A("/FontName /"+pu(s.fontName)),A("/FontFile2 "+g+" 0 R"),A("/FontBBox "+t.API.PDFObject.convert(s.metadata.bbox)),A("/Flags "+s.metadata.flags),A("/StemV "+s.metadata.stemV),A("/ItalicAngle "+s.metadata.italicAngle),A("/Ascent "+s.metadata.ascender),A("/Descent "+s.metadata.decender),A("/CapHeight "+s.metadata.capHeight),A(">>"),A("endobj");var B=u();A("<<"),A("/Type /Font"),A("/BaseFont /"+pu(s.fontName)),A("/FontDescriptor "+v+" 0 R"),A("/W "+t.API.PDFObject.convert(c)),A("/CIDToGIDMap /Identity"),A("/DW 1000"),A("/Subtype /CIDFontType2"),A("/CIDSystemInfo"),A("<<"),A("/Supplement 0"),A("/Registry (Adobe)"),A("/Ordering ("+s.encoding+")"),A(">>"),A(">>"),A("endobj"),s.objectNumber=u(),A("<<"),A("/Type /Font"),A("/Subtype /Type0"),A("/ToUnicode "+p+" 0 R"),A("/BaseFont /"+pu(s.fontName)),A("/Encoding /"+s.encoding),A("/DescendantFonts ["+B+" 0 R]"),A(">>"),A("endobj"),s.isAlreadyPutted=!0}})(a)}]),e.events.push(["putFont",function(a){(function(o){var s=o.font,A=o.out,u=o.newObject,l=o.putStream;if(s.metadata instanceof t.API.TTFFont&&s.encoding==="WinAnsiEncoding"){for(var c=s.metadata.rawData,f="",h=0;h<c.length;h++)f+=String.fromCharCode(c[h]);var d=u();l({data:f,addLength1:!0,objectId:d}),A("endobj");var g=u();l({data:n(s.metadata.toUnicode),addLength1:!0,objectId:g}),A("endobj");var p=u();A("<<"),A("/Descent "+s.metadata.decender),A("/CapHeight "+s.metadata.capHeight),A("/StemV "+s.metadata.stemV),A("/Type /FontDescriptor"),A("/FontFile2 "+d+" 0 R"),A("/Flags 96"),A("/FontBBox "+t.API.PDFObject.convert(s.metadata.bbox)),A("/FontName /"+pu(s.fontName)),A("/ItalicAngle "+s.metadata.italicAngle),A("/Ascent "+s.metadata.ascender),A(">>"),A("endobj"),s.objectNumber=u();for(var v=0;v<s.metadata.hmtx.widths.length;v++)s.metadata.hmtx.widths[v]=parseInt(s.metadata.hmtx.widths[v]*(1e3/s.metadata.head.unitsPerEm));A("<</Subtype/TrueType/Type/Font/ToUnicode "+g+" 0 R/BaseFont/"+pu(s.fontName)+"/FontDescriptor "+p+" 0 R/Encoding/"+s.encoding+" /FirstChar 29 /LastChar 255 /Widths "+t.API.PDFObject.convert(s.metadata.hmtx.widths)+">>"),A("endobj"),s.isAlreadyPutted=!0}})(a)}]);var i=function(a){var o,s=a.text||"",A=a.x,u=a.y,l=a.options||{},c=a.mutex||{},f=c.pdfEscape,h=c.activeFontKey,d=c.fonts,g=h,p="",v=0,B="",S=d[g].encoding;if(d[g].encoding!=="Identity-H")return{text:s,x:A,y:u,options:l,mutex:c};for(B=s,g=h,Array.isArray(s)&&(B=s[0]),v=0;v<B.length;v+=1)d[g].metadata.hasOwnProperty("cmap")&&(o=d[g].metadata.cmap.unicode.codeMap[B[v].charCodeAt(0)]),o||B[v].charCodeAt(0)<256&&d[g].metadata.hasOwnProperty("Unicode")?p+=B[v]:p+="";var F="";return parseInt(g.slice(1))<14||S==="WinAnsiEncoding"?F=f(p,g).split("").map(function(z){return z.charCodeAt(0).toString(16)}).join(""):S==="Identity-H"&&(F=r(p,d[g])),c.isHex=!0,{text:F,x:A,y:u,options:l,mutex:c}};e.events.push(["postProcessText",function(a){var o=a.text||"",s=[],A={text:o,x:a.x,y:a.y,options:a.options,mutex:a.mutex};if(Array.isArray(o)){var u=0;for(u=0;u<o.length;u+=1)Array.isArray(o[u])&&o[u].length===3?s.push([i(Object.assign({},A,{text:o[u][0]})).text,o[u][1],o[u][2]]):s.push(i(Object.assign({},A,{text:o[u]})).text);a.text=s}else a.text=i(Object.assign({},A,{text:o})).text}])})(ar),(function(t){var e=function(){return this.internal.vFS===void 0&&(this.internal.vFS={}),!0};t.existsFileInVFS=function(r){return e.call(this),this.internal.vFS[r]!==void 0},t.addFileToVFS=function(r,n){return e.call(this),this.internal.vFS[r]=n,this},t.getFileFromVFS=function(r){return e.call(this),this.internal.vFS[r]!==void 0?this.internal.vFS[r]:null}})(ar.API),(function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(n){var i,a,o,s,A,u,l,c=e,f=[[0,3,0,1,0,0,0],[0,3,0,1,2,2,0],[0,3,0,17,2,0,1],[0,3,5,5,4,1,0],[0,3,21,21,4,0,1],[0,3,5,5,4,2,0]],h=[[2,0,1,1,0,1,0],[2,0,1,1,0,2,0],[2,0,2,1,3,2,0],[2,0,2,33,3,1,1]],d={L:0,R:1,EN:2,AN:3,N:4,B:5,S:6},g={0:0,5:1,6:2,7:3,32:4,251:5,254:6,255:7},p=["(",")","(","<",">","<","[","]","[","{","}","{","\xAB","\xBB","\xAB","\u2039","\u203A","\u2039","\u2045","\u2046","\u2045","\u207D","\u207E","\u207D","\u208D","\u208E","\u208D","\u2264","\u2265","\u2264","\u2329","\u232A","\u2329","\uFE59","\uFE5A","\uFE59","\uFE5B","\uFE5C","\uFE5B","\uFE5D","\uFE5E","\uFE5D","\uFE64","\uFE65","\uFE64"],v=new RegExp(/^([1-4|9]|1[0-9]|2[0-9]|3[0168]|4[04589]|5[012]|7[78]|159|16[0-9]|17[0-2]|21[569]|22[03489]|250)$/),B=!1,S=0;this.__bidiEngine__={};var F=function(x){var _=x.charCodeAt(),N=_>>8,m=g[N];return m!==void 0?c[256*m+(255&_)]:N===252||N===253?"AL":v.test(N)?"L":N===8?"R":"N"},z=function(x){for(var _,N=0;N<x.length;N++){if((_=F(x.charAt(N)))==="L")return!1;if(_==="R")return!0}return!1},P=function(x,_,N,m){var b,w,y,C,E=_[m];switch(E){case"L":case"R":case"LRE":case"RLE":case"LRO":case"RLO":case"PDF":B=!1;break;case"N":case"AN":break;case"EN":B&&(E="AN");break;case"AL":B=!0,E="R";break;case"WS":case"BN":E="N";break;case"CS":m<1||m+1>=_.length||(b=N[m-1])!=="EN"&&b!=="AN"||(w=_[m+1])!=="EN"&&w!=="AN"?E="N":B&&(w="AN"),E=w===b?w:"N";break;case"ES":E=(b=m>0?N[m-1]:"B")==="EN"&&m+1<_.length&&_[m+1]==="EN"?"EN":"N";break;case"ET":if(m>0&&N[m-1]==="EN"){E="EN";break}if(B){E="N";break}for(y=m+1,C=_.length;y<C&&_[y]==="ET";)y++;E=y<C&&_[y]==="EN"?"EN":"N";break;case"NSM":if(o&&!s){for(C=_.length,y=m+1;y<C&&_[y]==="NSM";)y++;if(y<C){var L=x[m],$=L>=1425&&L<=2303||L===64286;if(b=_[y],$&&(b==="R"||b==="AL")){E="R";break}}}E=m<1||(b=_[m-1])==="B"?"N":N[m-1];break;case"B":B=!1,i=!0,E=S;break;case"S":a=!0,E="N"}return E},Q=function(x,_,N){var m=x.split("");return N&&q(m,N,{hiLevel:S}),m.reverse(),_&&_.reverse(),m.join("")},q=function(x,_,N){var m,b,w,y,C,E=-1,L=x.length,$=0,j=[],Y=S?h:f,U=[];for(B=!1,i=!1,a=!1,b=0;b<L;b++)U[b]=F(x[b]);for(w=0;w<L;w++){if(C=$,j[w]=P(x,U,j,w),m=240&($=Y[C][d[j[w]]]),$&=15,_[w]=y=Y[$][5],m>0)if(m===16){for(b=E;b<w;b++)_[b]=1;E=-1}else E=-1;if(Y[$][6])E===-1&&(E=w);else if(E>-1){for(b=E;b<w;b++)_[b]=y;E=-1}U[w]==="B"&&(_[w]=0),N.hiLevel|=y}a&&(function(Z,k,T){for(var X=0;X<T;X++)if(Z[X]==="S"){k[X]=S;for(var rt=X-1;rt>=0&&Z[rt]==="WS";rt--)k[rt]=S}})(U,_,L)},W=function(x,_,N,m,b){if(!(b.hiLevel<x)){if(x===1&&S===1&&!i)return _.reverse(),void(N&&N.reverse());for(var w,y,C,E,L=_.length,$=0;$<L;){if(m[$]>=x){for(C=$+1;C<L&&m[C]>=x;)C++;for(E=$,y=C-1;E<y;E++,y--)w=_[E],_[E]=_[y],_[y]=w,N&&(w=N[E],N[E]=N[y],N[y]=w);$=C}$++}}},R=function(x,_,N){var m=x.split(""),b={hiLevel:S};return N||(N=[]),q(m,N,b),(function(w,y,C){if(C.hiLevel!==0&&l)for(var E,L=0;L<w.length;L++)y[L]===1&&(E=p.indexOf(w[L]))>=0&&(w[L]=p[E+1])})(m,N,b),W(2,m,_,N,b),W(1,m,_,N,b),m.join("")};return this.__bidiEngine__.doBidiReorder=function(x,_,N){if((function(b,w){if(w)for(var y=0;y<b.length;y++)w[y]=y;s===void 0&&(s=z(b)),u===void 0&&(u=z(b))})(x,_),o||!A||u)if(o&&A&&s^u)S=s?1:0,x=Q(x,_,N);else if(!o&&A&&u)S=s?1:0,x=R(x,_,N),x=Q(x,_);else if(!o||s||A||u){if(o&&!A&&s^u)x=Q(x,_),s?(S=0,x=R(x,_,N)):(S=1,x=R(x,_,N),x=Q(x,_));else if(o&&s&&!A&&u)S=1,x=R(x,_,N),x=Q(x,_);else if(!o&&!A&&s^u){var m=l;s?(S=1,x=R(x,_,N),S=0,l=!1,x=R(x,_,N),l=m):(S=0,x=R(x,_,N),x=Q(x,_),S=1,l=!1,x=R(x,_,N),l=m,x=Q(x,_))}}else S=0,x=R(x,_,N);else S=s?1:0,x=R(x,_,N);return x},this.__bidiEngine__.setOptions=function(x){x&&(o=x.isInputVisual,A=x.isOutputVisual,s=x.isInputRtl,u=x.isOutputRtl,l=x.isSymmetricSwapping)},this.__bidiEngine__.setOptions(n),this.__bidiEngine__};var e=["BN","BN","BN","BN","BN","BN","BN","BN","BN","S","B","S","WS","B","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","B","B","B","S","WS","N","N","ET","ET","ET","N","N","N","N","N","ES","CS","ES","CS","CS","EN","EN","EN","EN","EN","EN","EN","EN","EN","EN","CS","N","N","N","N","N","N","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","N","N","N","N","N","N","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","N","N","N","N","BN","BN","BN","BN","BN","BN","B","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","BN","CS","N","ET","ET","ET","ET","N","N","N","N","L","N","N","BN","N","N","ET","ET","EN","EN","N","L","N","N","N","EN","L","N","N","N","N","N","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","N","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","N","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","N","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","N","N","L","L","L","L","L","L","L","N","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","N","L","N","N","N","N","N","ET","N","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","R","NSM","R","NSM","NSM","R","NSM","NSM","R","NSM","N","N","N","N","N","N","N","N","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","N","N","N","N","N","R","R","R","R","R","N","N","N","N","N","N","N","N","N","N","N","AN","AN","AN","AN","AN","AN","N","N","AL","ET","ET","AL","CS","AL","N","N","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","AL","AL","N","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","AN","AN","AN","AN","AN","AN","AN","AN","AN","AN","ET","AN","AN","AL","AL","AL","NSM","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","NSM","NSM","NSM","NSM","NSM","NSM","NSM","AN","N","NSM","NSM","NSM","NSM","NSM","NSM","AL","AL","NSM","NSM","N","NSM","NSM","NSM","NSM","AL","AL","EN","EN","EN","EN","EN","EN","EN","EN","EN","EN","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","N","AL","AL","NSM","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","N","N","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","AL","N","N","N","N","N","N","N","N","N","N","N","N","N","N","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","R","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","R","R","N","N","N","N","R","N","N","N","N","N","WS","WS","WS","WS","WS","WS","WS","WS","WS","WS","WS","BN","BN","BN","L","R","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","WS","B","LRE","RLE","PDF","LRO","RLO","CS","ET","ET","ET","ET","ET","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","CS","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","WS","BN","BN","BN","BN","BN","N","LRI","RLI","FSI","PDI","BN","BN","BN","BN","BN","BN","EN","L","N","N","EN","EN","EN","EN","EN","EN","ES","ES","N","N","N","L","EN","EN","EN","EN","EN","EN","EN","EN","EN","EN","ES","ES","N","N","N","N","L","L","L","L","L","L","L","L","L","L","L","L","L","N","N","N","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","ET","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","L","L","L","L","L","L","L","N","N","N","N","N","N","N","N","N","N","N","N","L","L","L","L","L","N","N","N","N","N","R","NSM","R","R","R","R","R","R","R","R","R","R","ES","R","R","R","R","R","R","R","R","R","R","R","R","R","N","R","R","R","R","R","N","R","N","R","R","N","R","R","N","R","R","R","R","R","R","R","R","R","R","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","NSM","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","CS","N","CS","N","N","CS","N","N","N","N","N","N","N","N","N","ET","N","N","ES","ES","N","N","N","N","N","ET","ET","N","N","N","N","N","AL","AL","AL","AL","AL","N","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","N","N","BN","N","N","N","ET","ET","ET","N","N","N","N","N","ES","CS","ES","CS","CS","EN","EN","EN","EN","EN","EN","EN","EN","EN","EN","CS","N","N","N","N","N","N","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","N","N","N","N","N","N","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","N","N","N","N","N","N","N","N","N","N","N","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","L","N","N","N","L","L","L","L","L","L","N","N","L","L","L","L","L","L","N","N","L","L","L","L","L","L","N","N","L","L","L","N","N","N","ET","ET","N","N","N","ET","ET","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N","N"],r=new t.__bidiEngine__({isInputVisual:!0});t.API.events.push(["postProcessText",function(n){var i=n.text;n.x,n.y;var a=n.options||{};n.mutex,a.lang;var o=[];if(a.isInputVisual=typeof a.isInputVisual!="boolean"||a.isInputVisual,r.setOptions(a),Object.prototype.toString.call(i)==="[object Array]"){var s=0;for(o=[],s=0;s<i.length;s+=1)Object.prototype.toString.call(i[s])==="[object Array]"?o.push([r.doBidiReorder(i[s][0]),i[s][1],i[s][2]]):o.push([r.doBidiReorder(i[s])]);n.text=o}else n.text=r.doBidiReorder(i);r.setOptions({isInputVisual:!0})}])})(ar),ar.API.TTFFont=(function(){function t(e){var r;if(this.rawData=e,r=this.contents=new AA(e),this.contents.pos=4,r.readString(4)==="ttcf")throw new Error("TTCF not supported.");r.pos=0,this.parse(),this.subset=new NP(this),this.registerTTF()}return t.open=function(e){return new t(e)},t.prototype.parse=function(){return this.directory=new bP(this.contents),this.head=new wP(this),this.name=new SP(this),this.cmap=new $x(this),this.toUnicode={},this.hhea=new _P(this),this.maxp=new EP(this),this.hmtx=new FP(this),this.post=new xP(this),this.os2=new BP(this),this.loca=new UP(this),this.glyf=new kP(this),this.ascender=this.os2.exists&&this.os2.ascender||this.hhea.ascender,this.decender=this.os2.exists&&this.os2.decender||this.hhea.decender,this.lineGap=this.os2.exists&&this.os2.lineGap||this.hhea.lineGap,this.bbox=[this.head.xMin,this.head.yMin,this.head.xMax,this.head.yMax]},t.prototype.registerTTF=function(){var e,r,n,i,a;if(this.scaleFactor=1e3/this.head.unitsPerEm,this.bbox=function(){var o,s,A,u;for(u=[],o=0,s=(A=this.bbox).length;o<s;o++)e=A[o],u.push(Math.round(e*this.scaleFactor));return u}.call(this),this.stemV=0,this.post.exists?(n=255&(i=this.post.italic_angle),32768&(r=i>>16)&&(r=-(1+(65535^r))),this.italicAngle=+(r+"."+n)):this.italicAngle=0,this.ascender=Math.round(this.ascender*this.scaleFactor),this.decender=Math.round(this.decender*this.scaleFactor),this.lineGap=Math.round(this.lineGap*this.scaleFactor),this.capHeight=this.os2.exists&&this.os2.capHeight||this.ascender,this.xHeight=this.os2.exists&&this.os2.xHeight||0,this.familyClass=(this.os2.exists&&this.os2.familyClass||0)>>8,this.isSerif=(a=this.familyClass)===1||a===2||a===3||a===4||a===5||a===7,this.isScript=this.familyClass===10,this.flags=0,this.post.isFixedPitch&&(this.flags|=1),this.isSerif&&(this.flags|=2),this.isScript&&(this.flags|=8),this.italicAngle!==0&&(this.flags|=64),this.flags|=32,!this.cmap.unicode)throw new Error("No unicode cmap for font")},t.prototype.characterToGlyph=function(e){var r;return((r=this.cmap.unicode)!=null?r.codeMap[e]:void 0)||0},t.prototype.widthOfGlyph=function(e){var r;return r=1e3/this.head.unitsPerEm,this.hmtx.forGlyph(e).advance*r},t.prototype.widthOfString=function(e,r,n){var i,a,o,s;for(o=0,a=0,s=(e=""+e).length;0<=s?a<s:a>s;a=0<=s?++a:--a)i=e.charCodeAt(a),o+=this.widthOfGlyph(this.characterToGlyph(i))+n*(1e3/r)||0;return o*(r/1e3)},t.prototype.lineHeight=function(e,r){var n;return r==null&&(r=!1),n=r?this.lineGap:0,(this.ascender+n-this.decender)/1e3*e},t})();var wa,AA=(function(){function t(e){this.data=e??[],this.pos=0,this.length=this.data.length}return t.prototype.readByte=function(){return this.data[this.pos++]},t.prototype.writeByte=function(e){return this.data[this.pos++]=e},t.prototype.readUInt32=function(){return 16777216*this.readByte()+(this.readByte()<<16)+(this.readByte()<<8)+this.readByte()},t.prototype.writeUInt32=function(e){return this.writeByte(e>>>24&255),this.writeByte(e>>16&255),this.writeByte(e>>8&255),this.writeByte(255&e)},t.prototype.readInt32=function(){var e;return(e=this.readUInt32())>=2147483648?e-4294967296:e},t.prototype.writeInt32=function(e){return e<0&&(e+=4294967296),this.writeUInt32(e)},t.prototype.readUInt16=function(){return this.readByte()<<8|this.readByte()},t.prototype.writeUInt16=function(e){return this.writeByte(e>>8&255),this.writeByte(255&e)},t.prototype.readInt16=function(){var e;return(e=this.readUInt16())>=32768?e-65536:e},t.prototype.writeInt16=function(e){return e<0&&(e+=65536),this.writeUInt16(e)},t.prototype.readString=function(e){var r,n;for(n=[],r=0;0<=e?r<e:r>e;r=0<=e?++r:--r)n[r]=String.fromCharCode(this.readByte());return n.join("")},t.prototype.writeString=function(e){var r,n,i;for(i=[],r=0,n=e.length;0<=n?r<n:r>n;r=0<=n?++r:--r)i.push(this.writeByte(e.charCodeAt(r)));return i},t.prototype.readShort=function(){return this.readInt16()},t.prototype.writeShort=function(e){return this.writeInt16(e)},t.prototype.readLongLong=function(){var e,r,n,i,a,o,s,A;return e=this.readByte(),r=this.readByte(),n=this.readByte(),i=this.readByte(),a=this.readByte(),o=this.readByte(),s=this.readByte(),A=this.readByte(),128&e?-1*(72057594037927940*(255^e)+281474976710656*(255^r)+1099511627776*(255^n)+4294967296*(255^i)+16777216*(255^a)+65536*(255^o)+256*(255^s)+(255^A)+1):72057594037927940*e+281474976710656*r+1099511627776*n+4294967296*i+16777216*a+65536*o+256*s+A},t.prototype.writeLongLong=function(e){var r,n;return r=Math.floor(e/4294967296),n=4294967295&e,this.writeByte(r>>24&255),this.writeByte(r>>16&255),this.writeByte(r>>8&255),this.writeByte(255&r),this.writeByte(n>>24&255),this.writeByte(n>>16&255),this.writeByte(n>>8&255),this.writeByte(255&n)},t.prototype.readInt=function(){return this.readInt32()},t.prototype.writeInt=function(e){return this.writeInt32(e)},t.prototype.read=function(e){var r,n;for(r=[],n=0;0<=e?n<e:n>e;n=0<=e?++n:--n)r.push(this.readByte());return r},t.prototype.write=function(e){var r,n,i,a;for(a=[],n=0,i=e.length;n<i;n++)r=e[n],a.push(this.writeByte(r));return a},t})(),bP=(function(){var t;function e(r){var n,i,a;for(this.scalarType=r.readInt(),this.tableCount=r.readShort(),this.searchRange=r.readShort(),this.entrySelector=r.readShort(),this.rangeShift=r.readShort(),this.tables={},i=0,a=this.tableCount;0<=a?i<a:i>a;i=0<=a?++i:--i)n={tag:r.readString(4),checksum:r.readInt(),offset:r.readInt(),length:r.readInt()},this.tables[n.tag]=n}return e.prototype.encode=function(r){var n,i,a,o,s,A,u,l,c,f,h,d,g;for(g in h=Object.keys(r).length,A=Math.log(2),c=16*Math.floor(Math.log(h)/A),o=Math.floor(c/A),l=16*h-c,(i=new AA).writeInt(this.scalarType),i.writeShort(h),i.writeShort(c),i.writeShort(o),i.writeShort(l),a=16*h,u=i.pos+a,s=null,d=[],r)for(f=r[g],i.writeString(g),i.writeInt(t(f)),i.writeInt(u),i.writeInt(f.length),d=d.concat(f),g==="head"&&(s=u),u+=f.length;u%4;)d.push(0),u++;return i.write(d),n=2981146554-t(i.data),i.pos=s+8,i.writeUInt32(n),i.data},t=function(r){var n,i,a,o;for(r=Yx.call(r);r.length%4;)r.push(0);for(a=new AA(r),i=0,n=0,o=r.length;n<o;n=n+=4)i+=a.readUInt32();return 4294967295&i},e})(),yP={}.hasOwnProperty,Ga=function(t,e){for(var r in e)yP.call(e,r)&&(t[r]=e[r]);function n(){this.constructor=t}return n.prototype=e.prototype,t.prototype=new n,t.__super__=e.prototype,t};wa=(function(){function t(e){var r;this.file=e,r=this.file.directory.tables[this.tag],this.exists=!!r,r&&(this.offset=r.offset,this.length=r.length,this.parse(this.file.contents))}return t.prototype.parse=function(){},t.prototype.encode=function(){},t.prototype.raw=function(){return this.exists?(this.file.contents.pos=this.offset,this.file.contents.read(this.length)):null},t})();var wP=(function(){function t(){return t.__super__.constructor.apply(this,arguments)}return Ga(t,wa),t.prototype.tag="head",t.prototype.parse=function(e){return e.pos=this.offset,this.version=e.readInt(),this.revision=e.readInt(),this.checkSumAdjustment=e.readInt(),this.magicNumber=e.readInt(),this.flags=e.readShort(),this.unitsPerEm=e.readShort(),this.created=e.readLongLong(),this.modified=e.readLongLong(),this.xMin=e.readShort(),this.yMin=e.readShort(),this.xMax=e.readShort(),this.yMax=e.readShort(),this.macStyle=e.readShort(),this.lowestRecPPEM=e.readShort(),this.fontDirectionHint=e.readShort(),this.indexToLocFormat=e.readShort(),this.glyphDataFormat=e.readShort()},t.prototype.encode=function(e){var r;return(r=new AA).writeInt(this.version),r.writeInt(this.revision),r.writeInt(this.checkSumAdjustment),r.writeInt(this.magicNumber),r.writeShort(this.flags),r.writeShort(this.unitsPerEm),r.writeLongLong(this.created),r.writeLongLong(this.modified),r.writeShort(this.xMin),r.writeShort(this.yMin),r.writeShort(this.xMax),r.writeShort(this.yMax),r.writeShort(this.macStyle),r.writeShort(this.lowestRecPPEM),r.writeShort(this.fontDirectionHint),r.writeShort(e),r.writeShort(this.glyphDataFormat),r.data},t})(),Qx=(function(){function t(e,r){var n,i,a,o,s,A,u,l,c,f,h,d,g,p,v,B,S;switch(this.platformID=e.readUInt16(),this.encodingID=e.readShort(),this.offset=r+e.readInt(),c=e.pos,e.pos=this.offset,this.format=e.readUInt16(),this.length=e.readUInt16(),this.language=e.readUInt16(),this.isUnicode=this.platformID===3&&this.encodingID===1&&this.format===4||this.platformID===0&&this.format===4,this.codeMap={},this.format){case 0:for(A=0;A<256;++A)this.codeMap[A]=e.readByte();break;case 4:for(h=e.readUInt16(),f=h/2,e.pos+=6,a=(function(){var F,z;for(z=[],A=F=0;0<=f?F<f:F>f;A=0<=f?++F:--F)z.push(e.readUInt16());return z})(),e.pos+=2,g=(function(){var F,z;for(z=[],A=F=0;0<=f?F<f:F>f;A=0<=f?++F:--F)z.push(e.readUInt16());return z})(),u=(function(){var F,z;for(z=[],A=F=0;0<=f?F<f:F>f;A=0<=f?++F:--F)z.push(e.readUInt16());return z})(),l=(function(){var F,z;for(z=[],A=F=0;0<=f?F<f:F>f;A=0<=f?++F:--F)z.push(e.readUInt16());return z})(),i=(this.length-e.pos+this.offset)/2,s=(function(){var F,z;for(z=[],A=F=0;0<=i?F<i:F>i;A=0<=i?++F:--F)z.push(e.readUInt16());return z})(),A=v=0,S=a.length;v<S;A=++v)for(p=a[A],n=B=d=g[A];d<=p?B<=p:B>=p;n=d<=p?++B:--B)l[A]===0?o=n+u[A]:(o=s[l[A]/2+(n-d)-(f-A)]||0)!==0&&(o+=u[A]),this.codeMap[n]=65535&o}e.pos=c}return t.encode=function(e,r){var n,i,a,o,s,A,u,l,c,f,h,d,g,p,v,B,S,F,z,P,Q,q,W,R,x,_,N,m,b,w,y,C,E,L,$,j,Y,U,Z,k,T,X,rt,At,st,G;switch(m=new AA,o=Object.keys(e).sort(function(ut,ct){return ut-ct}),r){case"macroman":for(g=0,p=(function(){var ut=[];for(d=0;d<256;++d)ut.push(0);return ut})(),B={0:0},a={},b=0,E=o.length;b<E;b++)B[rt=e[i=o[b]]]==null&&(B[rt]=++g),a[i]={old:e[i],new:B[e[i]]},p[i]=B[e[i]];return m.writeUInt16(1),m.writeUInt16(0),m.writeUInt32(12),m.writeUInt16(0),m.writeUInt16(262),m.writeUInt16(0),m.write(p),{charMap:a,subtable:m.data,maxGlyphID:g+1};case"unicode":for(_=[],c=[],S=0,B={},n={},v=u=null,w=0,L=o.length;w<L;w++)B[z=e[i=o[w]]]==null&&(B[z]=++S),n[i]={old:z,new:B[z]},s=B[z]-i,v!=null&&s===u||(v&&c.push(v),_.push(i),u=s),v=i;for(v&&c.push(v),c.push(65535),_.push(65535),R=2*(W=_.length),q=2*Math.pow(Math.log(W)/Math.LN2,2),f=Math.log(q/2)/Math.LN2,Q=2*W-q,A=[],P=[],h=[],d=y=0,$=_.length;y<$;d=++y){if(x=_[d],l=c[d],x===65535){A.push(0),P.push(0);break}if(x-(N=n[x].new)>=32768)for(A.push(0),P.push(2*(h.length+W-d)),i=C=x;x<=l?C<=l:C>=l;i=x<=l?++C:--C)h.push(n[i].new);else A.push(N-x),P.push(0)}for(m.writeUInt16(3),m.writeUInt16(1),m.writeUInt32(12),m.writeUInt16(4),m.writeUInt16(16+8*W+2*h.length),m.writeUInt16(0),m.writeUInt16(R),m.writeUInt16(q),m.writeUInt16(f),m.writeUInt16(Q),T=0,j=c.length;T<j;T++)i=c[T],m.writeUInt16(i);for(m.writeUInt16(0),X=0,Y=_.length;X<Y;X++)i=_[X],m.writeUInt16(i);for(At=0,U=A.length;At<U;At++)s=A[At],m.writeUInt16(s);for(st=0,Z=P.length;st<Z;st++)F=P[st],m.writeUInt16(F);for(G=0,k=h.length;G<k;G++)g=h[G],m.writeUInt16(g);return{charMap:n,subtable:m.data,maxGlyphID:S+1}}},t})(),$x=(function(){function t(){return t.__super__.constructor.apply(this,arguments)}return Ga(t,wa),t.prototype.tag="cmap",t.prototype.parse=function(e){var r,n,i;for(e.pos=this.offset,this.version=e.readUInt16(),i=e.readUInt16(),this.tables=[],this.unicode=null,n=0;0<=i?n<i:n>i;n=0<=i?++n:--n)r=new Qx(e,this.offset),this.tables.push(r),r.isUnicode&&this.unicode==null&&(this.unicode=r);return!0},t.encode=function(e,r){var n,i;return r==null&&(r="macroman"),n=Qx.encode(e,r),(i=new AA).writeUInt16(0),i.writeUInt16(1),n.table=i.data.concat(n.subtable),n},t})(),_P=(function(){function t(){return t.__super__.constructor.apply(this,arguments)}return Ga(t,wa),t.prototype.tag="hhea",t.prototype.parse=function(e){return e.pos=this.offset,this.version=e.readInt(),this.ascender=e.readShort(),this.decender=e.readShort(),this.lineGap=e.readShort(),this.advanceWidthMax=e.readShort(),this.minLeftSideBearing=e.readShort(),this.minRightSideBearing=e.readShort(),this.xMaxExtent=e.readShort(),this.caretSlopeRise=e.readShort(),this.caretSlopeRun=e.readShort(),this.caretOffset=e.readShort(),e.pos+=8,this.metricDataFormat=e.readShort(),this.numberOfMetrics=e.readUInt16()},t})(),BP=(function(){function t(){return t.__super__.constructor.apply(this,arguments)}return Ga(t,wa),t.prototype.tag="OS/2",t.prototype.parse=function(e){if(e.pos=this.offset,this.version=e.readUInt16(),this.averageCharWidth=e.readShort(),this.weightClass=e.readUInt16(),this.widthClass=e.readUInt16(),this.type=e.readShort(),this.ySubscriptXSize=e.readShort(),this.ySubscriptYSize=e.readShort(),this.ySubscriptXOffset=e.readShort(),this.ySubscriptYOffset=e.readShort(),this.ySuperscriptXSize=e.readShort(),this.ySuperscriptYSize=e.readShort(),this.ySuperscriptXOffset=e.readShort(),this.ySuperscriptYOffset=e.readShort(),this.yStrikeoutSize=e.readShort(),this.yStrikeoutPosition=e.readShort(),this.familyClass=e.readShort(),this.panose=(function(){var r,n;for(n=[],r=0;r<10;++r)n.push(e.readByte());return n})(),this.charRange=(function(){var r,n;for(n=[],r=0;r<4;++r)n.push(e.readInt());return n})(),this.vendorID=e.readString(4),this.selection=e.readShort(),this.firstCharIndex=e.readShort(),this.lastCharIndex=e.readShort(),this.version>0&&(this.ascent=e.readShort(),this.descent=e.readShort(),this.lineGap=e.readShort(),this.winAscent=e.readShort(),this.winDescent=e.readShort(),this.codePageRange=(function(){var r,n;for(n=[],r=0;r<2;r=++r)n.push(e.readInt());return n})(),this.version>1))return this.xHeight=e.readShort(),this.capHeight=e.readShort(),this.defaultChar=e.readShort(),this.breakChar=e.readShort(),this.maxContext=e.readShort()},t})(),xP=(function(){function t(){return t.__super__.constructor.apply(this,arguments)}return Ga(t,wa),t.prototype.tag="post",t.prototype.parse=function(e){var r,n,i;switch(e.pos=this.offset,this.format=e.readInt(),this.italicAngle=e.readInt(),this.underlinePosition=e.readShort(),this.underlineThickness=e.readShort(),this.isFixedPitch=e.readInt(),this.minMemType42=e.readInt(),this.maxMemType42=e.readInt(),this.minMemType1=e.readInt(),this.maxMemType1=e.readInt(),this.format){case 65536:case 196608:break;case 131072:var a;for(n=e.readUInt16(),this.glyphNameIndex=[],a=0;0<=n?a<n:a>n;a=0<=n?++a:--a)this.glyphNameIndex.push(e.readUInt16());for(this.names=[],i=[];e.pos<this.offset+this.length;)r=e.readByte(),i.push(this.names.push(e.readString(r)));return i;case 151552:return n=e.readUInt16(),this.offsets=e.read(n);case 262144:return this.map=function(){var o,s,A;for(A=[],a=o=0,s=this.file.maxp.numGlyphs;0<=s?o<s:o>s;a=0<=s?++o:--o)A.push(e.readUInt32());return A}.call(this)}},t})(),CP=function(t,e){this.raw=t,this.length=t.length,this.platformID=e.platformID,this.encodingID=e.encodingID,this.languageID=e.languageID},SP=(function(){function t(){return t.__super__.constructor.apply(this,arguments)}return Ga(t,wa),t.prototype.tag="name",t.prototype.parse=function(e){var r,n,i,a,o,s,A,u,l,c,f;for(e.pos=this.offset,e.readShort(),r=e.readShort(),s=e.readShort(),n=[],a=0;0<=r?a<r:a>r;a=0<=r?++a:--a)n.push({platformID:e.readShort(),encodingID:e.readShort(),languageID:e.readShort(),nameID:e.readShort(),length:e.readShort(),offset:this.offset+s+e.readShort()});for(A={},a=l=0,c=n.length;l<c;a=++l)i=n[a],e.pos=i.offset,u=e.readString(i.length),o=new CP(u,i),A[f=i.nameID]==null&&(A[f]=[]),A[i.nameID].push(o);this.strings=A,this.copyright=A[0],this.fontFamily=A[1],this.fontSubfamily=A[2],this.uniqueSubfamily=A[3],this.fontName=A[4],this.version=A[5];try{this.postscriptName=A[6][0].raw.replace(/[\x00-\x19\x80-\xff]/g,"")}catch{this.postscriptName=A[4][0].raw.replace(/[\x00-\x19\x80-\xff]/g,"")}return this.trademark=A[7],this.manufacturer=A[8],this.designer=A[9],this.description=A[10],this.vendorUrl=A[11],this.designerUrl=A[12],this.license=A[13],this.licenseUrl=A[14],this.preferredFamily=A[15],this.preferredSubfamily=A[17],this.compatibleFull=A[18],this.sampleText=A[19]},t})(),EP=(function(){function t(){return t.__super__.constructor.apply(this,arguments)}return Ga(t,wa),t.prototype.tag="maxp",t.prototype.parse=function(e){return e.pos=this.offset,this.version=e.readInt(),this.numGlyphs=e.readUInt16(),this.maxPoints=e.readUInt16(),this.maxContours=e.readUInt16(),this.maxCompositePoints=e.readUInt16(),this.maxComponentContours=e.readUInt16(),this.maxZones=e.readUInt16(),this.maxTwilightPoints=e.readUInt16(),this.maxStorage=e.readUInt16(),this.maxFunctionDefs=e.readUInt16(),this.maxInstructionDefs=e.readUInt16(),this.maxStackElements=e.readUInt16(),this.maxSizeOfInstructions=e.readUInt16(),this.maxComponentElements=e.readUInt16(),this.maxComponentDepth=e.readUInt16()},t})(),FP=(function(){function t(){return t.__super__.constructor.apply(this,arguments)}return Ga(t,wa),t.prototype.tag="hmtx",t.prototype.parse=function(e){var r,n,i,a,o,s,A;for(e.pos=this.offset,this.metrics=[],r=0,s=this.file.hhea.numberOfMetrics;0<=s?r<s:r>s;r=0<=s?++r:--r)this.metrics.push({advance:e.readUInt16(),lsb:e.readInt16()});for(i=this.file.maxp.numGlyphs-this.file.hhea.numberOfMetrics,this.leftSideBearings=(function(){var u,l;for(l=[],r=u=0;0<=i?u<i:u>i;r=0<=i?++u:--u)l.push(e.readInt16());return l})(),this.widths=function(){var u,l,c,f;for(f=[],u=0,l=(c=this.metrics).length;u<l;u++)a=c[u],f.push(a.advance);return f}.call(this),n=this.widths[this.widths.length-1],A=[],r=o=0;0<=i?o<i:o>i;r=0<=i?++o:--o)A.push(this.widths.push(n));return A},t.prototype.forGlyph=function(e){return e in this.metrics?this.metrics[e]:{advance:this.metrics[this.metrics.length-1].advance,lsb:this.leftSideBearings[e-this.metrics.length]}},t})(),Yx=[].slice,kP=(function(){function t(){return t.__super__.constructor.apply(this,arguments)}return Ga(t,wa),t.prototype.tag="glyf",t.prototype.parse=function(){return this.cache={}},t.prototype.glyphFor=function(e){var r,n,i,a,o,s,A,u,l,c;return e in this.cache?this.cache[e]:(a=this.file.loca,r=this.file.contents,n=a.indexOf(e),(i=a.lengthOf(e))===0?this.cache[e]=null:(r.pos=this.offset+n,o=(s=new AA(r.read(i))).readShort(),u=s.readShort(),c=s.readShort(),A=s.readShort(),l=s.readShort(),this.cache[e]=o===-1?new IP(s,u,c,A,l):new TP(s,o,u,c,A,l),this.cache[e]))},t.prototype.encode=function(e,r,n){var i,a,o,s,A;for(o=[],a=[],s=0,A=r.length;s<A;s++)i=e[r[s]],a.push(o.length),i&&(o=o.concat(i.encode(n)));return a.push(o.length),{table:o,offsets:a}},t})(),TP=(function(){function t(e,r,n,i,a,o){this.raw=e,this.numberOfContours=r,this.xMin=n,this.yMin=i,this.xMax=a,this.yMax=o,this.compound=!1}return t.prototype.encode=function(){return this.raw.data},t})(),IP=(function(){function t(e,r,n,i,a){var o,s;for(this.raw=e,this.xMin=r,this.yMin=n,this.xMax=i,this.yMax=a,this.compound=!0,this.glyphIDs=[],this.glyphOffsets=[],o=this.raw;s=o.readShort(),this.glyphOffsets.push(o.pos),this.glyphIDs.push(o.readUInt16()),32&s;)o.pos+=1&s?4:2,128&s?o.pos+=8:64&s?o.pos+=4:8&s&&(o.pos+=2)}return t.prototype.encode=function(){var e,r,n;for(r=new AA(Yx.call(this.raw.data)),e=0,n=this.glyphIDs.length;e<n;++e)r.pos=this.glyphOffsets[e];return r.data},t})(),UP=(function(){function t(){return t.__super__.constructor.apply(this,arguments)}return Ga(t,wa),t.prototype.tag="loca",t.prototype.parse=function(e){var r,n;return e.pos=this.offset,r=this.file.head.indexToLocFormat,this.offsets=r===0?function(){var i,a;for(a=[],n=0,i=this.length;n<i;n+=2)a.push(2*e.readUInt16());return a}.call(this):function(){var i,a;for(a=[],n=0,i=this.length;n<i;n+=4)a.push(e.readUInt32());return a}.call(this)},t.prototype.indexOf=function(e){return this.offsets[e]},t.prototype.lengthOf=function(e){return this.offsets[e+1]-this.offsets[e]},t.prototype.encode=function(e,r){for(var n=new Uint32Array(this.offsets.length),i=0,a=0,o=0;o<n.length;++o)if(n[o]=i,a<r.length&&r[a]==o){++a,n[o]=i;var s=this.offsets[o],A=this.offsets[o+1]-s;A>0&&(i+=A)}for(var u=new Array(4*n.length),l=0;l<n.length;++l)u[4*l+3]=255&n[l],u[4*l+2]=(65280&n[l])>>8,u[4*l+1]=(16711680&n[l])>>16,u[4*l]=(4278190080&n[l])>>24;return u},t})(),NP=(function(){function t(e){this.font=e,this.subset={},this.unicodes={},this.next=33}return t.prototype.generateCmap=function(){var e,r,n,i,a;for(r in i=this.font.cmap.tables[0].codeMap,e={},a=this.subset)n=a[r],e[r]=i[n];return e},t.prototype.glyphsFor=function(e){var r,n,i,a,o,s,A;for(i={},o=0,s=e.length;o<s;o++)i[a=e[o]]=this.font.glyf.glyphFor(a);for(a in r=[],i)(n=i[a])!=null&&n.compound&&r.push.apply(r,n.glyphIDs);if(r.length>0)for(a in A=this.glyphsFor(r))n=A[a],i[a]=n;return i},t.prototype.encode=function(e,r){var n,i,a,o,s,A,u,l,c,f,h,d,g,p,v;for(i in n=$x.encode(this.generateCmap(),"unicode"),o=this.glyphsFor(e),h={0:0},v=n.charMap)h[(A=v[i]).old]=A.new;for(d in f=n.maxGlyphID,o)d in h||(h[d]=f++);return l=(function(B){var S,F;for(S in F={},B)F[B[S]]=S;return F})(h),c=Object.keys(l).sort(function(B,S){return B-S}),g=(function(){var B,S,F;for(F=[],B=0,S=c.length;B<S;B++)s=c[B],F.push(l[s]);return F})(),a=this.font.glyf.encode(o,g,h),u=this.font.loca.encode(a.offsets,g),p={cmap:this.font.cmap.raw(),glyf:a.table,loca:u,hmtx:this.font.hmtx.raw(),hhea:this.font.hhea.raw(),maxp:this.font.maxp.raw(),post:this.font.post.raw(),name:this.font.name.raw(),head:this.font.head.encode(r)},this.font.os2.exists&&(p["OS/2"]=this.font.os2.raw()),this.font.directory.encode(p)},t})();ar.API.PDFObject=(function(){var t;function e(){}return t=function(r,n){return(Array(n+1).join("0")+r).slice(-n)},e.convert=function(r){var n,i,a,o;if(Array.isArray(r))return"["+(function(){var s,A,u;for(u=[],s=0,A=r.length;s<A;s++)n=r[s],u.push(e.convert(n));return u})().join(" ")+"]";if(typeof r=="string")return"/"+r;if(r?.isString)return"("+r+")";if(r instanceof Date)return"(D:"+t(r.getUTCFullYear(),4)+t(r.getUTCMonth(),2)+t(r.getUTCDate(),2)+t(r.getUTCHours(),2)+t(r.getUTCMinutes(),2)+t(r.getUTCSeconds(),2)+"Z)";if({}.toString.call(r)==="[object Object]"){for(i in a=["<<"],r)o=r[i],a.push("/"+i+" "+e.convert(o));return a.push(">>"),a.join(`
 `)}return""+r},e})();function n8(t,e,r,n,i){n=n||{};var a=1.15,o=i.internal.scaleFactor,s=i.internal.getFontSize()/o,A=i.getLineHeightFactor?i.getLineHeightFactor():a,u=s*A,l=/\r\n|\r|\n/g,c="",f=1;if((n.valign==="middle"||n.valign==="bottom"||n.halign==="center"||n.halign==="right")&&(c=typeof t=="string"?t.split(l):t,f=c.length||1),r+=s*(2-a),n.valign==="middle"?r-=f/2*u:n.valign==="bottom"&&(r-=f*u),n.halign==="center"||n.halign==="right"){var h=s;if(n.halign==="center"&&(h*=.5),c&&f>=1){for(var d=0;d<c.length;d++)i.text(c[d],e-i.getStringUnitWidth(c[d])*h,r),r+=u;return i}e-=i.getStringUnitWidth(t)*h}return n.halign==="justify"?i.text(t,e,r,{maxWidth:n.maxWidth||100,align:"justify"}):i.text(t,e,r),i}var Zx={},wu=(function(){function t(e){this.jsPDFDocument=e,this.userStyles={textColor:e.getTextColor?this.jsPDFDocument.getTextColor():0,fontSize:e.internal.getFontSize(),fontStyle:e.internal.getFont().fontStyle,font:e.internal.getFont().fontName,lineWidth:e.getLineWidth?this.jsPDFDocument.getLineWidth():0,lineColor:e.getDrawColor?this.jsPDFDocument.getDrawColor():0}}return t.setDefaults=function(e,r){r===void 0&&(r=null),r?r.__autoTableDocumentDefaults=e:Zx=e},t.unifyColor=function(e){return Array.isArray(e)?e:typeof e=="number"?[e,e,e]:typeof e=="string"?[e]:null},t.prototype.applyStyles=function(e,r){var n,i,a;r===void 0&&(r=!1),e.fontStyle&&this.jsPDFDocument.setFontStyle&&this.jsPDFDocument.setFontStyle(e.fontStyle);var o=this.jsPDFDocument.internal.getFont(),s=o.fontStyle,A=o.fontName;if(e.font&&(A=e.font),e.fontStyle){s=e.fontStyle;var u=this.getFontList()[A];u&&u.indexOf(s)===-1&&this.jsPDFDocument.setFontStyle&&(this.jsPDFDocument.setFontStyle(u[0]),s=u[0])}if(this.jsPDFDocument.setFont(A,s),e.fontSize&&this.jsPDFDocument.setFontSize(e.fontSize),!r){var l=t.unifyColor(e.fillColor);l&&(n=this.jsPDFDocument).setFillColor.apply(n,l),l=t.unifyColor(e.textColor),l&&(i=this.jsPDFDocument).setTextColor.apply(i,l),l=t.unifyColor(e.lineColor),l&&(a=this.jsPDFDocument).setDrawColor.apply(a,l),typeof e.lineWidth=="number"&&this.jsPDFDocument.setLineWidth(e.lineWidth)}},t.prototype.splitTextToSize=function(e,r,n){return this.jsPDFDocument.splitTextToSize(e,r,n)},t.prototype.rect=function(e,r,n,i,a){return this.jsPDFDocument.rect(e,r,n,i,a)},t.prototype.getLastAutoTable=function(){return this.jsPDFDocument.lastAutoTable||null},t.prototype.getTextWidth=function(e){return this.jsPDFDocument.getTextWidth(e)},t.prototype.getDocument=function(){return this.jsPDFDocument},t.prototype.setPage=function(e){this.jsPDFDocument.setPage(e)},t.prototype.addPage=function(){return this.jsPDFDocument.addPage()},t.prototype.getFontList=function(){return this.jsPDFDocument.getFontList()},t.prototype.getGlobalOptions=function(){return Zx||{}},t.prototype.getDocumentOptions=function(){return this.jsPDFDocument.__autoTableDocumentDefaults||{}},t.prototype.pageSize=function(){var e=this.jsPDFDocument.internal.pageSize;return e.width==null&&(e={width:e.getWidth(),height:e.getHeight()}),e},t.prototype.scaleFactor=function(){return this.jsPDFDocument.internal.scaleFactor},t.prototype.getLineHeightFactor=function(){var e=this.jsPDFDocument;return e.getLineHeightFactor?e.getLineHeightFactor():1.15},t.prototype.getLineHeight=function(e){return e/this.scaleFactor()*this.getLineHeightFactor()},t.prototype.pageNumber=function(){var e=this.jsPDFDocument.internal.getCurrentPageInfo();return e?e.pageNumber:this.jsPDFDocument.internal.getNumberOfPages()},t})(),y2=function(t,e){return y2=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(r,n){r.__proto__=n}||function(r,n){for(var i in n)Object.prototype.hasOwnProperty.call(n,i)&&(r[i]=n[i])},y2(t,e)};function i8(t,e){if(typeof e!="function"&&e!==null)throw new TypeError("Class extends value "+String(e)+" is not a constructor or null");y2(t,e);function r(){this.constructor=t}t.prototype=e===null?Object.create(e):(r.prototype=e.prototype,new r)}var s8=(function(t){i8(e,t);function e(r){var n=t.call(this)||this;return n._element=r,n}return e})(Array);function OP(t){return{font:"helvetica",fontStyle:"normal",overflow:"linebreak",fillColor:!1,textColor:20,halign:"left",valign:"top",fontSize:10,cellPadding:5/t,lineColor:200,lineWidth:0,cellWidth:"auto",minCellHeight:0,minCellWidth:0}}function LP(t){var e={striped:{table:{fillColor:255,textColor:80,fontStyle:"normal"},head:{textColor:255,fillColor:[41,128,185],fontStyle:"bold"},body:{},foot:{textColor:255,fillColor:[41,128,185],fontStyle:"bold"},alternateRow:{fillColor:245}},grid:{table:{fillColor:255,textColor:80,fontStyle:"normal",lineWidth:.1},head:{textColor:255,fillColor:[26,188,156],fontStyle:"bold",lineWidth:0},body:{},foot:{textColor:255,fillColor:[26,188,156],fontStyle:"bold",lineWidth:0},alternateRow:{}},plain:{head:{fontStyle:"bold"},foot:{fontStyle:"bold"}}};return e[t]}function Tp(t,e,r){r.applyStyles(e,!0);var n=Array.isArray(t)?t:[t],i=n.map(function(a){return r.getTextWidth(a)}).reduce(function(a,o){return Math.max(a,o)},0);return i}function a8(t,e,r,n){var i=e.settings.tableLineWidth,a=e.settings.tableLineColor;t.applyStyles({lineWidth:i,lineColor:a});var o=o8(i,!1);o&&t.rect(r.x,r.y,e.getWidth(t.pageSize().width),n.y-r.y,o)}function o8(t,e){var r=t>0,n=e||e===0;return r&&n?"DF":r?"S":n?"F":null}function Up(t,e){var r,n,i,a;if(t=t||e,Array.isArray(t)){if(t.length>=4)return{top:t[0],right:t[1],bottom:t[2],left:t[3]};if(t.length===3)return{top:t[0],right:t[1],bottom:t[2],left:t[1]};if(t.length===2)return{top:t[0],right:t[1],bottom:t[0],left:t[1]};t.length===1?t=t[0]:t=e}return typeof t=="object"?(typeof t.vertical=="number"&&(t.top=t.vertical,t.bottom=t.vertical),typeof t.horizontal=="number"&&(t.right=t.horizontal,t.left=t.horizontal),{left:(r=t.left)!==null&&r!==void 0?r:e,top:(n=t.top)!==null&&n!==void 0?n:e,right:(i=t.right)!==null&&i!==void 0?i:e,bottom:(a=t.bottom)!==null&&a!==void 0?a:e}):(typeof t!="number"&&(t=e),{top:t,right:t,bottom:t,left:t})}function A8(t,e){var r=Up(e.settings.margin,0);return t.pageSize().width-(r.left+r.right)}function MP(t,e,r,n,i){var a={},o=1.3333333333333333,s=d2(e,function(S){return i.getComputedStyle(S).backgroundColor});s!=null&&(a.fillColor=s);var A=d2(e,function(S){return i.getComputedStyle(S).color});A!=null&&(a.textColor=A);var u=QP(n,r);u&&(a.cellPadding=u);var l="borderTopColor",c=o*r,f=n.borderTopWidth;if(n.borderBottomWidth===f&&n.borderRightWidth===f&&n.borderLeftWidth===f){var h=(parseFloat(f)||0)/c;h&&(a.lineWidth=h)}else a.lineWidth={top:(parseFloat(n.borderTopWidth)||0)/c,right:(parseFloat(n.borderRightWidth)||0)/c,bottom:(parseFloat(n.borderBottomWidth)||0)/c,left:(parseFloat(n.borderLeftWidth)||0)/c},a.lineWidth.top||(a.lineWidth.right?l="borderRightColor":a.lineWidth.bottom?l="borderBottomColor":a.lineWidth.left&&(l="borderLeftColor"));var d=d2(e,function(S){return i.getComputedStyle(S)[l]});d!=null&&(a.lineColor=d);var g=["left","right","center","justify"];g.indexOf(n.textAlign)!==-1&&(a.halign=n.textAlign),g=["middle","bottom","top"],g.indexOf(n.verticalAlign)!==-1&&(a.valign=n.verticalAlign);var p=parseInt(n.fontSize||"");isNaN(p)||(a.fontSize=p/o);var v=RP(n);v&&(a.fontStyle=v);var B=(n.fontFamily||"").toLowerCase();return t.indexOf(B)!==-1&&(a.font=B),a}function RP(t){var e="";return(t.fontWeight==="bold"||t.fontWeight==="bolder"||parseInt(t.fontWeight)>=700)&&(e="bold"),(t.fontStyle==="italic"||t.fontStyle==="oblique")&&(e+="italic"),e}function d2(t,e){var r=l8(t,e);if(!r)return null;var n=r.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d*))?\)$/);if(!n||!Array.isArray(n))return null;var i=[parseInt(n[1]),parseInt(n[2]),parseInt(n[3])],a=parseInt(n[4]);return a===0||isNaN(i[0])||isNaN(i[1])||isNaN(i[2])?null:i}function l8(t,e){var r=e(t);return r==="rgba(0, 0, 0, 0)"||r==="transparent"||r==="initial"||r==="inherit"?t.parentElement==null?null:l8(t.parentElement,e):r}function QP(t,e){var r=[t.paddingTop,t.paddingRight,t.paddingBottom,t.paddingLeft],n=96/(72/e),i=(parseInt(t.lineHeight)-parseInt(t.fontSize))/e/2,a=r.map(function(s){return parseInt(s||"0")/n}),o=Up(a,0);return i>o.top&&(o.top=i),i>o.bottom&&(o.bottom=i),o}function u8(t,e,r,n,i){var a,o;n===void 0&&(n=!1),i===void 0&&(i=!1);var s;typeof e=="string"?s=r.document.querySelector(e):s=e;var A=Object.keys(t.getFontList()),u=t.scaleFactor(),l=[],c=[],f=[];if(!s)return console.error("Html table could not be found with input: ",e),{head:l,body:c,foot:f};for(var h=0;h<s.rows.length;h++){var d=s.rows[h],g=(o=(a=d?.parentElement)===null||a===void 0?void 0:a.tagName)===null||o===void 0?void 0:o.toLowerCase(),p=PP(A,u,r,d,n,i);p&&(g==="thead"?l.push(p):g==="tfoot"?f.push(p):c.push(p))}return{head:l,body:c,foot:f}}function PP(t,e,r,n,i,a){for(var o=new s8(n),s=0;s<n.cells.length;s++){var A=n.cells[s],u=r.getComputedStyle(A);if(i||u.display!=="none"){var l=void 0;a&&(l=MP(t,A,e,u,r)),o.push({rowSpan:A.rowSpan,colSpan:A.colSpan,styles:l,_element:A,content:DP(A)})}}var c=r.getComputedStyle(n);if(o.length>0&&(i||c.display!=="none"))return o}function DP(t){var e=t.cloneNode(!0);return e.innerHTML=e.innerHTML.replace(/\n/g,"").replace(/ +/g," "),e.innerHTML=e.innerHTML.split(/<br.*?>/).map(function(r){return r.trim()}).join(`
-`),e.innerText||e.textContent||""}function HP(t,e,r){for(var n=0,i=[t,e,r];n<i.length;n++){var a=i[n];a&&typeof a!="object"&&console.error("The options parameter should be of type object, is: "+typeof a),a.startY&&typeof a.startY!="number"&&(console.error("Invalid value for startY option",a.startY),delete a.startY)}}function _o(t,e,r,n,i){if(t==null)throw new TypeError("Cannot convert undefined or null to object");for(var a=Object(t),o=1;o<arguments.length;o++){var s=arguments[o];if(s!=null)for(var A in s)Object.prototype.hasOwnProperty.call(s,A)&&(a[A]=s[A])}return a}function c8(t,e){var r=new wu(t),n=r.getDocumentOptions(),i=r.getGlobalOptions();HP(i,n,e);var a=_o({},i,n,e),o;typeof window<"u"&&(o=window);var s=jP(i,n,e),A=zP(i,n,e),u=qP(r,a),l=VP(r,a,o);return{id:e.tableId,content:l,hooks:A,styles:s,settings:u}}function jP(t,e,r){for(var n={styles:{},headStyles:{},bodyStyles:{},footStyles:{},alternateRowStyles:{},columnStyles:{}},i=function(A){if(A==="columnStyles"){var u=t[A],l=e[A],c=r[A];n.columnStyles=_o({},u,l,c)}else{var f=[t,e,r],h=f.map(function(d){return d[A]||{}});n[A]=_o({},h[0],h[1],h[2])}},a=0,o=Object.keys(n);a<o.length;a++){var s=o[a];i(s)}return n}function zP(t,e,r){for(var n=[t,e,r],i={didParseCell:[],willDrawCell:[],didDrawCell:[],willDrawPage:[],didDrawPage:[]},a=0,o=n;a<o.length;a++){var s=o[a];s.didParseCell&&i.didParseCell.push(s.didParseCell),s.willDrawCell&&i.willDrawCell.push(s.willDrawCell),s.didDrawCell&&i.didDrawCell.push(s.didDrawCell),s.willDrawPage&&i.willDrawPage.push(s.willDrawPage),s.didDrawPage&&i.didDrawPage.push(s.didDrawPage)}return i}function qP(t,e){var r,n,i,a,o,s,A,u,l,c,f,h,d=Up(e.margin,40/t.scaleFactor()),g=(r=KP(t,e.startY))!==null&&r!==void 0?r:d.top,p;e.showFoot===!0?p="everyPage":e.showFoot===!1?p="never":p=(n=e.showFoot)!==null&&n!==void 0?n:"everyPage";var v;e.showHead===!0?v="everyPage":e.showHead===!1?v="never":v=(i=e.showHead)!==null&&i!==void 0?i:"everyPage";var B=(a=e.useCss)!==null&&a!==void 0?a:!1,S=e.theme||(B?"plain":"striped"),F=!!e.horizontalPageBreak,z=(o=e.horizontalPageBreakRepeat)!==null&&o!==void 0?o:null;return{includeHiddenHtml:(s=e.includeHiddenHtml)!==null&&s!==void 0?s:!1,useCss:B,theme:S,startY:g,margin:d,pageBreak:(A=e.pageBreak)!==null&&A!==void 0?A:"auto",rowPageBreak:(u=e.rowPageBreak)!==null&&u!==void 0?u:"auto",tableWidth:(l=e.tableWidth)!==null&&l!==void 0?l:"auto",showHead:v,showFoot:p,tableLineWidth:(c=e.tableLineWidth)!==null&&c!==void 0?c:0,tableLineColor:(f=e.tableLineColor)!==null&&f!==void 0?f:200,horizontalPageBreak:F,horizontalPageBreakRepeat:z,horizontalPageBreakBehaviour:(h=e.horizontalPageBreakBehaviour)!==null&&h!==void 0?h:"afterAllRows"}}function KP(t,e){var r=t.getLastAutoTable(),n=t.scaleFactor(),i=t.pageNumber(),a=!1;if(r&&r.startPageNumber){var o=r.startPageNumber+r.pageNumber-1;a=o===i}return typeof e=="number"?e:(e==null||e===!1)&&a&&r?.finalY!=null?r.finalY+20/n:null}function VP(t,e,r){var n=e.head||[],i=e.body||[],a=e.foot||[];if(e.html){var o=e.includeHiddenHtml;if(r){var s=u8(t,e.html,r,o,e.useCss)||{};n=s.head||n,i=s.body||n,a=s.foot||n}else console.error("Cannot parse html in non browser environment")}var A=e.columns||WP(n,i,a);return{columns:A,head:n,body:i,foot:a}}function WP(t,e,r){var n=t[0]||e[0]||r[0]||[],i=[];return Object.keys(n).filter(function(a){return a!=="_element"}).forEach(function(a){var o=1,s;Array.isArray(n)?s=n[parseInt(a)]:s=n[a],typeof s=="object"&&!Array.isArray(s)&&(o=s?.colSpan||1);for(var A=0;A<o;A++){var u=void 0;Array.isArray(n)?u=i.length:u=a+(A>0?"_".concat(A):"");var l={dataKey:u};i.push(l)}}),i}var w2=(function(){function t(e,r,n){this.table=r,this.pageNumber=r.pageNumber,this.settings=r.settings,this.cursor=n,this.doc=e.getDocument()}return t})(),GP=(function(t){i8(e,t);function e(r,n,i,a,o,s){var A=t.call(this,r,n,s)||this;return A.cell=i,A.row=a,A.column=o,A.section=a.section,A}return e})(w2),XP=(function(){function t(e,r){this.pageNumber=1,this.id=e.id,this.settings=e.settings,this.styles=e.styles,this.hooks=e.hooks,this.columns=r.columns,this.head=r.head,this.body=r.body,this.foot=r.foot}return t.prototype.getHeadHeight=function(e){return this.head.reduce(function(r,n){return r+n.getMaxCellHeight(e)},0)},t.prototype.getFootHeight=function(e){return this.foot.reduce(function(r,n){return r+n.getMaxCellHeight(e)},0)},t.prototype.allRows=function(){return this.head.concat(this.body).concat(this.foot)},t.prototype.callCellHooks=function(e,r,n,i,a,o){for(var s=0,A=r;s<A.length;s++){var u=A[s],l=new GP(e,this,n,i,a,o),c=u(l)===!1;if(n.text=Array.isArray(n.text)?n.text:[n.text],c)return!1}return!0},t.prototype.callEndPageHooks=function(e,r){e.applyStyles(e.userStyles);for(var n=0,i=this.hooks.didDrawPage;n<i.length;n++){var a=i[n];a(new w2(e,this,r))}},t.prototype.callWillDrawPageHooks=function(e,r){for(var n=0,i=this.hooks.willDrawPage;n<i.length;n++){var a=i[n];a(new w2(e,this,r))}},t.prototype.getWidth=function(e){if(typeof this.settings.tableWidth=="number")return this.settings.tableWidth;if(this.settings.tableWidth==="wrap"){var r=this.columns.reduce(function(i,a){return i+a.wrappedWidth},0);return r}else{var n=this.settings.margin;return e-n.left-n.right}},t})(),h8=(function(){function t(e,r,n,i,a){a===void 0&&(a=!1),this.height=0,this.raw=e,e instanceof s8&&(this.raw=e._element,this.element=e._element),this.index=r,this.section=n,this.cells=i,this.spansMultiplePages=a}return t.prototype.getMaxCellHeight=function(e){var r=this;return e.reduce(function(n,i){var a;return Math.max(n,((a=r.cells[i.index])===null||a===void 0?void 0:a.height)||0)},0)},t.prototype.hasRowSpan=function(e){var r=this;return e.filter(function(n){var i=r.cells[n.index];return i?i.rowSpan>1:!1}).length>0},t.prototype.canEntireRowFit=function(e,r){return this.getMaxCellHeight(r)<=e},t.prototype.getMinimumRowHeight=function(e,r){var n=this;return e.reduce(function(i,a){var o=n.cells[a.index];if(!o)return 0;var s=r.getLineHeight(o.styles.fontSize),A=o.padding("vertical"),u=A+s;return u>i?u:i},0)},t})(),f8=(function(){function t(e,r,n){var i;this.contentHeight=0,this.contentWidth=0,this.wrappedWidth=0,this.minReadableWidth=0,this.minWidth=0,this.width=0,this.height=0,this.x=0,this.y=0,this.styles=r,this.section=n,this.raw=e;var a=e;e!=null&&typeof e=="object"&&!Array.isArray(e)?(this.rowSpan=e.rowSpan||1,this.colSpan=e.colSpan||1,a=(i=e.content)!==null&&i!==void 0?i:e,e._element&&(this.raw=e._element)):(this.rowSpan=1,this.colSpan=1);var o=a!=null?""+a:"",s=/\r\n|\r|\n/g;this.text=o.split(s)}return t.prototype.getTextPos=function(){var e;if(this.styles.valign==="top")e=this.y+this.padding("top");else if(this.styles.valign==="bottom")e=this.y+this.height-this.padding("bottom");else{var r=this.height-this.padding("vertical");e=this.y+r/2+this.padding("top")}var n;if(this.styles.halign==="right")n=this.x+this.width-this.padding("right");else if(this.styles.halign==="center"){var i=this.width-this.padding("horizontal");n=this.x+i/2+this.padding("left")}else n=this.x+this.padding("left");return{x:n,y:e}},t.prototype.getContentHeight=function(e,r){r===void 0&&(r=1.15);var n=Array.isArray(this.text)?this.text.length:1,i=this.styles.fontSize/e*r,a=n*i+this.padding("vertical");return Math.max(a,this.styles.minCellHeight)},t.prototype.padding=function(e){var r=Up(this.styles.cellPadding,0);return e==="vertical"?r.top+r.bottom:e==="horizontal"?r.left+r.right:r[e]},t})(),$P=(function(){function t(e,r,n){this.wrappedWidth=0,this.minReadableWidth=0,this.minWidth=0,this.width=0,this.dataKey=e,this.raw=r,this.index=n}return t.prototype.getMaxCustomCellWidth=function(e){for(var r=0,n=0,i=e.allRows();n<i.length;n++){var a=i[n],o=a.cells[this.index];o&&typeof o.styles.cellWidth=="number"&&(r=Math.max(r,o.styles.cellWidth))}return r},t})();function YP(t,e){ZP(t,e);var r=[],n=0;e.columns.forEach(function(a){var o=a.getMaxCustomCellWidth(e);o?a.width=o:(a.width=a.wrappedWidth,r.push(a)),n+=a.width});var i=e.getWidth(t.pageSize().width)-n;i&&(i=_2(r,i,function(a){return Math.max(a.minReadableWidth,a.minWidth)})),i&&(i=_2(r,i,function(a){return a.minWidth})),i=Math.abs(i),!e.settings.horizontalPageBreak&&i>.1/t.scaleFactor()&&(i=i<1?i:Math.round(i),console.log("Of the table content, ".concat(i," units width could not fit page"))),tD(e),eD(e,t),JP(e)}function ZP(t,e){var r=t.scaleFactor(),n=e.settings.horizontalPageBreak,i=A8(t,e);e.allRows().forEach(function(a){for(var o=0,s=e.columns;o<s.length;o++){var A=s[o],u=a.cells[A.index];if(u){var l=e.hooks.didParseCell;e.callCellHooks(t,l,u,a,A,null);var c=u.padding("horizontal");u.contentWidth=Tp(u.text,u.styles,t)+c;var f=Tp(u.text.join(" ").split(/[^\S\u00A0]+/),u.styles,t);if(u.minReadableWidth=f+u.padding("horizontal"),typeof u.styles.cellWidth=="number")u.minWidth=u.styles.cellWidth,u.wrappedWidth=u.styles.cellWidth;else if(u.styles.cellWidth==="wrap"||n===!0)u.contentWidth>i?(u.minWidth=i,u.wrappedWidth=i):(u.minWidth=u.contentWidth,u.wrappedWidth=u.contentWidth);else{var h=10/r;u.minWidth=u.styles.minCellWidth||h,u.wrappedWidth=u.contentWidth,u.minWidth>u.wrappedWidth&&(u.wrappedWidth=u.minWidth)}}}}),e.allRows().forEach(function(a){for(var o=0,s=e.columns;o<s.length;o++){var A=s[o],u=a.cells[A.index];if(u&&u.colSpan===1)A.wrappedWidth=Math.max(A.wrappedWidth,u.wrappedWidth),A.minWidth=Math.max(A.minWidth,u.minWidth),A.minReadableWidth=Math.max(A.minReadableWidth,u.minReadableWidth);else{var l=e.styles.columnStyles[A.dataKey]||e.styles.columnStyles[A.index]||{},c=l.cellWidth||l.minCellWidth;c&&typeof c=="number"&&(A.minWidth=c,A.wrappedWidth=c)}u&&(u.colSpan>1&&!A.minWidth&&(A.minWidth=u.minWidth),u.colSpan>1&&!A.wrappedWidth&&(A.wrappedWidth=u.minWidth))}})}function _2(t,e,r){for(var n=e,i=t.reduce(function(h,d){return h+d.wrappedWidth},0),a=0;a<t.length;a++){var o=t[a],s=o.wrappedWidth/i,A=n*s,u=o.width+A,l=r(o),c=u<l?l:u;e-=c-o.width,o.width=c}if(e=Math.round(e*1e10)/1e10,e){var f=t.filter(function(h){return e<0?h.width>r(h):!0});f.length&&(e=_2(f,e,r))}return e}function JP(t){for(var e={},r=1,n=t.allRows(),i=0;i<n.length;i++)for(var a=n[i],o=0,s=t.columns;o<s.length;o++){var A=s[o],u=e[A.index];if(r>1)r--,delete a.cells[A.index];else if(u)u.cell.height+=a.height,r=u.cell.colSpan,delete a.cells[A.index],u.left--,u.left<=1&&delete e[A.index];else{var l=a.cells[A.index];if(!l)continue;if(l.height=a.height,l.rowSpan>1){var c=n.length-i,f=l.rowSpan>c?c:l.rowSpan;e[A.index]={cell:l,left:f,row:a}}}}}function tD(t){for(var e=t.allRows(),r=0;r<e.length;r++)for(var n=e[r],i=null,a=0,o=0,s=0;s<t.columns.length;s++){var A=t.columns[s];if(o-=1,o>1&&t.columns[s+1])a+=A.width,delete n.cells[A.index];else if(i){var u=i;delete n.cells[A.index],i=null,u.width=A.width+a}else{var u=n.cells[A.index];if(!u)continue;if(o=u.colSpan,a=0,u.colSpan>1){i=u,a+=A.width;continue}u.width=A.width+a}}}function eD(t,e){for(var r={count:0,height:0},n=0,i=t.allRows();n<i.length;n++){for(var a=i[n],o=0,s=t.columns;o<s.length;o++){var A=s[o],u=a.cells[A.index];if(u){e.applyStyles(u.styles,!0);var l=u.width-u.padding("horizontal");if(u.styles.overflow==="linebreak")u.text=e.splitTextToSize(u.text,l+1/e.scaleFactor(),{fontSize:u.styles.fontSize});else if(u.styles.overflow==="ellipsize")u.text=Jx(u.text,l,u.styles,e,"...");else if(u.styles.overflow==="hidden")u.text=Jx(u.text,l,u.styles,e,"");else if(typeof u.styles.overflow=="function"){var c=u.styles.overflow(u.text,l);typeof c=="string"?u.text=[c]:u.text=c}u.contentHeight=u.getContentHeight(e.scaleFactor(),e.getLineHeightFactor());var f=u.contentHeight/u.rowSpan;u.rowSpan>1&&r.count*r.height<f*u.rowSpan?r={height:f,count:u.rowSpan}:r&&r.count>0&&r.height>f&&(f=r.height),f>a.height&&(a.height=f)}}r.count--}}function Jx(t,e,r,n,i){return t.map(function(a){return rD(a,e,r,n,i)})}function rD(t,e,r,n,i){var a=1e4*n.scaleFactor();if(e=Math.ceil(e*a)/a,e>=Tp(t,r,n))return t;for(;e<Tp(t+i,r,n)&&!(t.length<=1);)t=t.substring(0,t.length-1);return t.trim()+i}function d8(t,e){var r=new wu(t),n=nD(e,r.scaleFactor()),i=new XP(e,n);return YP(r,i),r.applyStyles(r.userStyles),i}function nD(t,e){var r=t.content,n=sD(r.columns);if(r.head.length===0){var i=t8(n,"head");i&&r.head.push(i)}if(r.foot.length===0){var i=t8(n,"foot");i&&r.foot.push(i)}var a=t.settings.theme,o=t.styles;return{columns:n,head:p2("head",r.head,n,o,a,e),body:p2("body",r.body,n,o,a,e),foot:p2("foot",r.foot,n,o,a,e)}}function p2(t,e,r,n,i,a){var o={},s=e.map(function(A,u){for(var l=0,c={},f=0,h=0,d=0,g=r;d<g.length;d++){var p=g[d];if(o[p.index]==null||o[p.index].left===0)if(h===0){var v=void 0;Array.isArray(A)?v=A[p.index-f-l]:v=A[p.dataKey];var B={};typeof v=="object"&&!Array.isArray(v)&&(B=v?.styles||{});var S=aD(t,p,u,i,n,a,B),F=new f8(v,S,t);c[p.dataKey]=F,c[p.index]=F,h=F.colSpan-1,o[p.index]={left:F.rowSpan-1,times:h}}else h--,f++;else o[p.index].left--,h=o[p.index].times,l++}return new h8(A,u,t,c)});return s}function t8(t,e){var r={};return t.forEach(function(n){if(n.raw!=null){var i=iD(e,n.raw);i!=null&&(r[n.dataKey]=i)}}),Object.keys(r).length>0?r:null}function iD(t,e){if(t==="head"){if(typeof e=="object")return e.header||null;if(typeof e=="string"||typeof e=="number")return e}else if(t==="foot"&&typeof e=="object")return e.footer;return null}function sD(t){return t.map(function(e,r){var n,i;return typeof e=="object"?i=(n=e.dataKey)!==null&&n!==void 0?n:r:i=r,new $P(i,e,r)})}function aD(t,e,r,n,i,a,o){var s=LP(n),A;t==="head"?A=i.headStyles:t==="body"?A=i.bodyStyles:t==="foot"&&(A=i.footStyles);var u=_o({},s.table,s[t],i.styles,A),l=i.columnStyles[e.dataKey]||i.columnStyles[e.index]||{},c=t==="body"?l:{},f=t==="body"&&r%2===0?_o({},s.alternateRow,i.alternateRowStyles):{},h=OP(a),d=_o({},h,u,f,c);return _o(d,o)}function oD(t,e,r){var n;r===void 0&&(r={});var i=A8(t,e),a=new Map,o=[],s=[],A=[];Array.isArray(e.settings.horizontalPageBreakRepeat)?A=e.settings.horizontalPageBreakRepeat:(typeof e.settings.horizontalPageBreakRepeat=="string"||typeof e.settings.horizontalPageBreakRepeat=="number")&&(A=[e.settings.horizontalPageBreakRepeat]),A.forEach(function(f){var h=e.columns.find(function(d){return d.dataKey===f||d.index===f});h&&!a.has(h.index)&&(a.set(h.index,!0),o.push(h.index),s.push(e.columns[h.index]),i-=h.wrappedWidth)});for(var u=!0,l=(n=r?.start)!==null&&n!==void 0?n:0;l<e.columns.length;){if(a.has(l)){l++;continue}var c=e.columns[l].wrappedWidth;if(u||i>=c)u=!1,o.push(l),s.push(e.columns[l]),i-=c;else break;l++}return{colIndexes:o,columns:s,lastIndex:l-1}}function AD(t,e){for(var r=[],n=0;n<e.columns.length;n++){var i=oD(t,e,{start:n});i.columns.length&&(r.push(i),n=i.lastIndex)}return r}function p8(t,e){var r=e.settings,n=r.startY,i=r.margin,a={x:i.left,y:n},o=e.getHeadHeight(e.columns)+e.getFootHeight(e.columns),s=n+i.bottom+o;if(r.pageBreak==="avoid"){var A=e.body,u=A.reduce(function(f,h){return f+h.height},0);s+=u}var l=new wu(t);(r.pageBreak==="always"||r.startY!=null&&s>l.pageSize().height)&&(m8(l),a.y=i.top),e.callWillDrawPageHooks(l,a);var c=_o({},a);e.startPageNumber=l.pageNumber(),r.horizontalPageBreak?lD(l,e,c,a):(l.applyStyles(l.userStyles),(r.showHead==="firstPage"||r.showHead==="everyPage")&&e.head.forEach(function(f){return Bo(l,e,f,a,e.columns)}),l.applyStyles(l.userStyles),e.body.forEach(function(f,h){var d=h===e.body.length-1;Ip(l,e,f,d,c,a,e.columns)}),l.applyStyles(l.userStyles),(r.showFoot==="lastPage"||r.showFoot==="everyPage")&&e.foot.forEach(function(f){return Bo(l,e,f,a,e.columns)})),a8(l,e,c,a),e.callEndPageHooks(l,a),e.finalY=a.y,t.lastAutoTable=e,l.applyStyles(l.userStyles)}function lD(t,e,r,n){var i=AD(t,e),a=e.settings;if(a.horizontalPageBreakBehaviour==="afterAllRows")i.forEach(function(u,l){t.applyStyles(t.userStyles),l>0?mh(t,e,r,n,u.columns,!0):e8(t,e,n,u.columns),uD(t,e,r,n,u.columns),g2(t,e,n,u.columns)});else for(var o=-1,s=i[0],A=function(){var u=o;if(s){t.applyStyles(t.userStyles);var l=s.columns;o>=0?mh(t,e,r,n,l,!0):e8(t,e,n,l),u=r8(t,e,o+1,n,l),g2(t,e,n,l)}var c=u-o;i.slice(1).forEach(function(f){t.applyStyles(t.userStyles),mh(t,e,r,n,f.columns,!0),r8(t,e,o+1,n,f.columns,c),g2(t,e,n,f.columns)}),o=u};o<e.body.length-1;)A()}function e8(t,e,r,n){var i=e.settings;t.applyStyles(t.userStyles),(i.showHead==="firstPage"||i.showHead==="everyPage")&&e.head.forEach(function(a){return Bo(t,e,a,r,n)})}function uD(t,e,r,n,i){t.applyStyles(t.userStyles),e.body.forEach(function(a,o){var s=o===e.body.length-1;Ip(t,e,a,s,r,n,i)})}function r8(t,e,r,n,i,a){t.applyStyles(t.userStyles),a=a??e.body.length;for(var o=Math.min(r+a,e.body.length),s=-1,A=e.body.slice(r,o),u=0;u<A.length;u++){var l=A[u],c=r+u===e.body.length-1,f=g8(t,e,c,n);if(l.canEntireRowFit(f,i))Bo(t,e,l,n,i),s=r+u;else break}return s}function g2(t,e,r,n){var i=e.settings;t.applyStyles(t.userStyles),(i.showFoot==="lastPage"||i.showFoot==="everyPage")&&e.foot.forEach(function(a){return Bo(t,e,a,r,n)})}function cD(t,e,r){var n=r.getLineHeight(t.styles.fontSize),i=t.padding("vertical"),a=Math.floor((e-i)/n);return Math.max(0,a)}function hD(t,e,r,n){var i={};t.spansMultiplePages=!0,t.height=0;for(var a=0,o=0,s=r.columns;o<s.length;o++){var A=s[o],u=t.cells[A.index];if(u){Array.isArray(u.text)||(u.text=[u.text]);var l=new f8(u.raw,u.styles,u.section);l=_o(l,u),l.text=[];var c=cD(u,e,n);u.text.length>c&&(l.text=u.text.splice(c,u.text.length));var f=n.scaleFactor(),h=n.getLineHeightFactor();u.contentHeight=u.getContentHeight(f,h),u.contentHeight>=e&&(u.contentHeight=e,l.styles.minCellHeight-=e),u.contentHeight>t.height&&(t.height=u.contentHeight),l.contentHeight=l.getContentHeight(f,h),l.contentHeight>a&&(a=l.contentHeight),i[A.index]=l}}var d=new h8(t.raw,-1,t.section,i,!0);d.height=a;for(var g=0,p=r.columns;g<p.length;g++){var A=p[g],l=d.cells[A.index];l&&(l.height=d.height);var u=t.cells[A.index];u&&(u.height=t.height)}return d}function fD(t,e,r,n){var i=t.pageSize().height,a=n.settings.margin,o=a.top+a.bottom,s=i-o;e.section==="body"&&(s-=n.getHeadHeight(n.columns)+n.getFootHeight(n.columns));var A=e.getMinimumRowHeight(n.columns,t),u=A<r;if(A>s)return console.log("Will not be able to print row ".concat(e.index," correctly since it's minimum height is larger than page height")),!0;if(!u)return!1;var l=e.hasRowSpan(n.columns),c=e.getMaxCellHeight(n.columns)>s;return c?(l&&console.log("The content of row ".concat(e.index," will not be drawn correctly since drawing rows with a height larger than the page height and has cells with rowspans is not supported.")),!0):!(l||n.settings.rowPageBreak==="avoid")}function Ip(t,e,r,n,i,a,o){var s=g8(t,e,n,a);if(r.canEntireRowFit(s,o))Bo(t,e,r,a,o);else if(fD(t,r,s,e)){var A=hD(r,s,e,t);Bo(t,e,r,a,o),mh(t,e,i,a,o),Ip(t,e,A,n,i,a,o)}else mh(t,e,i,a,o),Ip(t,e,r,n,i,a,o)}function Bo(t,e,r,n,i){n.x=e.settings.margin.left;for(var a=0,o=i;a<o.length;a++){var s=o[a],A=r.cells[s.index];if(!A){n.x+=s.width;continue}t.applyStyles(A.styles),A.x=n.x,A.y=n.y;var u=e.callCellHooks(t,e.hooks.willDrawCell,A,r,s,n);if(u===!1){n.x+=s.width;continue}dD(t,A,n);var l=A.getTextPos();n8(A.text,l.x,l.y,{halign:A.styles.halign,valign:A.styles.valign,maxWidth:Math.ceil(A.width-A.padding("left")-A.padding("right"))},t.getDocument()),e.callCellHooks(t,e.hooks.didDrawCell,A,r,s,n),n.x+=s.width}n.y+=r.height}function dD(t,e,r){var n=e.styles;if(t.getDocument().setFillColor(t.getDocument().getFillColor()),typeof n.lineWidth=="number"){var i=o8(n.lineWidth,n.fillColor);i&&t.rect(e.x,r.y,e.width,e.height,i)}else typeof n.lineWidth=="object"&&(n.fillColor&&t.rect(e.x,r.y,e.width,e.height,"F"),pD(t,e,r,n.lineWidth))}function pD(t,e,r,n){var i,a,o,s;n.top&&(i=r.x,a=r.y,o=r.x+e.width,s=r.y,n.right&&(o+=.5*n.right),n.left&&(i-=.5*n.left),A(n.top,i,a,o,s)),n.bottom&&(i=r.x,a=r.y+e.height,o=r.x+e.width,s=r.y+e.height,n.right&&(o+=.5*n.right),n.left&&(i-=.5*n.left),A(n.bottom,i,a,o,s)),n.left&&(i=r.x,a=r.y,o=r.x,s=r.y+e.height,n.top&&(a-=.5*n.top),n.bottom&&(s+=.5*n.bottom),A(n.left,i,a,o,s)),n.right&&(i=r.x+e.width,a=r.y,o=r.x+e.width,s=r.y+e.height,n.top&&(a-=.5*n.top),n.bottom&&(s+=.5*n.bottom),A(n.right,i,a,o,s));function A(u,l,c,f,h){t.getDocument().setLineWidth(u),t.getDocument().line(l,c,f,h,"S")}}function g8(t,e,r,n){var i=e.settings.margin.bottom,a=e.settings.showFoot;return(a==="everyPage"||a==="lastPage"&&r)&&(i+=e.getFootHeight(e.columns)),t.pageSize().height-n.y-i}function mh(t,e,r,n,i,a){i===void 0&&(i=[]),a===void 0&&(a=!1),t.applyStyles(t.userStyles),e.settings.showFoot==="everyPage"&&!a&&e.foot.forEach(function(s){return Bo(t,e,s,n,i)}),e.callEndPageHooks(t,n);var o=e.settings.margin;a8(t,e,r,n),m8(t),e.pageNumber++,n.x=o.left,n.y=o.top,r.y=o.top,e.callWillDrawPageHooks(t,n),e.settings.showHead==="everyPage"&&(e.head.forEach(function(s){return Bo(t,e,s,n,i)}),t.applyStyles(t.userStyles))}function m8(t){var e=t.pageNumber();t.setPage(e+1);var r=t.pageNumber();return r===e?(t.addPage(),!0):!1}function gD(t){t.API.autoTable=function(){for(var e=[],r=0;r<arguments.length;r++)e[r]=arguments[r];var n=e[0],i=c8(this,n),a=d8(this,i);return p8(this,a),this},t.API.lastAutoTable=!1,t.API.autoTableText=function(e,r,n,i){n8(e,r,n,i,this)},t.API.autoTableSetDefaults=function(e){return wu.setDefaults(e,this),this},t.autoTableSetDefaults=function(e,r){wu.setDefaults(e,r)},t.API.autoTableHtmlToJson=function(e,r){var n;if(r===void 0&&(r=!1),typeof window>"u")return console.error("Cannot run autoTableHtmlToJson in non browser environment"),null;var i=new wu(this),a=u8(i,e,window,r,!1),o=a.head,s=a.body,A=((n=o[0])===null||n===void 0?void 0:n.map(function(u){return u.content}))||[];return{columns:A,rows:s,data:s}}}var m2;function B2(t,e){var r=c8(t,e),n=d8(t,r);p8(t,n)}try{typeof window<"u"&&window&&(v2=window,b2=v2.jsPDF||((m2=v2.jspdf)===null||m2===void 0?void 0:m2.jsPDF),b2&&gD(b2))}catch(t){console.error("Could not apply autoTable plugin",t)}var v2,b2;var M2=wi(b8(),1);function mD(t=20260710){let e=t>>>0;return()=>(e=1664525*e+1013904223>>>0,e/4294967296)}function y8(t){return Number(String(t).match(/^\d+/)?.[0]||0)}function Np(){let t=[{id:"W01",name:"Robotik",gradeFrom:7,gradeTo:12,schoolForm:"Alle",min:0,max:12,mode:"Pflicht"},{id:"W02",name:"Theater",gradeFrom:7,gradeTo:12,schoolForm:"Alle",min:6,max:14,mode:"Pflicht"},{id:"W03",name:"Kochen",gradeFrom:7,gradeTo:10,schoolForm:"Alle",min:5,max:12,mode:"Pflicht"},{id:"W04",name:"Fotografie",gradeFrom:7,gradeTo:12,schoolForm:"Alle",min:0,max:12,mode:"Pflicht"},{id:"W05",name:"Kreatives Schreiben",gradeFrom:7,gradeTo:12,schoolForm:"Alle",min:0,max:12,mode:"Pflicht"},{id:"W06",name:"Musikproduktion",gradeFrom:7,gradeTo:10,schoolForm:"Regional",min:6,max:12,mode:"Pflicht"},{id:"W07",name:"Sport & Bewegung",gradeFrom:7,gradeTo:12,schoolForm:"Alle",min:0,max:16,mode:"Pflicht"},{id:"W08",name:"Nachhaltigkeit",gradeFrom:7,gradeTo:10,schoolForm:"Gymnasial",min:5,max:12,mode:"Pflicht"},{id:"W09",name:"Mediengestaltung",gradeFrom:9,gradeTo:12,schoolForm:"Alle",min:0,max:14,mode:"Pflicht"},{id:"W10",name:"Drachenboot",gradeFrom:7,gradeTo:12,schoolForm:"Alle",min:12,max:24,mode:"Pflicht"},{id:"W11",name:"Berufsorientierung",gradeFrom:7,gradeTo:10,schoolForm:"Regional",min:6,max:14,mode:"Pflicht"},{id:"W12",name:"Oberstufenlabor",gradeFrom:11,gradeTo:12,schoolForm:"Gymnasial",min:5,max:12,mode:"Pflicht"},{id:"W13",name:"Erste Hilfe",gradeFrom:7,gradeTo:12,schoolForm:"Alle",min:0,max:16,mode:"Pflicht"},{id:"W14",name:"Debattieren",gradeFrom:9,gradeTo:12,schoolForm:"Gymnasial",min:4,max:12,mode:"Pflicht"},{id:"W15",name:"Handwerk & Technik",gradeFrom:7,gradeTo:10,schoolForm:"Regional",min:5,max:14,mode:"Pflicht"}],e=["Anna","Ben","Clara","David","Emma","Felix","Greta","Hasan","Ida","Jonas","Klara","Leon","Mia","Noah","Olivia","Paul","Rania","Samuel","Tara","Yusuf","Amelie","Bruno","Celine","Deniz","Elena"],r=["Becker","Fischer","Hoffmann","Klein","Wagner","Braun","Wolf","Yilmaz","Schmitt","Richter","Neumann","Hartmann","K\xF6nig","Schwarz","Zimmermann","Kr\xFCger","Saleh","Lehmann","Vogel","\xD6zt\xFCrk","Koch","Bauer","Schulz","Krause","Werner"],n=["7a","7b","8a","8b","9a","9b","10a","10b","11","12"],i=mD(),a=Array.from({length:100},(f,h)=>{let d=n[h%n.length],p=y8(d)>=11||(Math.floor(h/n.length)+h)%2?"Gymnasial":"Regional";return{id:`P${String(h+1).padStart(3,"0")}`,firstName:e[h%e.length],lastName:r[(h*7+Math.floor(h/e.length))%r.length],className:d,schoolForm:p,wishes:["","","",""],fixed:""}}),o=(f,h)=>{let d=y8(f.className);return d>=h.gradeFrom&&d<=h.gradeTo&&(h.schoolForm==="Alle"||h.schoolForm===f.schoolForm)},s=new Set,A=["W12","W06","W11","W15","W08","W14","W10","W03","W02","W01","W04","W05","W07","W09","W13"],u=new Map(t.map(f=>[f.id,f])),l=[];for(let f of A){let h=u.get(f),d=Math.max(h.min,1),g=a.filter(p=>!s.has(p.id)&&o(p,h));for(let p=0;p<d;p+=1){let v=g[p];if(!v)throw new Error(`Musterdaten konnten f\xFCr ${f} nicht erzeugt werden.`);s.add(v.id),v.wishes[p%2]=f,l.push([v.id,f])}}for(let f of a){let h=t.filter(d=>o(f,d)).map(d=>d.id);for(let d=0;d<4;d+=1){if(f.wishes[d])continue;let g=h.filter(v=>!f.wishes.includes(v)),p=g[Math.floor(i()*g.length)]||"";f.wishes[d]=p}}for(let[f,h]of l.slice(0,6))a.find(d=>d.id===f).fixed=h;let c=[];for(let f=0;f<a.length&&c.length<20;f+=4){let h=a[f],d=h.wishes[3];d&&d!==h.fixed&&c.push({personId:h.id,workshopId:d,reason:"Beispielsperrung"})}return{name:"Workshopwoche \u2013 Beispiel",settings:{allowOutside:!1,defaultMode:"Pflicht",balanceWeight:1},workshops:t,participants:a,locks:c}}var C2=new Set(["Pflicht","Optional"]),vD=new Set(["Alle","Regional","Gymnasial"]);function S2(t){let e=String(t??"").trim().match(/^(\d{1,2})/);return e?Number(e[1]):NaN}function _u(t){let e={allowOutside:!1,defaultMode:"Pflicht",balanceWeight:1,...t?.settings??{}};return{name:String(t?.name||"Workshop-Veranstaltung"),settings:{allowOutside:!!e.allowOutside,defaultMode:C2.has(e.defaultMode)?e.defaultMode:"Pflicht",balanceWeight:Math.max(0,Math.min(100,Number(e.balanceWeight)||0))},workshops:(t?.workshops??[]).map(r=>({id:String(r.id??"").trim(),name:String(r.name??"").trim(),gradeFrom:Number(r.gradeFrom),gradeTo:Number(r.gradeTo),schoolForm:vD.has(r.schoolForm)?r.schoolForm:"Alle",min:Math.max(0,Number(r.min)||0),max:Math.max(0,Number(r.max)||0),mode:C2.has(r.mode)?r.mode:e.defaultMode})),participants:(t?.participants??[]).map(r=>({id:String(r.id??"").trim(),firstName:String(r.firstName??"").trim(),lastName:String(r.lastName??"").trim(),className:String(r.className??"").trim(),schoolForm:r.schoolForm==="Gymnasial"?"Gymnasial":"Regional",wishes:Array.from({length:4},(n,i)=>String(r.wishes?.[i]??"").trim()),fixed:String(r.fixed??"").trim()})),locks:(t?.locks??[]).map(r=>({personId:String(r.personId??"").trim(),workshopId:String(r.workshopId??"").trim(),reason:String(r.reason??"").trim()}))}}function vh(t,e=!0){return e?Math.max(t.min,t.mode==="Pflicht"?1:0):0}function k2(t,e){return t.fixed===e?-1:t.wishes.findIndex(r=>r===e)}function bD(t,e){if(!e)return"Nicht zugeteilt";if(t.fixed===e)return"Feste Setzung";let r=k2(t,e);return["Erstwunsch","Zweitwunsch","Drittwunsch","Viertwunsch"][r]??"Kein Wunsch"}function _8(t,e){if(t.fixed===e)return 0;let r=k2(t,e);return r===0?0:r===1?1e6:r===2?101e4:r===3?1010100:1010200}function Lp(t,e,r,n){let i=S2(t.className);return!Number.isFinite(i)||i<e.gradeFrom||i>e.gradeTo||e.schoolForm!=="Alle"&&t.schoolForm!==e.schoolForm||r.has(`${t.id}\0${e.id}`)?!1:t.fixed?t.fixed===e.id:n||t.wishes.includes(e.id)}function T2(t){let e=_u(t),r=[],n=[],i=new Map,a=new Map,o=new Set;e.participants.length>500&&r.push("Es sind mehr als 500 Teilnehmer eingetragen."),e.workshops.length>30&&r.push("Es sind mehr als 30 Workshops eingetragen."),e.workshops.length||r.push("Es ist kein Workshop eingetragen."),e.participants.length||r.push("Es ist kein Teilnehmer eingetragen."),e.workshops.forEach((A,u)=>{let l=`Workshop-Zeile ${u+1}`;A.id||r.push(`${l}: Workshop-ID fehlt.`),A.name||r.push(`${l}: Workshopname fehlt.`),i.has(A.id)&&r.push(`${l}: Workshop-ID ${A.id} ist doppelt.`),i.set(A.id,A),!Number.isFinite(A.gradeFrom)||!Number.isFinite(A.gradeTo)?r.push(`${A.id||l}: Klassenbereich ist ung\xFCltig.`):A.gradeFrom>A.gradeTo&&r.push(`${A.id}: \u201EKlasse von\u201C ist gr\xF6\xDFer als \u201EKlasse bis\u201C.`),A.max<1&&r.push(`${A.id}: Maximalbelegung muss mindestens 1 sein.`),A.min>A.max&&r.push(`${A.id}: Mindestbelegung ist gr\xF6\xDFer als Maximalbelegung.`),C2.has(A.mode)||r.push(`${A.id}: Durchf\xFChrung muss Pflicht oder Optional sein.`)}),e.participants.forEach((A,u)=>{let l=`Teilnehmer-Zeile ${u+1}`;A.id||r.push(`${l}: Person-ID fehlt.`),a.has(A.id)&&r.push(`${l}: Person-ID ${A.id} ist doppelt.`),a.set(A.id,A),(!A.firstName||!A.lastName)&&n.push(`${A.id||l}: Vor- oder Nachname fehlt.`),Number.isFinite(S2(A.className))||r.push(`${A.id||l}: Klasse ist ung\xFCltig.`),A.wishes.filter(Boolean).forEach(f=>{i.has(f)||n.push(`${A.id}: Wunsch ${f} ist nicht als Workshop vorhanden.`)});let c=A.wishes.filter(Boolean);new Set(c).size!==c.length&&n.push(`${A.id}: Ein Wunsch wurde mehrfach eingetragen.`),A.fixed&&!i.has(A.fixed)&&r.push(`${A.id}: Feste Setzung ${A.fixed} ist unbekannt.`)}),e.locks.forEach((A,u)=>{if(!A.personId&&!A.workshopId)return;a.has(A.personId)||n.push(`Sperrung ${u+1}: Person ${A.personId} ist unbekannt.`),i.has(A.workshopId)||n.push(`Sperrung ${u+1}: Workshop ${A.workshopId} ist unbekannt.`);let l=`${A.personId}\0${A.workshopId}`;o.has(l)&&n.push(`Sperrung ${u+1}: Kombination ist doppelt.`),o.add(l)});for(let A of e.participants){if(!A.fixed||!i.has(A.fixed))continue;let u=i.get(A.fixed),l=S2(A.className);(l<u.gradeFrom||l>u.gradeTo)&&r.push(`${A.id}: Feste Setzung ${u.id} passt nicht zur Klassenstufe.`),u.schoolForm!=="Alle"&&u.schoolForm!==A.schoolForm&&r.push(`${A.id}: Feste Setzung ${u.id} passt nicht zur Schulform.`),o.has(`${A.id}\0${u.id}`)&&r.push(`${A.id}: Feste Setzung ${u.id} ist gleichzeitig gesperrt.`)}let s=e.workshops.filter(A=>A.mode==="Pflicht").reduce((A,u)=>A+vh(u),0);return s>e.participants.length&&r.push(`Die wirksamen Mindestbelegungen der Pflichtkurse (${s}) \xFCbersteigen die Teilnehmerzahl (${e.participants.length}).`),{event:e,errors:r,warnings:n}}var E2=class{constructor(){this.items=[]}push(e){let r=this.items;r.push(e);let n=r.length-1;for(;n>0;){let i=n-1>>1;if(r[i][0]<=e[0])break;r[n]=r[i],n=i}r[n]=e}pop(){let e=this.items;if(!e.length)return null;let r=e[0],n=e.pop();if(e.length&&n){let i=0;for(;;){let a=i*2+1;if(a>=e.length)break;let o=a+1,s=o<e.length&&e[o][0]<e[a][0]?o:a;if(e[s][0]>=n[0])break;e[i]=e[s],i=s}e[i]=n}return r}get size(){return this.items.length}},Op=class{constructor(e){this.graph=Array.from({length:e},()=>[])}addEdge(e,r,n,i,a=null){let o={to:r,rev:this.graph[r].length,cap:n,cost:i,initialCap:n,meta:a},s={to:e,rev:this.graph[e].length,cap:0,cost:-i,initialCap:0,meta:null};return this.graph[e].push(o),this.graph[r].push(s),o}run(e,r,n){let i=this.graph.length,a=Array(i).fill(0),o=0,s=0;for(;o<n;){let A=Array(i).fill(1/0),u=Array(i).fill(-1),l=Array(i).fill(-1);A[e]=0;let c=new E2;for(c.push([0,e]);c.size;){let[h,d]=c.pop();if(h!==A[d])continue;let g=this.graph[d];for(let p=0;p<g.length;p+=1){let v=g[p];if(v.cap<=0)continue;let B=h+v.cost+a[d]-a[v.to];B<A[v.to]&&(A[v.to]=B,u[v.to]=d,l[v.to]=p,c.push([B,v.to]))}}if(!Number.isFinite(A[r]))break;for(let h=0;h<i;h+=1)Number.isFinite(A[h])&&(a[h]+=A[h]);let f=n-o;for(let h=r;h!==e;h=u[h]){if(h<0||u[h]<0){f=0;break}f=Math.min(f,this.graph[u[h]][l[h]].cap)}if(f<=0)break;for(let h=r;h!==e;h=u[h]){let d=this.graph[u[h]][l[h]];d.cap-=f,this.graph[h][d.rev].cap+=f,s+=f*d.cost}o+=f}return{flow:o,cost:s}}},F2=class{constructor(e){this.g=Array.from({length:e},()=>[])}addEdge(e,r,n){let i={to:r,rev:this.g[r].length,cap:n},a={to:e,rev:this.g[e].length,cap:0};this.g[e].push(i),this.g[r].push(a)}maxFlow(e,r){let n=0,i=this.g.length;for(;;){let a=Array(i).fill(-1);a[e]=0;let o=[e];for(let u=0;u<o.length;u+=1){let l=o[u];for(let c of this.g[l])c.cap>0&&a[c.to]<0&&(a[c.to]=a[l]+1,o.push(c.to))}if(a[r]<0)return n;let s=Array(i).fill(0),A=(u,l)=>{if(u===r)return l;for(;s[u]<this.g[u].length;s[u]+=1){let c=this.g[u][s[u]];if(c.cap<=0||a[c.to]!==a[u]+1)continue;let f=A(c.to,Math.min(l,c.cap));if(f>0)return c.cap-=f,this.g[c.to][c.rev].cap+=f,f}return 0};for(;;){let u=A(e,Number.MAX_SAFE_INTEGER);if(!u)break;n+=u}}}};function B8(t,e){let r=new Map([...e.keys()].map(n=>[n,0]));for(let n of t.participants)n.fixed&&r.has(n.fixed)&&r.set(n.fixed,r.get(n.fixed)+1);return r}function w8(t,e,r,n){let i=B8(t,n);for(let[h,d]of i)if(d>0&&!e.has(h)||d>(n.get(h)?.max??0))return!1;let a=[...e].map(h=>n.get(h)).filter(Boolean),o=t.participants.filter(h=>!h.fixed),s=0,A=1,u=A+a.length,l=u+o.length,c=new F2(l+1),f=0;return a.forEach((h,d)=>{let g=Math.max(0,vh(h)-(i.get(h.id)||0));if(g>h.max-(i.get(h.id)||0))return!1;f+=g,c.addEdge(s,A+d,g),o.forEach((p,v)=>{Lp(p,h,r,t.settings.allowOutside)&&c.addEdge(A+d,u+v,1)})}),o.forEach((h,d)=>c.addEdge(u+d,l,1)),c.maxFlow(s,l)===f}function yD(t,e,r){let n=new Set(t.workshops.filter(a=>a.mode==="Pflicht").map(a=>a.id));for(let a of t.participants)a.fixed&&n.add(a.fixed);if(!w8(t,n,e,r))throw new Error("Die Mindestbelegungen der Pflichtkurse k\xF6nnen nicht gleichzeitig erf\xFCllt werden. Pr\xFCfe W\xFCnsche, Sperrungen, Klassenstufen und Schulformen.");let i=t.workshops.filter(a=>a.mode==="Optional"&&!n.has(a.id)).map(a=>{let o=0,s=0;for(let A of t.participants){if(!Lp(A,a,e,t.settings.allowOutside))continue;s+=1;let u=k2(A,a.id);o+=[100,30,10,3][u]??(t.settings.allowOutside?1:0)}return{course:a,score:o,candidates:s}}).filter(({course:a,candidates:o})=>o>=Math.max(a.min,1)).sort((a,o)=>o.score-a.score||a.course.id.localeCompare(o.course.id,"de"));for(let{course:a}of i){let o=new Set(n);o.add(a.id),w8(t,o,e,r)&&n.add(a.id)}return n}function wD(t,e,r,n){let i=new Map,a=[...e].map(u=>r.get(u)).filter(Boolean),o=0,s=0;for(let u of a){let l=Math.max(vh(u),n.get(u.id)||0);i.set(u.id,Math.min(l,u.max)),o+=Math.min(l,u.max),s+=u.max}if(o>t.participants.length)throw new Error("Die Mindestbelegungen \xFCbersteigen die Teilnehmerzahl.");let A=Math.min(t.participants.length,s)-o;for(;A>0;){let u=a.filter(l=>i.get(l.id)<l.max).sort((l,c)=>i.get(l.id)-i.get(c.id)||l.max-c.max||l.id.localeCompare(c.id,"de"));if(!u.length)break;i.set(u[0].id,i.get(u[0].id)+1),A-=1}return i}function _D(t,e,r,n,i,a){let o=t.participants.filter(p=>!i.has(p.id)),s=[...e].map(p=>n.get(p)).filter(Boolean),A=0,u=1,l=u+s.length,c=l+o.length,f=new Op(c+1),h=[],d=0;if(s.forEach((p,v)=>{let B=Math.max(0,vh(p)-(a.get(p.id)||0));d+=B,f.addEdge(A,u+v,B,0),o.forEach((S,F)=>{if(!Lp(S,p,r,t.settings.allowOutside))return;let z=f.addEdge(u+v,l+F,1,_8(S,p.id),{personId:S.id,courseId:p.id});h.push(z)})}),o.forEach((p,v)=>f.addEdge(l+v,c,1,0)),f.run(A,c,d).flow!==d)throw new Error("Die Mindestbelegungen konnten nicht erf\xFCllt werden.");for(let p of h)p.initialCap===1&&p.cap===0&&(i.set(p.meta.personId,p.meta.courseId),a.set(p.meta.courseId,(a.get(p.meta.courseId)||0)+1))}function BD(t,e,r,n,i,a,o){let s=t.participants.filter(v=>!i.has(v.id)),A=[...e].map(v=>n.get(v)).filter(Boolean),u=0,l=1,c=l+s.length,f=c+A.length,h=new Op(f+1),d=[],g=[];if(s.forEach((v,B)=>{let S=l+B;h.addEdge(u,S,1,0),A.forEach((z,P)=>{if(!Lp(v,z,r,t.settings.allowOutside)||(a.get(z.id)||0)>=z.max)return;let Q=h.addEdge(S,c+P,1,_8(v,z.id),{personId:v.id,courseId:z.id});d.push(Q)});let F=h.addEdge(S,f,1,1e9,{personId:v.id});g.push(F)}),A.forEach((v,B)=>{let S=a.get(v.id)||0,F=Math.max(0,v.max-S);for(let z=1;z<=F;z+=1){let P=S+z,Q=Math.round(t.settings.balanceWeight*Math.abs(P-(o.get(v.id)||0)));h.addEdge(c+B,f,1,Q)}}),h.run(u,f,s.length).flow!==s.length)throw new Error("Die restlichen Teilnehmer konnten nicht verarbeitet werden.");for(let v of d)v.initialCap===1&&v.cap===0&&(i.set(v.meta.personId,v.meta.courseId),a.set(v.meta.courseId,(a.get(v.meta.courseId)||0)+1));for(let v of g)v.initialCap===1&&v.cap===0&&!i.has(v.meta.personId)&&i.set(v.meta.personId,"")}function x8(t){let{event:e,errors:r,warnings:n}=T2(t);if(r.length)return{ok:!1,errors:r,warnings:n};try{let i=new Map(e.workshops.map(v=>[v.id,v])),a=new Map(e.participants.map(v=>[v.id,v])),o=new Set(e.locks.filter(v=>v.personId&&v.workshopId).map(v=>`${v.personId}\0${v.workshopId}`)),s=yD(e,o,i),A=new Map,u=new Map(e.workshops.map(v=>[v.id,0]));for(let v of e.participants)v.fixed&&(A.set(v.id,v.fixed),u.set(v.fixed,(u.get(v.fixed)||0)+1));let l=B8(e,i),c=wD(e,s,i,l);_D(e,s,o,i,A,u),BD(e,s,o,i,A,u,c);let f=e.participants.map(v=>{let B=A.get(v.id)||"",S=B?i.get(B):null,F=bD(v,B);return{personId:v.id,firstName:v.firstName,lastName:v.lastName,className:v.className,schoolForm:v.schoolForm,workshopId:B,workshopName:S?.name||"",type:F,note:F==="Nicht zugeteilt"?"Kapazit\xE4ten oder Zugangsregeln pr\xFCfen":F==="Kein Wunsch"?"Au\xDFerhalb der vier W\xFCnsche":""}}),h=e.workshops.map(v=>{let B=s.has(v.id),S=u.get(v.id)||0,F=B&&c.get(v.id)||0,z=B?vh(v):0;return{...v,open:B,effectiveMin:z,target:F,load:S,deviation:B?S-F:0,status:B?"Findet statt":"Entf\xE4llt (optional)"}}),d=new Map;for(let v of f)d.set(v.type,(d.get(v.type)||0)+1);let g=h.filter(v=>v.open),p=g.length?g.reduce((v,B)=>v+Math.abs(B.deviation),0)/g.length:0;return{ok:!0,event:e,warnings:n,participantResults:f,courseResults:h,stats:{participants:e.participants.length,workshops:e.workshops.length,openCourses:g.length,first:d.get("Erstwunsch")||0,second:d.get("Zweitwunsch")||0,third:d.get("Drittwunsch")||0,fourth:d.get("Viertwunsch")||0,fixed:d.get("Feste Setzung")||0,outside:d.get("Kein Wunsch")||0,unassigned:d.get("Nicht zugeteilt")||0,meanDeviation:p},personMap:a,courseMap:i}}catch(i){return{ok:!1,errors:[i instanceof Error?i.message:String(i)],warnings:n}}}var k8="workshop-zuteilung-github-pages-v1",or=xD(),Di=null,C8=null,S8=null,vr=t=>document.querySelector(t),E8=t=>[...document.querySelectorAll(t)];function xD(){try{let t=localStorage.getItem(k8);return t?_u(JSON.parse(t)):Np()}catch{return Np()}}function Mp(){vr("#saveState").textContent="speichert \u2026",clearTimeout(C8),C8=setTimeout(()=>{localStorage.setItem(k8,JSON.stringify(or)),vr("#saveState").textContent="lokal gespeichert"},250)}function CD(){Di=null,Q2()}function _a({invalidate:t=!0}={}){or=_u(or),Mp(),t&&CD(),T8()}function Dr(t){return String(t??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}function O2(t,e,r=t){return`<option value="${Dr(t)}"${t===e?" selected":""}>${Dr(r)}</option>`}function Rp(t){let e=vr("#toast");e.textContent=t,e.classList.add("show"),clearTimeout(S8),S8=setTimeout(()=>e.classList.remove("show"),2600)}function el(t,e,r="error"){vr("#dialogTitle").textContent=t;let n=Array.isArray(e)?e:[e];vr("#dialogBody").innerHTML=n.map(i=>`<div class="message ${r}">${Dr(i)}</div>`).join(""),vr("#messageDialog").showModal()}function Qp(t,e){let r=URL.createObjectURL(t),n=document.createElement("a");n.href=r,n.download=e,document.body.append(n),n.click(),n.remove(),setTimeout(()=>URL.revokeObjectURL(r),5e3)}function Bu(t){return String(t||"datei").replace(/[\\/:*?"<>|]/g,"_").replace(/\s+/g," ").trim()}function T8(){vr("#eventName").value=or.name,vr("#allowOutside").value=String(or.settings.allowOutside),vr("#defaultMode").value=or.settings.defaultMode,vr("#balanceWeight").value=or.settings.balanceWeight;let t=T2(or),e=[[or.participants.length,"Teilnehmer"],[or.workshops.length,"Workshops"],[or.workshops.filter(n=>n.mode==="Pflicht").length,"Pflichtkurse"],[or.locks.length,"Sperrungen"],[or.participants.filter(n=>n.fixed).length,"Feste Setzungen"]];vr("#stats").innerHTML=e.map(([n,i])=>`<div class="stat"><strong>${n}</strong><span>${i}</span></div>`).join("");let r=[];t.errors.forEach(n=>r.push(`<div class="message error">${Dr(n)}</div>`)),t.warnings.slice(0,12).forEach(n=>r.push(`<div class="message warning">${Dr(n)}</div>`)),r.length||r.push('<div class="message">Eingaben sind grunds\xE4tzlich plausibel.</div>'),t.warnings.length>12&&r.push(`<div class="message warning">Weitere ${t.warnings.length-12} Warnungen werden beim Berechnen angezeigt.</div>`),vr("#validationSummary").innerHTML=r.join("")}function R2(){let t=or.workshops.map((e,r)=>`
-    <tr data-index="${r}">
-      <td class="row-number">${r+1}</td>
-      <td><input data-entity="workshop" data-field="id" value="${Dr(e.id)}"></td>
-      <td><input data-entity="workshop" data-field="name" value="${Dr(e.name)}"></td>
-      <td><input type="number" min="1" max="20" data-entity="workshop" data-field="gradeFrom" value="${e.gradeFrom}"></td>
-      <td><input type="number" min="1" max="20" data-entity="workshop" data-field="gradeTo" value="${e.gradeTo}"></td>
-      <td><select data-entity="workshop" data-field="schoolForm">${["Alle","Regional","Gymnasial"].map(n=>O2(n,e.schoolForm)).join("")}</select></td>
-      <td><input type="number" min="0" max="500" data-entity="workshop" data-field="min" value="${e.min}"></td>
-      <td><input type="number" min="1" max="500" data-entity="workshop" data-field="max" value="${e.max}"></td>
-      <td><select data-entity="workshop" data-field="mode">${["Pflicht","Optional"].map(n=>O2(n,e.mode)).join("")}</select></td>
-      <td><button class="icon-button" data-action="delete-workshop" title="L\xF6schen">\xD7</button></td>
-    </tr>`).join("");vr("#workshopsTable").innerHTML=`
-    <thead><tr><th>#</th><th>ID</th><th>Workshop</th><th>Klasse von</th><th>Klasse bis</th><th>Schulform</th><th>Minimum</th><th>Maximum</th><th>Durchf\xFChrung</th><th></th></tr></thead>
-    <tbody>${t||'<tr><td colspan="10">Keine Workshops eingetragen.</td></tr>'}</tbody>`}function xu(){let t=vr("#participantSearch").value.trim().toLowerCase(),e=['<option value="">\u2013</option>',...or.workshops.map(i=>`<option value="${Dr(i.id)}">${Dr(i.id)} \xB7 ${Dr(i.name)}</option>`)].join(""),n=or.participants.map((i,a)=>({p:i,index:a})).filter(({p:i})=>t?[i.id,i.firstName,i.lastName,i.className,i.schoolForm].join(" ").toLowerCase().includes(t):!0).map(({p:i,index:a})=>{let o=A=>`<select data-entity="participant" data-field="wish${A}">${e.replace(`value="${Dr(i.wishes[A])}"`,`value="${Dr(i.wishes[A])}" selected`)}</select>`,s=`<select data-entity="participant" data-field="fixed">${e.replace(`value="${Dr(i.fixed)}"`,`value="${Dr(i.fixed)}" selected`)}</select>`;return`<tr data-index="${a}">
-      <td class="row-number">${a+1}</td>
-      <td><input data-entity="participant" data-field="id" value="${Dr(i.id)}"></td>
-      <td><input data-entity="participant" data-field="firstName" value="${Dr(i.firstName)}"></td>
-      <td><input data-entity="participant" data-field="lastName" value="${Dr(i.lastName)}"></td>
-      <td><input data-entity="participant" data-field="className" value="${Dr(i.className)}"></td>
-      <td><select data-entity="participant" data-field="schoolForm">${["Regional","Gymnasial"].map(A=>O2(A,i.schoolForm)).join("")}</select></td>
-      <td>${o(0)}</td><td>${o(1)}</td><td>${o(2)}</td><td>${o(3)}</td>
-      <td>${s}</td>
-      <td><button class="icon-button" data-action="delete-participant" title="L\xF6schen">\xD7</button></td>
-    </tr>`}).join("");vr("#participantsTable").innerHTML=`
-    <thead><tr><th>#</th><th>Person-ID</th><th>Vorname</th><th>Nachname</th><th>Klasse</th><th>Schulform</th><th>1. Wunsch</th><th>2. Wunsch</th><th>3. Wunsch</th><th>4. Wunsch</th><th>Feste Setzung</th><th></th></tr></thead>
-    <tbody>${n||'<tr><td colspan="12">Keine passenden Teilnehmer.</td></tr>'}</tbody>`}function tl(){let t=['<option value="">\u2013</option>',...or.participants.map(n=>`<option value="${Dr(n.id)}">${Dr(n.id)} \xB7 ${Dr(n.lastName)}, ${Dr(n.firstName)}</option>`)].join(""),e=['<option value="">\u2013</option>',...or.workshops.map(n=>`<option value="${Dr(n.id)}">${Dr(n.id)} \xB7 ${Dr(n.name)}</option>`)].join(""),r=or.locks.map((n,i)=>`
-    <tr data-index="${i}">
-      <td class="row-number">${i+1}</td>
-      <td><select data-entity="lock" data-field="personId">${t.replace(`value="${Dr(n.personId)}"`,`value="${Dr(n.personId)}" selected`)}</select></td>
-      <td><select data-entity="lock" data-field="workshopId">${e.replace(`value="${Dr(n.workshopId)}"`,`value="${Dr(n.workshopId)}" selected`)}</select></td>
-      <td><input data-entity="lock" data-field="reason" value="${Dr(n.reason)}"></td>
-      <td><button class="icon-button" data-action="delete-lock" title="L\xF6schen">\xD7</button></td>
-    </tr>`).join("");vr("#locksTable").innerHTML=`
+`),e.innerText||e.textContent||""}function HP(t,e,r){for(var n=0,i=[t,e,r];n<i.length;n++){var a=i[n];a&&typeof a!="object"&&console.error("The options parameter should be of type object, is: "+typeof a),a.startY&&typeof a.startY!="number"&&(console.error("Invalid value for startY option",a.startY),delete a.startY)}}function _o(t,e,r,n,i){if(t==null)throw new TypeError("Cannot convert undefined or null to object");for(var a=Object(t),o=1;o<arguments.length;o++){var s=arguments[o];if(s!=null)for(var A in s)Object.prototype.hasOwnProperty.call(s,A)&&(a[A]=s[A])}return a}function c8(t,e){var r=new wu(t),n=r.getDocumentOptions(),i=r.getGlobalOptions();HP(i,n,e);var a=_o({},i,n,e),o;typeof window<"u"&&(o=window);var s=jP(i,n,e),A=zP(i,n,e),u=qP(r,a),l=VP(r,a,o);return{id:e.tableId,content:l,hooks:A,styles:s,settings:u}}function jP(t,e,r){for(var n={styles:{},headStyles:{},bodyStyles:{},footStyles:{},alternateRowStyles:{},columnStyles:{}},i=function(A){if(A==="columnStyles"){var u=t[A],l=e[A],c=r[A];n.columnStyles=_o({},u,l,c)}else{var f=[t,e,r],h=f.map(function(d){return d[A]||{}});n[A]=_o({},h[0],h[1],h[2])}},a=0,o=Object.keys(n);a<o.length;a++){var s=o[a];i(s)}return n}function zP(t,e,r){for(var n=[t,e,r],i={didParseCell:[],willDrawCell:[],didDrawCell:[],willDrawPage:[],didDrawPage:[]},a=0,o=n;a<o.length;a++){var s=o[a];s.didParseCell&&i.didParseCell.push(s.didParseCell),s.willDrawCell&&i.willDrawCell.push(s.willDrawCell),s.didDrawCell&&i.didDrawCell.push(s.didDrawCell),s.willDrawPage&&i.willDrawPage.push(s.willDrawPage),s.didDrawPage&&i.didDrawPage.push(s.didDrawPage)}return i}function qP(t,e){var r,n,i,a,o,s,A,u,l,c,f,h,d=Up(e.margin,40/t.scaleFactor()),g=(r=KP(t,e.startY))!==null&&r!==void 0?r:d.top,p;e.showFoot===!0?p="everyPage":e.showFoot===!1?p="never":p=(n=e.showFoot)!==null&&n!==void 0?n:"everyPage";var v;e.showHead===!0?v="everyPage":e.showHead===!1?v="never":v=(i=e.showHead)!==null&&i!==void 0?i:"everyPage";var B=(a=e.useCss)!==null&&a!==void 0?a:!1,S=e.theme||(B?"plain":"striped"),F=!!e.horizontalPageBreak,z=(o=e.horizontalPageBreakRepeat)!==null&&o!==void 0?o:null;return{includeHiddenHtml:(s=e.includeHiddenHtml)!==null&&s!==void 0?s:!1,useCss:B,theme:S,startY:g,margin:d,pageBreak:(A=e.pageBreak)!==null&&A!==void 0?A:"auto",rowPageBreak:(u=e.rowPageBreak)!==null&&u!==void 0?u:"auto",tableWidth:(l=e.tableWidth)!==null&&l!==void 0?l:"auto",showHead:v,showFoot:p,tableLineWidth:(c=e.tableLineWidth)!==null&&c!==void 0?c:0,tableLineColor:(f=e.tableLineColor)!==null&&f!==void 0?f:200,horizontalPageBreak:F,horizontalPageBreakRepeat:z,horizontalPageBreakBehaviour:(h=e.horizontalPageBreakBehaviour)!==null&&h!==void 0?h:"afterAllRows"}}function KP(t,e){var r=t.getLastAutoTable(),n=t.scaleFactor(),i=t.pageNumber(),a=!1;if(r&&r.startPageNumber){var o=r.startPageNumber+r.pageNumber-1;a=o===i}return typeof e=="number"?e:(e==null||e===!1)&&a&&r?.finalY!=null?r.finalY+20/n:null}function VP(t,e,r){var n=e.head||[],i=e.body||[],a=e.foot||[];if(e.html){var o=e.includeHiddenHtml;if(r){var s=u8(t,e.html,r,o,e.useCss)||{};n=s.head||n,i=s.body||n,a=s.foot||n}else console.error("Cannot parse html in non browser environment")}var A=e.columns||WP(n,i,a);return{columns:A,head:n,body:i,foot:a}}function WP(t,e,r){var n=t[0]||e[0]||r[0]||[],i=[];return Object.keys(n).filter(function(a){return a!=="_element"}).forEach(function(a){var o=1,s;Array.isArray(n)?s=n[parseInt(a)]:s=n[a],typeof s=="object"&&!Array.isArray(s)&&(o=s?.colSpan||1);for(var A=0;A<o;A++){var u=void 0;Array.isArray(n)?u=i.length:u=a+(A>0?"_".concat(A):"");var l={dataKey:u};i.push(l)}}),i}var w2=(function(){function t(e,r,n){this.table=r,this.pageNumber=r.pageNumber,this.settings=r.settings,this.cursor=n,this.doc=e.getDocument()}return t})(),GP=(function(t){i8(e,t);function e(r,n,i,a,o,s){var A=t.call(this,r,n,s)||this;return A.cell=i,A.row=a,A.column=o,A.section=a.section,A}return e})(w2),XP=(function(){function t(e,r){this.pageNumber=1,this.id=e.id,this.settings=e.settings,this.styles=e.styles,this.hooks=e.hooks,this.columns=r.columns,this.head=r.head,this.body=r.body,this.foot=r.foot}return t.prototype.getHeadHeight=function(e){return this.head.reduce(function(r,n){return r+n.getMaxCellHeight(e)},0)},t.prototype.getFootHeight=function(e){return this.foot.reduce(function(r,n){return r+n.getMaxCellHeight(e)},0)},t.prototype.allRows=function(){return this.head.concat(this.body).concat(this.foot)},t.prototype.callCellHooks=function(e,r,n,i,a,o){for(var s=0,A=r;s<A.length;s++){var u=A[s],l=new GP(e,this,n,i,a,o),c=u(l)===!1;if(n.text=Array.isArray(n.text)?n.text:[n.text],c)return!1}return!0},t.prototype.callEndPageHooks=function(e,r){e.applyStyles(e.userStyles);for(var n=0,i=this.hooks.didDrawPage;n<i.length;n++){var a=i[n];a(new w2(e,this,r))}},t.prototype.callWillDrawPageHooks=function(e,r){for(var n=0,i=this.hooks.willDrawPage;n<i.length;n++){var a=i[n];a(new w2(e,this,r))}},t.prototype.getWidth=function(e){if(typeof this.settings.tableWidth=="number")return this.settings.tableWidth;if(this.settings.tableWidth==="wrap"){var r=this.columns.reduce(function(i,a){return i+a.wrappedWidth},0);return r}else{var n=this.settings.margin;return e-n.left-n.right}},t})(),h8=(function(){function t(e,r,n,i,a){a===void 0&&(a=!1),this.height=0,this.raw=e,e instanceof s8&&(this.raw=e._element,this.element=e._element),this.index=r,this.section=n,this.cells=i,this.spansMultiplePages=a}return t.prototype.getMaxCellHeight=function(e){var r=this;return e.reduce(function(n,i){var a;return Math.max(n,((a=r.cells[i.index])===null||a===void 0?void 0:a.height)||0)},0)},t.prototype.hasRowSpan=function(e){var r=this;return e.filter(function(n){var i=r.cells[n.index];return i?i.rowSpan>1:!1}).length>0},t.prototype.canEntireRowFit=function(e,r){return this.getMaxCellHeight(r)<=e},t.prototype.getMinimumRowHeight=function(e,r){var n=this;return e.reduce(function(i,a){var o=n.cells[a.index];if(!o)return 0;var s=r.getLineHeight(o.styles.fontSize),A=o.padding("vertical"),u=A+s;return u>i?u:i},0)},t})(),f8=(function(){function t(e,r,n){var i;this.contentHeight=0,this.contentWidth=0,this.wrappedWidth=0,this.minReadableWidth=0,this.minWidth=0,this.width=0,this.height=0,this.x=0,this.y=0,this.styles=r,this.section=n,this.raw=e;var a=e;e!=null&&typeof e=="object"&&!Array.isArray(e)?(this.rowSpan=e.rowSpan||1,this.colSpan=e.colSpan||1,a=(i=e.content)!==null&&i!==void 0?i:e,e._element&&(this.raw=e._element)):(this.rowSpan=1,this.colSpan=1);var o=a!=null?""+a:"",s=/\r\n|\r|\n/g;this.text=o.split(s)}return t.prototype.getTextPos=function(){var e;if(this.styles.valign==="top")e=this.y+this.padding("top");else if(this.styles.valign==="bottom")e=this.y+this.height-this.padding("bottom");else{var r=this.height-this.padding("vertical");e=this.y+r/2+this.padding("top")}var n;if(this.styles.halign==="right")n=this.x+this.width-this.padding("right");else if(this.styles.halign==="center"){var i=this.width-this.padding("horizontal");n=this.x+i/2+this.padding("left")}else n=this.x+this.padding("left");return{x:n,y:e}},t.prototype.getContentHeight=function(e,r){r===void 0&&(r=1.15);var n=Array.isArray(this.text)?this.text.length:1,i=this.styles.fontSize/e*r,a=n*i+this.padding("vertical");return Math.max(a,this.styles.minCellHeight)},t.prototype.padding=function(e){var r=Up(this.styles.cellPadding,0);return e==="vertical"?r.top+r.bottom:e==="horizontal"?r.left+r.right:r[e]},t})(),$P=(function(){function t(e,r,n){this.wrappedWidth=0,this.minReadableWidth=0,this.minWidth=0,this.width=0,this.dataKey=e,this.raw=r,this.index=n}return t.prototype.getMaxCustomCellWidth=function(e){for(var r=0,n=0,i=e.allRows();n<i.length;n++){var a=i[n],o=a.cells[this.index];o&&typeof o.styles.cellWidth=="number"&&(r=Math.max(r,o.styles.cellWidth))}return r},t})();function YP(t,e){ZP(t,e);var r=[],n=0;e.columns.forEach(function(a){var o=a.getMaxCustomCellWidth(e);o?a.width=o:(a.width=a.wrappedWidth,r.push(a)),n+=a.width});var i=e.getWidth(t.pageSize().width)-n;i&&(i=_2(r,i,function(a){return Math.max(a.minReadableWidth,a.minWidth)})),i&&(i=_2(r,i,function(a){return a.minWidth})),i=Math.abs(i),!e.settings.horizontalPageBreak&&i>.1/t.scaleFactor()&&(i=i<1?i:Math.round(i),console.log("Of the table content, ".concat(i," units width could not fit page"))),tD(e),eD(e,t),JP(e)}function ZP(t,e){var r=t.scaleFactor(),n=e.settings.horizontalPageBreak,i=A8(t,e);e.allRows().forEach(function(a){for(var o=0,s=e.columns;o<s.length;o++){var A=s[o],u=a.cells[A.index];if(u){var l=e.hooks.didParseCell;e.callCellHooks(t,l,u,a,A,null);var c=u.padding("horizontal");u.contentWidth=Tp(u.text,u.styles,t)+c;var f=Tp(u.text.join(" ").split(/[^\S\u00A0]+/),u.styles,t);if(u.minReadableWidth=f+u.padding("horizontal"),typeof u.styles.cellWidth=="number")u.minWidth=u.styles.cellWidth,u.wrappedWidth=u.styles.cellWidth;else if(u.styles.cellWidth==="wrap"||n===!0)u.contentWidth>i?(u.minWidth=i,u.wrappedWidth=i):(u.minWidth=u.contentWidth,u.wrappedWidth=u.contentWidth);else{var h=10/r;u.minWidth=u.styles.minCellWidth||h,u.wrappedWidth=u.contentWidth,u.minWidth>u.wrappedWidth&&(u.wrappedWidth=u.minWidth)}}}}),e.allRows().forEach(function(a){for(var o=0,s=e.columns;o<s.length;o++){var A=s[o],u=a.cells[A.index];if(u&&u.colSpan===1)A.wrappedWidth=Math.max(A.wrappedWidth,u.wrappedWidth),A.minWidth=Math.max(A.minWidth,u.minWidth),A.minReadableWidth=Math.max(A.minReadableWidth,u.minReadableWidth);else{var l=e.styles.columnStyles[A.dataKey]||e.styles.columnStyles[A.index]||{},c=l.cellWidth||l.minCellWidth;c&&typeof c=="number"&&(A.minWidth=c,A.wrappedWidth=c)}u&&(u.colSpan>1&&!A.minWidth&&(A.minWidth=u.minWidth),u.colSpan>1&&!A.wrappedWidth&&(A.wrappedWidth=u.minWidth))}})}function _2(t,e,r){for(var n=e,i=t.reduce(function(h,d){return h+d.wrappedWidth},0),a=0;a<t.length;a++){var o=t[a],s=o.wrappedWidth/i,A=n*s,u=o.width+A,l=r(o),c=u<l?l:u;e-=c-o.width,o.width=c}if(e=Math.round(e*1e10)/1e10,e){var f=t.filter(function(h){return e<0?h.width>r(h):!0});f.length&&(e=_2(f,e,r))}return e}function JP(t){for(var e={},r=1,n=t.allRows(),i=0;i<n.length;i++)for(var a=n[i],o=0,s=t.columns;o<s.length;o++){var A=s[o],u=e[A.index];if(r>1)r--,delete a.cells[A.index];else if(u)u.cell.height+=a.height,r=u.cell.colSpan,delete a.cells[A.index],u.left--,u.left<=1&&delete e[A.index];else{var l=a.cells[A.index];if(!l)continue;if(l.height=a.height,l.rowSpan>1){var c=n.length-i,f=l.rowSpan>c?c:l.rowSpan;e[A.index]={cell:l,left:f,row:a}}}}}function tD(t){for(var e=t.allRows(),r=0;r<e.length;r++)for(var n=e[r],i=null,a=0,o=0,s=0;s<t.columns.length;s++){var A=t.columns[s];if(o-=1,o>1&&t.columns[s+1])a+=A.width,delete n.cells[A.index];else if(i){var u=i;delete n.cells[A.index],i=null,u.width=A.width+a}else{var u=n.cells[A.index];if(!u)continue;if(o=u.colSpan,a=0,u.colSpan>1){i=u,a+=A.width;continue}u.width=A.width+a}}}function eD(t,e){for(var r={count:0,height:0},n=0,i=t.allRows();n<i.length;n++){for(var a=i[n],o=0,s=t.columns;o<s.length;o++){var A=s[o],u=a.cells[A.index];if(u){e.applyStyles(u.styles,!0);var l=u.width-u.padding("horizontal");if(u.styles.overflow==="linebreak")u.text=e.splitTextToSize(u.text,l+1/e.scaleFactor(),{fontSize:u.styles.fontSize});else if(u.styles.overflow==="ellipsize")u.text=Jx(u.text,l,u.styles,e,"...");else if(u.styles.overflow==="hidden")u.text=Jx(u.text,l,u.styles,e,"");else if(typeof u.styles.overflow=="function"){var c=u.styles.overflow(u.text,l);typeof c=="string"?u.text=[c]:u.text=c}u.contentHeight=u.getContentHeight(e.scaleFactor(),e.getLineHeightFactor());var f=u.contentHeight/u.rowSpan;u.rowSpan>1&&r.count*r.height<f*u.rowSpan?r={height:f,count:u.rowSpan}:r&&r.count>0&&r.height>f&&(f=r.height),f>a.height&&(a.height=f)}}r.count--}}function Jx(t,e,r,n,i){return t.map(function(a){return rD(a,e,r,n,i)})}function rD(t,e,r,n,i){var a=1e4*n.scaleFactor();if(e=Math.ceil(e*a)/a,e>=Tp(t,r,n))return t;for(;e<Tp(t+i,r,n)&&!(t.length<=1);)t=t.substring(0,t.length-1);return t.trim()+i}function d8(t,e){var r=new wu(t),n=nD(e,r.scaleFactor()),i=new XP(e,n);return YP(r,i),r.applyStyles(r.userStyles),i}function nD(t,e){var r=t.content,n=sD(r.columns);if(r.head.length===0){var i=t8(n,"head");i&&r.head.push(i)}if(r.foot.length===0){var i=t8(n,"foot");i&&r.foot.push(i)}var a=t.settings.theme,o=t.styles;return{columns:n,head:p2("head",r.head,n,o,a,e),body:p2("body",r.body,n,o,a,e),foot:p2("foot",r.foot,n,o,a,e)}}function p2(t,e,r,n,i,a){var o={},s=e.map(function(A,u){for(var l=0,c={},f=0,h=0,d=0,g=r;d<g.length;d++){var p=g[d];if(o[p.index]==null||o[p.index].left===0)if(h===0){var v=void 0;Array.isArray(A)?v=A[p.index-f-l]:v=A[p.dataKey];var B={};typeof v=="object"&&!Array.isArray(v)&&(B=v?.styles||{});var S=aD(t,p,u,i,n,a,B),F=new f8(v,S,t);c[p.dataKey]=F,c[p.index]=F,h=F.colSpan-1,o[p.index]={left:F.rowSpan-1,times:h}}else h--,f++;else o[p.index].left--,h=o[p.index].times,l++}return new h8(A,u,t,c)});return s}function t8(t,e){var r={};return t.forEach(function(n){if(n.raw!=null){var i=iD(e,n.raw);i!=null&&(r[n.dataKey]=i)}}),Object.keys(r).length>0?r:null}function iD(t,e){if(t==="head"){if(typeof e=="object")return e.header||null;if(typeof e=="string"||typeof e=="number")return e}else if(t==="foot"&&typeof e=="object")return e.footer;return null}function sD(t){return t.map(function(e,r){var n,i;return typeof e=="object"?i=(n=e.dataKey)!==null&&n!==void 0?n:r:i=r,new $P(i,e,r)})}function aD(t,e,r,n,i,a,o){var s=LP(n),A;t==="head"?A=i.headStyles:t==="body"?A=i.bodyStyles:t==="foot"&&(A=i.footStyles);var u=_o({},s.table,s[t],i.styles,A),l=i.columnStyles[e.dataKey]||i.columnStyles[e.index]||{},c=t==="body"?l:{},f=t==="body"&&r%2===0?_o({},s.alternateRow,i.alternateRowStyles):{},h=OP(a),d=_o({},h,u,f,c);return _o(d,o)}function oD(t,e,r){var n;r===void 0&&(r={});var i=A8(t,e),a=new Map,o=[],s=[],A=[];Array.isArray(e.settings.horizontalPageBreakRepeat)?A=e.settings.horizontalPageBreakRepeat:(typeof e.settings.horizontalPageBreakRepeat=="string"||typeof e.settings.horizontalPageBreakRepeat=="number")&&(A=[e.settings.horizontalPageBreakRepeat]),A.forEach(function(f){var h=e.columns.find(function(d){return d.dataKey===f||d.index===f});h&&!a.has(h.index)&&(a.set(h.index,!0),o.push(h.index),s.push(e.columns[h.index]),i-=h.wrappedWidth)});for(var u=!0,l=(n=r?.start)!==null&&n!==void 0?n:0;l<e.columns.length;){if(a.has(l)){l++;continue}var c=e.columns[l].wrappedWidth;if(u||i>=c)u=!1,o.push(l),s.push(e.columns[l]),i-=c;else break;l++}return{colIndexes:o,columns:s,lastIndex:l-1}}function AD(t,e){for(var r=[],n=0;n<e.columns.length;n++){var i=oD(t,e,{start:n});i.columns.length&&(r.push(i),n=i.lastIndex)}return r}function p8(t,e){var r=e.settings,n=r.startY,i=r.margin,a={x:i.left,y:n},o=e.getHeadHeight(e.columns)+e.getFootHeight(e.columns),s=n+i.bottom+o;if(r.pageBreak==="avoid"){var A=e.body,u=A.reduce(function(f,h){return f+h.height},0);s+=u}var l=new wu(t);(r.pageBreak==="always"||r.startY!=null&&s>l.pageSize().height)&&(m8(l),a.y=i.top),e.callWillDrawPageHooks(l,a);var c=_o({},a);e.startPageNumber=l.pageNumber(),r.horizontalPageBreak?lD(l,e,c,a):(l.applyStyles(l.userStyles),(r.showHead==="firstPage"||r.showHead==="everyPage")&&e.head.forEach(function(f){return Bo(l,e,f,a,e.columns)}),l.applyStyles(l.userStyles),e.body.forEach(function(f,h){var d=h===e.body.length-1;Ip(l,e,f,d,c,a,e.columns)}),l.applyStyles(l.userStyles),(r.showFoot==="lastPage"||r.showFoot==="everyPage")&&e.foot.forEach(function(f){return Bo(l,e,f,a,e.columns)})),a8(l,e,c,a),e.callEndPageHooks(l,a),e.finalY=a.y,t.lastAutoTable=e,l.applyStyles(l.userStyles)}function lD(t,e,r,n){var i=AD(t,e),a=e.settings;if(a.horizontalPageBreakBehaviour==="afterAllRows")i.forEach(function(u,l){t.applyStyles(t.userStyles),l>0?mh(t,e,r,n,u.columns,!0):e8(t,e,n,u.columns),uD(t,e,r,n,u.columns),g2(t,e,n,u.columns)});else for(var o=-1,s=i[0],A=function(){var u=o;if(s){t.applyStyles(t.userStyles);var l=s.columns;o>=0?mh(t,e,r,n,l,!0):e8(t,e,n,l),u=r8(t,e,o+1,n,l),g2(t,e,n,l)}var c=u-o;i.slice(1).forEach(function(f){t.applyStyles(t.userStyles),mh(t,e,r,n,f.columns,!0),r8(t,e,o+1,n,f.columns,c),g2(t,e,n,f.columns)}),o=u};o<e.body.length-1;)A()}function e8(t,e,r,n){var i=e.settings;t.applyStyles(t.userStyles),(i.showHead==="firstPage"||i.showHead==="everyPage")&&e.head.forEach(function(a){return Bo(t,e,a,r,n)})}function uD(t,e,r,n,i){t.applyStyles(t.userStyles),e.body.forEach(function(a,o){var s=o===e.body.length-1;Ip(t,e,a,s,r,n,i)})}function r8(t,e,r,n,i,a){t.applyStyles(t.userStyles),a=a??e.body.length;for(var o=Math.min(r+a,e.body.length),s=-1,A=e.body.slice(r,o),u=0;u<A.length;u++){var l=A[u],c=r+u===e.body.length-1,f=g8(t,e,c,n);if(l.canEntireRowFit(f,i))Bo(t,e,l,n,i),s=r+u;else break}return s}function g2(t,e,r,n){var i=e.settings;t.applyStyles(t.userStyles),(i.showFoot==="lastPage"||i.showFoot==="everyPage")&&e.foot.forEach(function(a){return Bo(t,e,a,r,n)})}function cD(t,e,r){var n=r.getLineHeight(t.styles.fontSize),i=t.padding("vertical"),a=Math.floor((e-i)/n);return Math.max(0,a)}function hD(t,e,r,n){var i={};t.spansMultiplePages=!0,t.height=0;for(var a=0,o=0,s=r.columns;o<s.length;o++){var A=s[o],u=t.cells[A.index];if(u){Array.isArray(u.text)||(u.text=[u.text]);var l=new f8(u.raw,u.styles,u.section);l=_o(l,u),l.text=[];var c=cD(u,e,n);u.text.length>c&&(l.text=u.text.splice(c,u.text.length));var f=n.scaleFactor(),h=n.getLineHeightFactor();u.contentHeight=u.getContentHeight(f,h),u.contentHeight>=e&&(u.contentHeight=e,l.styles.minCellHeight-=e),u.contentHeight>t.height&&(t.height=u.contentHeight),l.contentHeight=l.getContentHeight(f,h),l.contentHeight>a&&(a=l.contentHeight),i[A.index]=l}}var d=new h8(t.raw,-1,t.section,i,!0);d.height=a;for(var g=0,p=r.columns;g<p.length;g++){var A=p[g],l=d.cells[A.index];l&&(l.height=d.height);var u=t.cells[A.index];u&&(u.height=t.height)}return d}function fD(t,e,r,n){var i=t.pageSize().height,a=n.settings.margin,o=a.top+a.bottom,s=i-o;e.section==="body"&&(s-=n.getHeadHeight(n.columns)+n.getFootHeight(n.columns));var A=e.getMinimumRowHeight(n.columns,t),u=A<r;if(A>s)return console.log("Will not be able to print row ".concat(e.index," correctly since it's minimum height is larger than page height")),!0;if(!u)return!1;var l=e.hasRowSpan(n.columns),c=e.getMaxCellHeight(n.columns)>s;return c?(l&&console.log("The content of row ".concat(e.index," will not be drawn correctly since drawing rows with a height larger than the page height and has cells with rowspans is not supported.")),!0):!(l||n.settings.rowPageBreak==="avoid")}function Ip(t,e,r,n,i,a,o){var s=g8(t,e,n,a);if(r.canEntireRowFit(s,o))Bo(t,e,r,a,o);else if(fD(t,r,s,e)){var A=hD(r,s,e,t);Bo(t,e,r,a,o),mh(t,e,i,a,o),Ip(t,e,A,n,i,a,o)}else mh(t,e,i,a,o),Ip(t,e,r,n,i,a,o)}function Bo(t,e,r,n,i){n.x=e.settings.margin.left;for(var a=0,o=i;a<o.length;a++){var s=o[a],A=r.cells[s.index];if(!A){n.x+=s.width;continue}t.applyStyles(A.styles),A.x=n.x,A.y=n.y;var u=e.callCellHooks(t,e.hooks.willDrawCell,A,r,s,n);if(u===!1){n.x+=s.width;continue}dD(t,A,n);var l=A.getTextPos();n8(A.text,l.x,l.y,{halign:A.styles.halign,valign:A.styles.valign,maxWidth:Math.ceil(A.width-A.padding("left")-A.padding("right"))},t.getDocument()),e.callCellHooks(t,e.hooks.didDrawCell,A,r,s,n),n.x+=s.width}n.y+=r.height}function dD(t,e,r){var n=e.styles;if(t.getDocument().setFillColor(t.getDocument().getFillColor()),typeof n.lineWidth=="number"){var i=o8(n.lineWidth,n.fillColor);i&&t.rect(e.x,r.y,e.width,e.height,i)}else typeof n.lineWidth=="object"&&(n.fillColor&&t.rect(e.x,r.y,e.width,e.height,"F"),pD(t,e,r,n.lineWidth))}function pD(t,e,r,n){var i,a,o,s;n.top&&(i=r.x,a=r.y,o=r.x+e.width,s=r.y,n.right&&(o+=.5*n.right),n.left&&(i-=.5*n.left),A(n.top,i,a,o,s)),n.bottom&&(i=r.x,a=r.y+e.height,o=r.x+e.width,s=r.y+e.height,n.right&&(o+=.5*n.right),n.left&&(i-=.5*n.left),A(n.bottom,i,a,o,s)),n.left&&(i=r.x,a=r.y,o=r.x,s=r.y+e.height,n.top&&(a-=.5*n.top),n.bottom&&(s+=.5*n.bottom),A(n.left,i,a,o,s)),n.right&&(i=r.x+e.width,a=r.y,o=r.x+e.width,s=r.y+e.height,n.top&&(a-=.5*n.top),n.bottom&&(s+=.5*n.bottom),A(n.right,i,a,o,s));function A(u,l,c,f,h){t.getDocument().setLineWidth(u),t.getDocument().line(l,c,f,h,"S")}}function g8(t,e,r,n){var i=e.settings.margin.bottom,a=e.settings.showFoot;return(a==="everyPage"||a==="lastPage"&&r)&&(i+=e.getFootHeight(e.columns)),t.pageSize().height-n.y-i}function mh(t,e,r,n,i,a){i===void 0&&(i=[]),a===void 0&&(a=!1),t.applyStyles(t.userStyles),e.settings.showFoot==="everyPage"&&!a&&e.foot.forEach(function(s){return Bo(t,e,s,n,i)}),e.callEndPageHooks(t,n);var o=e.settings.margin;a8(t,e,r,n),m8(t),e.pageNumber++,n.x=o.left,n.y=o.top,r.y=o.top,e.callWillDrawPageHooks(t,n),e.settings.showHead==="everyPage"&&(e.head.forEach(function(s){return Bo(t,e,s,n,i)}),t.applyStyles(t.userStyles))}function m8(t){var e=t.pageNumber();t.setPage(e+1);var r=t.pageNumber();return r===e?(t.addPage(),!0):!1}function gD(t){t.API.autoTable=function(){for(var e=[],r=0;r<arguments.length;r++)e[r]=arguments[r];var n=e[0],i=c8(this,n),a=d8(this,i);return p8(this,a),this},t.API.lastAutoTable=!1,t.API.autoTableText=function(e,r,n,i){n8(e,r,n,i,this)},t.API.autoTableSetDefaults=function(e){return wu.setDefaults(e,this),this},t.autoTableSetDefaults=function(e,r){wu.setDefaults(e,r)},t.API.autoTableHtmlToJson=function(e,r){var n;if(r===void 0&&(r=!1),typeof window>"u")return console.error("Cannot run autoTableHtmlToJson in non browser environment"),null;var i=new wu(this),a=u8(i,e,window,r,!1),o=a.head,s=a.body,A=((n=o[0])===null||n===void 0?void 0:n.map(function(u){return u.content}))||[];return{columns:A,rows:s,data:s}}}var m2;function B2(t,e){var r=c8(t,e),n=d8(t,r);p8(t,n)}try{typeof window<"u"&&window&&(v2=window,b2=v2.jsPDF||((m2=v2.jspdf)===null||m2===void 0?void 0:m2.jsPDF),b2&&gD(b2))}catch(t){console.error("Could not apply autoTable plugin",t)}var v2,b2;var M2=wi(b8(),1);
+(function(){
+const ExcelJS = L2.default;
+const jsPDF = ar;
+const autoTable = B2;
+const JSZip = M2.default;
+
+function seededRandom(seed = 20260710) {
+  let state = seed >>> 0;
+  return () => {
+    state = (1664525 * state + 1013904223) >>> 0;
+    return state / 0x100000000;
+  };
+}
+
+function gradeFromClass(className) {
+  return Number(String(className).match(/^\d+/)?.[0] || 0);
+}
+
+function createSampleData() {
+  const workshops = [
+    { id: "W01", offerId: "W01", name: "Robotik", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 12, schoolForm: "Alle", min: 0, max: 12, mode: "Pflicht" },
+    { id: "W02", offerId: "W02", name: "Theater", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 12, schoolForm: "Alle", min: 6, max: 14, mode: "Pflicht" },
+    { id: "W03", offerId: "W03", name: "Kochen", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 10, schoolForm: "Alle", min: 5, max: 12, mode: "Pflicht" },
+    { id: "W04", offerId: "W04", name: "Fotografie", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 12, schoolForm: "Alle", min: 0, max: 12, mode: "Pflicht" },
+    { id: "W05", offerId: "W05", name: "Kreatives Schreiben", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 12, schoolForm: "Alle", min: 0, max: 12, mode: "Pflicht" },
+    { id: "W06", offerId: "W06", name: "Musikproduktion", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 10, schoolForm: "Regional", min: 6, max: 12, mode: "Pflicht" },
+    { id: "W07", offerId: "W07", name: "Sport & Bewegung", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 12, schoolForm: "Alle", min: 0, max: 16, mode: "Pflicht" },
+    { id: "W08", offerId: "W08", name: "Nachhaltigkeit", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 10, schoolForm: "Gymnasial", min: 5, max: 12, mode: "Pflicht" },
+    { id: "W09", offerId: "W09", name: "Mediengestaltung", session: "A", cohortMin: 0, gradeFrom: 9, gradeTo: 12, schoolForm: "Alle", min: 0, max: 14, mode: "Pflicht" },
+    { id: "W10", offerId: "W10", name: "Drachenboot", session: "A", cohortMin: null, gradeFrom: 7, gradeTo: 7, schoolForm: "Regional", min: 3, max: 8, mode: "Pflicht" },
+    { id: "W10B", offerId: "W10", name: "Drachenboot", session: "B", cohortMin: null, gradeFrom: 7, gradeTo: 7, schoolForm: "Regional", min: 3, max: 8, mode: "Pflicht" },
+    { id: "W11", offerId: "W11", name: "Berufsorientierung", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 10, schoolForm: "Regional", min: 6, max: 14, mode: "Pflicht" },
+    { id: "W12", offerId: "W12", name: "Oberstufenlabor", session: "A", cohortMin: 0, gradeFrom: 11, gradeTo: 12, schoolForm: "Gymnasial", min: 5, max: 12, mode: "Pflicht" },
+    { id: "W13", offerId: "W13", name: "Erste Hilfe", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 12, schoolForm: "Alle", min: 0, max: 16, mode: "Pflicht" },
+    { id: "W14", offerId: "W14", name: "Debattieren", session: "A", cohortMin: 0, gradeFrom: 9, gradeTo: 12, schoolForm: "Gymnasial", min: 4, max: 12, mode: "Pflicht" },
+    { id: "W15", offerId: "W15", name: "Handwerk & Technik", session: "A", cohortMin: 0, gradeFrom: 7, gradeTo: 10, schoolForm: "Regional", min: 5, max: 14, mode: "Pflicht" },
+  ];
+
+  const firstNames = ["Anna", "Ben", "Clara", "David", "Emma", "Felix", "Greta", "Hasan", "Ida", "Jonas", "Klara", "Leon", "Mia", "Noah", "Olivia", "Paul", "Rania", "Samuel", "Tara", "Yusuf", "Amelie", "Bruno", "Celine", "Deniz", "Elena"];
+  const lastNames = ["Becker", "Fischer", "Hoffmann", "Klein", "Wagner", "Braun", "Wolf", "Yilmaz", "Schmitt", "Richter", "Neumann", "Hartmann", "König", "Schwarz", "Zimmermann", "Krüger", "Saleh", "Lehmann", "Vogel", "Öztürk", "Koch", "Bauer", "Schulz", "Krause", "Werner"];
+  const classes = ["7a", "7b", "8a", "8b", "9a", "9b", "10a", "10b", "11", "12"];
+  const rnd = seededRandom();
+
+  const participants = Array.from({ length: 100 }, (_, index) => {
+    const className = classes[index % classes.length];
+    const grade = gradeFromClass(className);
+    const schoolForm = grade >= 11 ? "Gymnasial" : (Math.floor(index / classes.length) + index) % 2 ? "Gymnasial" : "Regional";
+    return {
+      id: `P${String(index + 1).padStart(3, "0")}`,
+      firstName: firstNames[index % firstNames.length],
+      lastName: lastNames[(index * 7 + Math.floor(index / firstNames.length)) % lastNames.length],
+      className,
+      schoolForm,
+      wishes: ["", "", "", ""],
+      fixed: "",
+    };
+  });
+
+  const eligible = (person, course) => {
+    const grade = gradeFromClass(person.className);
+    return grade >= course.gradeFrom && grade <= course.gradeTo && (course.schoolForm === "Alle" || course.schoolForm === person.schoolForm);
+  };
+
+  // Reserve distinct participants for every effective mandatory minimum.
+  const reserved = new Set();
+  const courseOrder = ["W10", "W10B", "W12", "W06", "W11", "W15", "W08", "W14", "W03", "W02", "W01", "W04", "W05", "W07", "W09", "W13"];
+  const courseMap = new Map(workshops.map((course) => [course.id, course]));
+  const coreAssignments = [];
+  for (const courseId of courseOrder) {
+    const course = courseMap.get(courseId);
+    const need = Math.max(course.min, 1);
+    const candidates = participants.filter((person) => !reserved.has(person.id) && eligible(person, course));
+    for (let i = 0; i < need; i += 1) {
+      const person = candidates[i];
+      if (!person) throw new Error(`Musterdaten konnten für ${courseId} nicht erzeugt werden.`);
+      reserved.add(person.id);
+      person.wishes[i % 2] = course.offerId;
+      coreAssignments.push([person.id, courseId]);
+    }
+  }
+
+  // Fill all remaining wish slots with eligible, non-duplicate courses.
+  for (const person of participants) {
+    const pool = [...new Set(workshops.filter((course) => eligible(person, course)).map((course) => course.offerId))];
+    for (let slot = 0; slot < 4; slot += 1) {
+      if (person.wishes[slot]) continue;
+      const available = pool.filter((id) => !person.wishes.includes(id));
+      const selected = available[Math.floor(rnd() * available.length)] || "";
+      person.wishes[slot] = selected;
+    }
+  }
+
+  // A few fixed assignments, chosen from the reserved core so feasibility remains guaranteed.
+  for (const [personId, courseId] of coreAssignments.slice(0, 6)) {
+    participants.find((person) => person.id === personId).fixed = courseId;
+  }
+
+  // Example locks that do not contradict fixed assignments.
+  const locks = [];
+  for (let i = 0; i < participants.length && locks.length < 20; i += 4) {
+    const person = participants[i];
+    const candidateOffer = person.wishes[3];
+    const candidateCourse = workshops.find((course) => course.offerId === candidateOffer && eligible(person, course) && course.id !== person.fixed);
+    if (candidateCourse) {
+      locks.push({ personId: person.id, workshopId: candidateCourse.id, reason: "Beispielsperrung" });
+    }
+  }
+
+  return {
+    name: "Workshopwoche – Beispiel",
+    settings: { allowOutside: false, defaultMode: "Pflicht", balanceWeight: 1, cohortMin: 3 },
+    workshops,
+    participants,
+    locks,
+  };
+}
+
+const MODES = new Set(["Pflicht", "Optional"]);
+const FORMS = new Set(["Alle", "Regional", "Gymnasial"]);
+
+function parseGrade(value) {
+  const match = String(value ?? "").trim().match(/^(\d{1,2})/);
+  return match ? Number(match[1]) : NaN;
+}
+
+function normalizeEvent(input) {
+  const settings = {
+    allowOutside: false,
+    defaultMode: "Pflicht",
+    balanceWeight: 1,
+    cohortMin: 3,
+    ...(input?.settings ?? {}),
+  };
+
+  const normalizedCohortMin = Number(settings.cohortMin);
+
+  return {
+    name: String(input?.name || "Workshop-Veranstaltung"),
+    settings: {
+      allowOutside: Boolean(settings.allowOutside),
+      defaultMode: MODES.has(settings.defaultMode) ? settings.defaultMode : "Pflicht",
+      balanceWeight: Math.max(0, Math.min(100, Number(settings.balanceWeight) || 0)),
+      cohortMin: normalizedCohortMin === 0 ? 0 : Math.max(2, Math.min(20, Number.isFinite(normalizedCohortMin) ? normalizedCohortMin : 3)),
+    },
+    workshops: (input?.workshops ?? []).map((w) => {
+      const id = String(w.id ?? "").trim();
+      const offerId = String(w.offerId ?? w.courseTypeId ?? w.choiceId ?? id).trim();
+      const rawCohortMin = w.cohortMin;
+      return {
+        id,
+        offerId,
+        name: String(w.name ?? "").trim(),
+        session: String(w.session ?? w.group ?? "").trim(),
+        gradeFrom: Number(w.gradeFrom),
+        gradeTo: Number(w.gradeTo),
+        schoolForm: FORMS.has(w.schoolForm) ? w.schoolForm : "Alle",
+        min: Math.max(0, Number(w.min) || 0),
+        max: Math.max(0, Number(w.max) || 0),
+        mode: MODES.has(w.mode) ? w.mode : settings.defaultMode,
+        cohortMin: rawCohortMin === "" || rawCohortMin === null || rawCohortMin === undefined
+          ? null
+          : Math.max(0, Math.min(20, Number(rawCohortMin) || 0)),
+      };
+    }),
+    participants: (input?.participants ?? []).map((p) => ({
+      id: String(p.id ?? "").trim(),
+      firstName: String(p.firstName ?? "").trim(),
+      lastName: String(p.lastName ?? "").trim(),
+      className: String(p.className ?? "").trim(),
+      schoolForm: p.schoolForm === "Gymnasial" ? "Gymnasial" : "Regional",
+      wishes: Array.from({ length: 4 }, (_, i) => String(p.wishes?.[i] ?? "").trim()),
+      fixed: String(p.fixed ?? "").trim(),
+    })),
+    locks: (input?.locks ?? []).map((l) => ({
+      personId: String(l.personId ?? "").trim(),
+      workshopId: String(l.workshopId ?? "").trim(),
+      reason: String(l.reason ?? "").trim(),
+    })),
+  };
+}
+
+function effectiveMinimum(course, isOpen = true) {
+  if (!isOpen) return 0;
+  return Math.max(course.min, course.mode === "Pflicht" ? 1 : 0);
+}
+
+function effectiveCohortMinimum(event, course) {
+  const value = course.cohortMin === null ? event.settings.cohortMin : course.cohortMin;
+  if (!value) return 0;
+  return Math.max(2, value);
+}
+
+function cohortKey(person) {
+  return `${parseGrade(person.className)}\u0000${person.schoolForm}`;
+}
+
+function cohortLabelFromKey(key) {
+  const [grade, form] = String(key).split("\u0000");
+  return `Jahrgang ${grade} / ${form}`;
+}
+
+function rankIndex(person, course) {
+  if (!course) return -1;
+  return person.wishes.findIndex((wish) => wish === course.offerId);
+}
+
+function rankLabel(person, course) {
+  if (!course) return "Nicht zugeteilt";
+  if (person.fixed === course.id) return "Feste Setzung";
+  const index = rankIndex(person, course);
+  return ["Erstwunsch", "Zweitwunsch", "Drittwunsch", "Viertwunsch"][index] ?? "Kein Wunsch";
+}
+
+function preferenceCost(person, course) {
+  if (person.fixed === course.id) return 0;
+  const index = rankIndex(person, course);
+  if (index === 0) return 0;
+  if (index === 1) return 1_000_000;
+  if (index === 2) return 1_010_000;
+  if (index === 3) return 1_010_100;
+  return 1_010_200;
+}
+
+function courseEligible(person, course, lockSet, allowOutside) {
+  const grade = parseGrade(person.className);
+  if (!Number.isFinite(grade)) return false;
+  if (grade < course.gradeFrom || grade > course.gradeTo) return false;
+  if (course.schoolForm !== "Alle" && person.schoolForm !== course.schoolForm) return false;
+  if (lockSet.has(`${person.id}\u0000${course.id}`)) return false;
+  if (person.fixed) return person.fixed === course.id;
+  return allowOutside || person.wishes.includes(course.offerId);
+}
+
+function validateEvent(raw) {
+  const event = normalizeEvent(raw);
+  const errors = [];
+  const warnings = [];
+  const courseMap = new Map();
+  const offerMap = new Map();
+  const personMap = new Map();
+  const lockSet = new Set();
+
+  if (event.participants.length > 500) errors.push("Es sind mehr als 500 Teilnehmer eingetragen.");
+  if (event.workshops.length > 30) errors.push("Es sind mehr als 30 Durchführungen eingetragen.");
+  if (!event.workshops.length) errors.push("Es ist kein Workshop eingetragen.");
+  if (!event.participants.length) errors.push("Es ist kein Teilnehmer eingetragen.");
+
+  event.workshops.forEach((course, index) => {
+    const where = `Workshop-Zeile ${index + 1}`;
+    if (!course.id) errors.push(`${where}: Durchführungs-ID fehlt.`);
+    if (!course.offerId) errors.push(`${where}: Kursart-ID fehlt.`);
+    if (!course.name) errors.push(`${where}: Kursart/Workshopname fehlt.`);
+    if (courseMap.has(course.id)) errors.push(`${where}: Durchführungs-ID ${course.id} ist doppelt.`);
+    courseMap.set(course.id, course);
+    if (!offerMap.has(course.offerId)) offerMap.set(course.offerId, course.name);
+    else if (offerMap.get(course.offerId) !== course.name) warnings.push(`${course.id}: Kursart-ID ${course.offerId} wird mit unterschiedlichen Namen verwendet.`);
+    if (!Number.isFinite(course.gradeFrom) || !Number.isFinite(course.gradeTo)) {
+      errors.push(`${course.id || where}: Klassenbereich ist ungültig.`);
+    } else if (course.gradeFrom > course.gradeTo) {
+      errors.push(`${course.id}: „Klasse von“ ist größer als „Klasse bis“.`);
+    }
+    if (course.max < 1) errors.push(`${course.id}: Maximalbelegung muss mindestens 1 sein.`);
+    if (course.min > course.max) errors.push(`${course.id}: Mindestbelegung ist größer als Maximalbelegung.`);
+    if (!MODES.has(course.mode)) errors.push(`${course.id}: Durchführung muss Pflicht oder Optional sein.`);
+    if (course.cohortMin === 1) errors.push(`${course.id}: Kohortenminimum darf nicht 1 sein (0 = aus, leer = global, sonst mindestens 2).`);
+  });
+
+  event.participants.forEach((person, index) => {
+    const where = `Teilnehmer-Zeile ${index + 1}`;
+    if (!person.id) errors.push(`${where}: Person-ID fehlt.`);
+    if (personMap.has(person.id)) errors.push(`${where}: Person-ID ${person.id} ist doppelt.`);
+    personMap.set(person.id, person);
+    if (!person.firstName || !person.lastName) warnings.push(`${person.id || where}: Vor- oder Nachname fehlt.`);
+    if (!Number.isFinite(parseGrade(person.className))) errors.push(`${person.id || where}: Klasse ist ungültig.`);
+    person.wishes.filter(Boolean).forEach((wish) => {
+      if (!offerMap.has(wish)) warnings.push(`${person.id}: Wunsch ${wish} ist nicht als Kursart vorhanden.`);
+    });
+    const used = person.wishes.filter(Boolean);
+    if (new Set(used).size !== used.length) warnings.push(`${person.id}: Ein Wunsch wurde mehrfach eingetragen.`);
+    if (person.fixed && !courseMap.has(person.fixed)) errors.push(`${person.id}: Feste Setzung auf Durchführung ${person.fixed} ist unbekannt.`);
+  });
+
+  event.locks.forEach((lock, index) => {
+    if (!lock.personId && !lock.workshopId) return;
+    if (!personMap.has(lock.personId)) warnings.push(`Sperrung ${index + 1}: Person ${lock.personId} ist unbekannt.`);
+    if (!courseMap.has(lock.workshopId)) warnings.push(`Sperrung ${index + 1}: Workshop ${lock.workshopId} ist unbekannt.`);
+    const key = `${lock.personId}\u0000${lock.workshopId}`;
+    if (lockSet.has(key)) warnings.push(`Sperrung ${index + 1}: Kombination ist doppelt.`);
+    lockSet.add(key);
+  });
+
+  for (const person of event.participants) {
+    if (!person.fixed || !courseMap.has(person.fixed)) continue;
+    const course = courseMap.get(person.fixed);
+    const grade = parseGrade(person.className);
+    if (grade < course.gradeFrom || grade > course.gradeTo) {
+      errors.push(`${person.id}: Feste Setzung ${course.id} passt nicht zur Klassenstufe.`);
+    }
+    if (course.schoolForm !== "Alle" && course.schoolForm !== person.schoolForm) {
+      errors.push(`${person.id}: Feste Setzung ${course.id} passt nicht zum Bildungsgang.`);
+    }
+    if (lockSet.has(`${person.id}\u0000${course.id}`)) {
+      errors.push(`${person.id}: Feste Setzung ${course.id} ist gleichzeitig gesperrt.`);
+    }
+  }
+
+  const mandatoryMinimum = event.workshops
+    .filter((course) => course.mode === "Pflicht")
+    .reduce((sum, course) => sum + effectiveMinimum(course), 0);
+  if (mandatoryMinimum > event.participants.length) {
+    errors.push(`Die wirksamen Mindestbelegungen der Pflichtkurse (${mandatoryMinimum}) übersteigen die Teilnehmerzahl (${event.participants.length}).`);
+  }
+
+  return { event, errors, warnings };
+}
+
+class BinaryHeap {
+  constructor() { this.items = []; }
+  push(item) {
+    const a = this.items;
+    a.push(item);
+    let i = a.length - 1;
+    while (i > 0) {
+      const p = (i - 1) >> 1;
+      if (a[p][0] <= item[0]) break;
+      a[i] = a[p];
+      i = p;
+    }
+    a[i] = item;
+  }
+  pop() {
+    const a = this.items;
+    if (!a.length) return null;
+    const root = a[0];
+    const last = a.pop();
+    if (a.length && last) {
+      let i = 0;
+      while (true) {
+        let left = i * 2 + 1;
+        if (left >= a.length) break;
+        let right = left + 1;
+        let child = right < a.length && a[right][0] < a[left][0] ? right : left;
+        if (a[child][0] >= last[0]) break;
+        a[i] = a[child];
+        i = child;
+      }
+      a[i] = last;
+    }
+    return root;
+  }
+  get size() { return this.items.length; }
+}
+
+class MinCostMaxFlow {
+  constructor(n) {
+    this.graph = Array.from({ length: n }, () => []);
+  }
+  addEdge(from, to, cap, cost, meta = null) {
+    const forward = { to, rev: this.graph[to].length, cap, cost, initialCap: cap, meta };
+    const reverse = { to: from, rev: this.graph[from].length, cap: 0, cost: -cost, initialCap: 0, meta: null };
+    this.graph[from].push(forward);
+    this.graph[to].push(reverse);
+    return forward;
+  }
+  run(source, sink, maxFlow) {
+    const n = this.graph.length;
+    const potential = Array(n).fill(0);
+    let flow = 0;
+    let cost = 0;
+
+    while (flow < maxFlow) {
+      const dist = Array(n).fill(Infinity);
+      const prevNode = Array(n).fill(-1);
+      const prevEdge = Array(n).fill(-1);
+      dist[source] = 0;
+      const heap = new BinaryHeap();
+      heap.push([0, source]);
+
+      while (heap.size) {
+        const [d, node] = heap.pop();
+        if (d !== dist[node]) continue;
+        const edges = this.graph[node];
+        for (let i = 0; i < edges.length; i += 1) {
+          const edge = edges[i];
+          if (edge.cap <= 0) continue;
+          const next = d + edge.cost + potential[node] - potential[edge.to];
+          if (next < dist[edge.to]) {
+            dist[edge.to] = next;
+            prevNode[edge.to] = node;
+            prevEdge[edge.to] = i;
+            heap.push([next, edge.to]);
+          }
+        }
+      }
+
+      if (!Number.isFinite(dist[sink])) break;
+      for (let i = 0; i < n; i += 1) {
+        if (Number.isFinite(dist[i])) potential[i] += dist[i];
+      }
+
+      let add = maxFlow - flow;
+      for (let node = sink; node !== source; node = prevNode[node]) {
+        if (node < 0 || prevNode[node] < 0) { add = 0; break; }
+        add = Math.min(add, this.graph[prevNode[node]][prevEdge[node]].cap);
+      }
+      if (add <= 0) break;
+
+      for (let node = sink; node !== source; node = prevNode[node]) {
+        const edge = this.graph[prevNode[node]][prevEdge[node]];
+        edge.cap -= add;
+        this.graph[node][edge.rev].cap += add;
+        cost += add * edge.cost;
+      }
+      flow += add;
+    }
+
+    return { flow, cost };
+  }
+}
+
+class Dinic {
+  constructor(n) { this.g = Array.from({ length: n }, () => []); }
+  addEdge(from, to, cap) {
+    const f = { to, rev: this.g[to].length, cap };
+    const r = { to: from, rev: this.g[from].length, cap: 0 };
+    this.g[from].push(f); this.g[to].push(r);
+  }
+  maxFlow(source, sink) {
+    let total = 0;
+    const n = this.g.length;
+    while (true) {
+      const level = Array(n).fill(-1);
+      level[source] = 0;
+      const queue = [source];
+      for (let q = 0; q < queue.length; q += 1) {
+        const v = queue[q];
+        for (const e of this.g[v]) if (e.cap > 0 && level[e.to] < 0) {
+          level[e.to] = level[v] + 1; queue.push(e.to);
+        }
+      }
+      if (level[sink] < 0) return total;
+      const it = Array(n).fill(0);
+      const dfs = (v, pushed) => {
+        if (v === sink) return pushed;
+        for (; it[v] < this.g[v].length; it[v] += 1) {
+          const e = this.g[v][it[v]];
+          if (e.cap <= 0 || level[e.to] !== level[v] + 1) continue;
+          const sent = dfs(e.to, Math.min(pushed, e.cap));
+          if (sent > 0) { e.cap -= sent; this.g[e.to][e.rev].cap += sent; return sent; }
+        }
+        return 0;
+      };
+      while (true) {
+        const sent = dfs(source, Number.MAX_SAFE_INTEGER);
+        if (!sent) break;
+        total += sent;
+      }
+    }
+  }
+}
+
+function fixedLoads(event, courseMap) {
+  const loads = new Map([...courseMap.keys()].map((id) => [id, 0]));
+  for (const person of event.participants) if (person.fixed && loads.has(person.fixed)) {
+    loads.set(person.fixed, loads.get(person.fixed) + 1);
+  }
+  return loads;
+}
+
+function canMeetMinimums(event, openSet, lockSet, courseMap) {
+  const fixed = fixedLoads(event, courseMap);
+  for (const [courseId, load] of fixed) {
+    if (load > 0 && !openSet.has(courseId)) return false;
+    if (load > (courseMap.get(courseId)?.max ?? 0)) return false;
+  }
+
+  const courses = [...openSet].map((id) => courseMap.get(id)).filter(Boolean);
+  const nonFixed = event.participants.filter((p) => !p.fixed);
+  const source = 0;
+  const courseStart = 1;
+  const personStart = courseStart + courses.length;
+  const sink = personStart + nonFixed.length;
+  const dinic = new Dinic(sink + 1);
+  let requiredTotal = 0;
+
+  courses.forEach((course, ci) => {
+    const requirement = Math.max(0, effectiveMinimum(course) - (fixed.get(course.id) || 0));
+    if (requirement > course.max - (fixed.get(course.id) || 0)) return false;
+    requiredTotal += requirement;
+    dinic.addEdge(source, courseStart + ci, requirement);
+    nonFixed.forEach((person, pi) => {
+      if (courseEligible(person, course, lockSet, event.settings.allowOutside)) {
+        dinic.addEdge(courseStart + ci, personStart + pi, 1);
+      }
+    });
+  });
+  nonFixed.forEach((_, pi) => dinic.addEdge(personStart + pi, sink, 1));
+  return dinic.maxFlow(source, sink) === requiredTotal;
+}
+
+function determineOpenCourses(event, lockSet, courseMap) {
+  const open = new Set(event.workshops.filter((c) => c.mode === "Pflicht").map((c) => c.id));
+  for (const person of event.participants) if (person.fixed) open.add(person.fixed);
+
+  if (!canMeetMinimums(event, open, lockSet, courseMap)) {
+    throw new Error("Die Mindestbelegungen der Pflichtkurse können nicht gleichzeitig erfüllt werden. Prüfe Wünsche, Sperrungen, Klassenstufen und Bildungsgänge.");
+  }
+
+  const optional = event.workshops
+    .filter((course) => course.mode === "Optional" && !open.has(course.id))
+    .map((course) => {
+      let score = 0;
+      let candidates = 0;
+      for (const person of event.participants) {
+        if (!courseEligible(person, course, lockSet, event.settings.allowOutside)) continue;
+        candidates += 1;
+        const idx = rankIndex(person, course);
+        score += [100, 30, 10, 3][idx] ?? (event.settings.allowOutside ? 1 : 0);
+      }
+      return { course, score, candidates };
+    })
+    .filter(({ course, candidates }) => candidates >= Math.max(course.min, 1))
+    .sort((a, b) => b.score - a.score || a.course.id.localeCompare(b.course.id, "de"));
+
+  for (const { course } of optional) {
+    const trial = new Set(open);
+    trial.add(course.id);
+    if (canMeetMinimums(event, trial, lockSet, courseMap)) open.add(course.id);
+  }
+  return open;
+}
+
+function calculateTargets(event, openSet, courseMap, fixed) {
+  const targets = new Map();
+  const openCourses = [...openSet].map((id) => courseMap.get(id)).filter(Boolean);
+  let baseTotal = 0;
+  let maxTotal = 0;
+  for (const course of openCourses) {
+    const base = Math.max(effectiveMinimum(course), fixed.get(course.id) || 0);
+    targets.set(course.id, Math.min(base, course.max));
+    baseTotal += Math.min(base, course.max);
+    maxTotal += course.max;
+  }
+  if (baseTotal > event.participants.length) throw new Error("Die Mindestbelegungen übersteigen die Teilnehmerzahl.");
+  let remaining = Math.min(event.participants.length, maxTotal) - baseTotal;
+  while (remaining > 0) {
+    const candidates = openCourses
+      .filter((course) => targets.get(course.id) < course.max)
+      .sort((a, b) => targets.get(a.id) - targets.get(b.id) || a.max - b.max || a.id.localeCompare(b.id, "de"));
+    if (!candidates.length) break;
+    targets.set(candidates[0].id, targets.get(candidates[0].id) + 1);
+    remaining -= 1;
+  }
+  return targets;
+}
+
+function assignMinimums(event, openSet, lockSet, courseMap, assignments, loads) {
+  const nonFixed = event.participants.filter((person) => !assignments.has(person.id));
+  const courses = [...openSet].map((id) => courseMap.get(id)).filter(Boolean);
+  const source = 0;
+  const courseStart = 1;
+  const personStart = courseStart + courses.length;
+  const sink = personStart + nonFixed.length;
+  const flow = new MinCostMaxFlow(sink + 1);
+  const assignmentEdges = [];
+  let requiredTotal = 0;
+
+  courses.forEach((course, ci) => {
+    const required = Math.max(0, effectiveMinimum(course) - (loads.get(course.id) || 0));
+    requiredTotal += required;
+    flow.addEdge(source, courseStart + ci, required, 0);
+    nonFixed.forEach((person, pi) => {
+      if (!courseEligible(person, course, lockSet, event.settings.allowOutside)) return;
+      const edge = flow.addEdge(courseStart + ci, personStart + pi, 1, preferenceCost(person, course), {
+        personId: person.id,
+        courseId: course.id,
+      });
+      assignmentEdges.push(edge);
+    });
+  });
+  nonFixed.forEach((_, pi) => flow.addEdge(personStart + pi, sink, 1, 0));
+
+  const result = flow.run(source, sink, requiredTotal);
+  if (result.flow !== requiredTotal) throw new Error("Die Mindestbelegungen konnten nicht erfüllt werden.");
+  for (const edge of assignmentEdges) {
+    if (edge.initialCap === 1 && edge.cap === 0) {
+      assignments.set(edge.meta.personId, edge.meta.courseId);
+      loads.set(edge.meta.courseId, (loads.get(edge.meta.courseId) || 0) + 1);
+    }
+  }
+}
+
+function assignRemaining(event, openSet, lockSet, courseMap, assignments, loads, targets) {
+  const remainingPeople = event.participants.filter((person) => !assignments.has(person.id));
+  const courses = [...openSet].map((id) => courseMap.get(id)).filter(Boolean);
+  const source = 0;
+  const personStart = 1;
+  const courseStart = personStart + remainingPeople.length;
+  const sink = courseStart + courses.length;
+  const flow = new MinCostMaxFlow(sink + 1);
+  const assignmentEdges = [];
+  const unassignedEdges = [];
+
+  remainingPeople.forEach((person, pi) => {
+    const personNode = personStart + pi;
+    flow.addEdge(source, personNode, 1, 0);
+    courses.forEach((course, ci) => {
+      if (!courseEligible(person, course, lockSet, event.settings.allowOutside)) return;
+      if ((loads.get(course.id) || 0) >= course.max) return;
+      const edge = flow.addEdge(personNode, courseStart + ci, 1, preferenceCost(person, course), {
+        personId: person.id,
+        courseId: course.id,
+      });
+      assignmentEdges.push(edge);
+    });
+    const edge = flow.addEdge(personNode, sink, 1, 1_000_000_000, { personId: person.id });
+    unassignedEdges.push(edge);
+  });
+
+  courses.forEach((course, ci) => {
+    const current = loads.get(course.id) || 0;
+    const available = Math.max(0, course.max - current);
+    for (let seat = 1; seat <= available; seat += 1) {
+      const resultingLoad = current + seat;
+      const penalty = Math.round(event.settings.balanceWeight * Math.abs(resultingLoad - (targets.get(course.id) || 0)));
+      flow.addEdge(courseStart + ci, sink, 1, penalty);
+    }
+  });
+
+  const result = flow.run(source, sink, remainingPeople.length);
+  if (result.flow !== remainingPeople.length) throw new Error("Die restlichen Teilnehmer konnten nicht verarbeitet werden.");
+  for (const edge of assignmentEdges) {
+    if (edge.initialCap === 1 && edge.cap === 0) {
+      assignments.set(edge.meta.personId, edge.meta.courseId);
+      loads.set(edge.meta.courseId, (loads.get(edge.meta.courseId) || 0) + 1);
+    }
+  }
+  for (const edge of unassignedEdges) {
+    if (edge.initialCap === 1 && edge.cap === 0 && !assignments.has(edge.meta.personId)) {
+      assignments.set(edge.meta.personId, "");
+    }
+  }
+}
+
+
+function buildCohortCounts(event, assignments, courseMap) {
+  const counts = new Map();
+  const personMap = new Map(event.participants.map((p) => [p.id, p]));
+  for (const [personId, courseId] of assignments) {
+    if (!courseId || !courseMap.has(courseId)) continue;
+    const person = personMap.get(personId);
+    if (!person) continue;
+    const key = `${courseId}\u0001${cohortKey(person)}`;
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  return counts;
+}
+
+function cohortCount(counts, courseId, personOrKey) {
+  const key = typeof personOrKey === "string" && personOrKey.includes("\u0000") ? personOrKey : cohortKey(personOrKey);
+  return counts.get(`${courseId}\u0001${key}`) || 0;
+}
+
+function donorMoveSafe(event, person, donor, counts, loads) {
+  if (!donor) return true;
+  if ((loads.get(donor.id) || 0) - 1 < effectiveMinimum(donor)) return false;
+  const min = effectiveCohortMinimum(event, donor);
+  if (!min) return true;
+  const before = cohortCount(counts, donor.id, person);
+  const after = before - 1;
+  return after === 0 || after >= min;
+}
+
+function destinationAcceptsWithoutViolation(event, person, target, counts) {
+  const min = effectiveCohortMinimum(event, target);
+  if (!min) return true;
+  const before = cohortCount(counts, target.id, person);
+  return before >= min;
+}
+
+function applyMove(person, fromId, toId, assignments, loads, counts) {
+  const ckey = cohortKey(person);
+  if (fromId) {
+    loads.set(fromId, (loads.get(fromId) || 0) - 1);
+    const k = `${fromId}\u0001${ckey}`;
+    counts.set(k, (counts.get(k) || 0) - 1);
+  }
+  assignments.set(person.id, toId);
+  if (toId) {
+    loads.set(toId, (loads.get(toId) || 0) + 1);
+    const k = `${toId}\u0001${ckey}`;
+    counts.set(k, (counts.get(k) || 0) + 1);
+  }
+}
+
+function findCohortViolations(event, openSet, courseMap, assignments) {
+  const personMap = new Map(event.participants.map((p) => [p.id, p]));
+  const counts = buildCohortCounts(event, assignments, courseMap);
+  const violations = [];
+  for (const courseId of openSet) {
+    const course = courseMap.get(courseId);
+    const min = effectiveCohortMinimum(event, course);
+    if (!min) continue;
+    for (const [key, count] of counts) {
+      const prefix = `${courseId}\u0001`;
+      if (!key.startsWith(prefix) || count <= 0 || count >= min) continue;
+      const ckey = key.slice(prefix.length);
+      const members = [];
+      for (const [personId, assignedCourse] of assignments) {
+        const person = personMap.get(personId);
+        if (assignedCourse === courseId && person && cohortKey(person) === ckey) members.push(person);
+      }
+      violations.push({ course, cohortKey: ckey, count, min, members });
+    }
+  }
+  return { violations, counts };
+}
+
+function repairCohortMinimums(event, openSet, lockSet, courseMap, assignments, loads, targets) {
+  const personMap = new Map(event.participants.map((p) => [p.id, p]));
+  const maxPasses = Math.max(20, event.workshops.length * 4);
+
+  for (let pass = 0; pass < maxPasses; pass += 1) {
+    const { violations, counts } = findCohortViolations(event, openSet, courseMap, assignments);
+    if (!violations.length) return;
+
+    violations.sort((a, b) => (a.min - a.count) - (b.min - b.count) || a.course.id.localeCompare(b.course.id, "de"));
+    let repairedSomething = false;
+
+    for (const violation of violations) {
+      const target = violation.course;
+      const need = violation.min - violation.count;
+      const capacity = target.max - (loads.get(target.id) || 0);
+
+      // Prefer reinforcing the existing cohort. Moving between two executions of the same
+      // course type has zero wish penalty because both satisfy the same selected course type.
+      if (capacity >= need) {
+        const candidates = event.participants
+          .filter((person) => {
+            if (person.fixed || cohortKey(person) !== violation.cohortKey) return false;
+            const fromId = assignments.get(person.id) || "";
+            if (!fromId || fromId === target.id) return false;
+            if (!courseEligible(person, target, lockSet, event.settings.allowOutside)) return false;
+            const donor = courseMap.get(fromId);
+            return donorMoveSafe(event, person, donor, counts, loads);
+          })
+          .map((person) => {
+            const fromId = assignments.get(person.id) || "";
+            const donor = courseMap.get(fromId);
+            const delta = preferenceCost(person, target) - (donor ? preferenceCost(person, donor) : 1_000_000_000);
+            const balance = Math.abs((loads.get(target.id) || 0) + 1 - (targets.get(target.id) || 0));
+            return { person, fromId, delta: delta + balance };
+          })
+          .sort((a, b) => a.delta - b.delta || a.person.id.localeCompare(b.person.id, "de"));
+
+        if (candidates.length >= need) {
+          for (const candidate of candidates.slice(0, need)) {
+            applyMove(candidate.person, candidate.fromId, target.id, assignments, loads, counts);
+          }
+          repairedSomething = true;
+          break;
+        }
+      }
+
+      // Otherwise remove the small cohort from this execution entirely. This is only
+      // possible for non-fixed members and if the course minimum survives the removal.
+      if (violation.members.every((p) => !p.fixed) && (loads.get(target.id) || 0) - violation.count >= effectiveMinimum(target)) {
+        const planned = [];
+        const tempLoads = new Map(loads);
+        const tempCounts = new Map(counts);
+        let feasible = true;
+
+        for (const person of violation.members) {
+          const destinations = [...openSet]
+            .map((id) => courseMap.get(id))
+            .filter((course) => course && course.id !== target.id)
+            .filter((course) => (tempLoads.get(course.id) || 0) < course.max)
+            .filter((course) => courseEligible(person, course, lockSet, event.settings.allowOutside))
+            .filter((course) => destinationAcceptsWithoutViolation(event, person, course, tempCounts))
+            .map((course) => ({
+              course,
+              cost: preferenceCost(person, course) + Math.round(event.settings.balanceWeight * Math.abs((tempLoads.get(course.id) || 0) + 1 - (targets.get(course.id) || 0))),
+            }))
+            .sort((a, b) => a.cost - b.cost || a.course.id.localeCompare(b.course.id, "de"));
+
+          if (!destinations.length) { feasible = false; break; }
+          const dest = destinations[0].course;
+          planned.push({ person, toId: dest.id });
+          tempLoads.set(dest.id, (tempLoads.get(dest.id) || 0) + 1);
+          tempCounts.set(`${dest.id}\u0001${cohortKey(person)}`, cohortCount(tempCounts, dest.id, person) + 1);
+        }
+
+        if (feasible) {
+          for (const move of planned) applyMove(move.person, target.id, move.toId, assignments, loads, counts);
+          repairedSomething = true;
+          break;
+        }
+      }
+    }
+
+    if (!repairedSomething) {
+      const first = violations[0];
+      throw new Error(`${first.course.name}${first.course.session ? ` – Gruppe ${first.course.session}` : ""}: ${cohortLabelFromKey(first.cohortKey)} ist nur mit ${first.count} Person(en) vertreten; erforderlich sind mindestens ${first.min}. Die Kohortenregel kann mit den aktuellen Wünschen, Kapazitäten und Sperrungen nicht erfüllt werden.`);
+    }
+  }
+
+  const remaining = findCohortViolations(event, openSet, courseMap, assignments).violations;
+  if (remaining.length) {
+    const first = remaining[0];
+    throw new Error(`${first.course.name}: Kohortenregel für ${cohortLabelFromKey(first.cohortKey)} konnte nicht stabil erfüllt werden.`);
+  }
+}
+
+function cohortSummaryForCourse(event, course, assignments, personMap) {
+  const counts = new Map();
+  for (const [personId, courseId] of assignments) {
+    if (courseId !== course.id) continue;
+    const person = personMap.get(personId);
+    if (!person) continue;
+    const key = cohortKey(person);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0], "de", { numeric: true }))
+    .map(([key, count]) => ({ key, label: cohortLabelFromKey(key), count }));
+}
+
+function optimizeEvent(raw) {
+  const { event, errors, warnings } = validateEvent(raw);
+  if (errors.length) return { ok: false, errors, warnings };
+
+  try {
+    const courseMap = new Map(event.workshops.map((course) => [course.id, course]));
+    const personMap = new Map(event.participants.map((person) => [person.id, person]));
+    const lockSet = new Set(event.locks.filter((l) => l.personId && l.workshopId).map((l) => `${l.personId}\u0000${l.workshopId}`));
+    const openSet = determineOpenCourses(event, lockSet, courseMap);
+    const assignments = new Map();
+    const loads = new Map(event.workshops.map((course) => [course.id, 0]));
+
+    for (const person of event.participants) {
+      if (person.fixed) {
+        assignments.set(person.id, person.fixed);
+        loads.set(person.fixed, (loads.get(person.fixed) || 0) + 1);
+      }
+    }
+
+    const fixed = fixedLoads(event, courseMap);
+    const targets = calculateTargets(event, openSet, courseMap, fixed);
+    assignMinimums(event, openSet, lockSet, courseMap, assignments, loads);
+    assignRemaining(event, openSet, lockSet, courseMap, assignments, loads, targets);
+    repairCohortMinimums(event, openSet, lockSet, courseMap, assignments, loads, targets);
+
+    const participantResults = event.participants.map((person) => {
+      const courseId = assignments.get(person.id) || "";
+      const course = courseId ? courseMap.get(courseId) : null;
+      const type = rankLabel(person, course);
+      return {
+        personId: person.id,
+        firstName: person.firstName,
+        lastName: person.lastName,
+        className: person.className,
+        schoolForm: person.schoolForm,
+        workshopId: courseId,
+        offerId: course?.offerId || "",
+        workshopName: course ? `${course.name}${course.session ? ` – Gruppe ${course.session}` : ""}` : "",
+        courseTypeName: course?.name || "",
+        session: course?.session || "",
+        type,
+        note: type === "Nicht zugeteilt" ? "Kapazitäten oder Zugangsregeln prüfen" : type === "Kein Wunsch" ? "Außerhalb der vier Wünsche" : "",
+      };
+    });
+
+    const courseResults = event.workshops.map((course) => {
+      const open = openSet.has(course.id);
+      const load = loads.get(course.id) || 0;
+      const target = open ? targets.get(course.id) || 0 : 0;
+      const min = open ? effectiveMinimum(course) : 0;
+      return {
+        ...course,
+        open,
+        effectiveMin: min,
+        target,
+        load,
+        deviation: open ? load - target : 0,
+        cohortMinEffective: open ? effectiveCohortMinimum(event, course) : 0,
+        cohorts: open ? cohortSummaryForCourse(event, course, assignments, personMap) : [],
+        status: open ? "Findet statt" : "Entfällt (optional)",
+      };
+    });
+
+    const counts = new Map();
+    for (const result of participantResults) counts.set(result.type, (counts.get(result.type) || 0) + 1);
+    const openCourses = courseResults.filter((course) => course.open);
+    const meanDeviation = openCourses.length
+      ? openCourses.reduce((sum, course) => sum + Math.abs(course.deviation), 0) / openCourses.length
+      : 0;
+
+    return {
+      ok: true,
+      event,
+      warnings,
+      participantResults,
+      courseResults,
+      stats: {
+        participants: event.participants.length,
+        workshops: event.workshops.length,
+        openCourses: openCourses.length,
+        first: counts.get("Erstwunsch") || 0,
+        second: counts.get("Zweitwunsch") || 0,
+        third: counts.get("Drittwunsch") || 0,
+        fourth: counts.get("Viertwunsch") || 0,
+        fixed: counts.get("Feste Setzung") || 0,
+        outside: counts.get("Kein Wunsch") || 0,
+        unassigned: counts.get("Nicht zugeteilt") || 0,
+        meanDeviation,
+      },
+      personMap,
+      courseMap,
+    };
+  } catch (error) {
+    return { ok: false, errors: [error instanceof Error ? error.message : String(error)], warnings };
+  }
+}
+
+
+const STORAGE_KEY = "workshop-zuteilung-github-pages-v2";
+const LEGACY_STORAGE_KEY = "workshop-zuteilung-github-pages-v1";
+let state = loadState();
+let result = null;
+let saveTimer = null;
+let toastTimer = null;
+
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+    return saved ? normalizeEvent(JSON.parse(saved)) : createSampleData();
+  } catch {
+    return createSampleData();
+  }
+}
+
+function scheduleSave() {
+  $("#saveState").textContent = "speichert …";
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    $("#saveState").textContent = "lokal gespeichert";
+  }, 250);
+}
+
+function invalidateResult() {
+  result = null;
+  renderResults();
+}
+
+function commit({ invalidate = true } = {}) {
+  state = normalizeEvent(state);
+  scheduleSave();
+  if (invalidate) invalidateResult();
+  renderDashboard();
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function option(value, selected, label = value) {
+  return `<option value="${escapeHtml(value)}"${value === selected ? " selected" : ""}>${escapeHtml(label)}</option>`;
+}
+
+function toast(message) {
+  const el = $("#toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+function showDialog(title, messages, type = "error") {
+  $("#dialogTitle").textContent = title;
+  const list = Array.isArray(messages) ? messages : [messages];
+  $("#dialogBody").innerHTML = list.map((message) => `<div class="message ${type}">${escapeHtml(message)}</div>`).join("");
+  $("#messageDialog").showModal();
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+function safeFilename(value) {
+  return String(value || "datei").replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, " ").trim();
+}
+
+function courseTypes() {
+  const map = new Map();
+  for (const workshop of state.workshops) {
+    if (workshop.offerId && !map.has(workshop.offerId)) map.set(workshop.offerId, workshop.name);
+  }
+  return [...map.entries()].map(([id, name]) => ({ id, name }));
+}
+
+function workshopLabel(workshop) {
+  if (!workshop) return "";
+  return `${workshop.name}${workshop.session ? ` – Gruppe ${workshop.session}` : ""}`;
+}
+
+function nextSessionLabel(offerId) {
+  const used = new Set(state.workshops.filter((w) => w.offerId === offerId).map((w) => String(w.session || "").toUpperCase()));
+  for (let code = 65; code <= 90; code += 1) {
+    const label = String.fromCharCode(code);
+    if (!used.has(label)) return label;
+  }
+  return String(used.size + 1);
+}
+
+function renderDashboard() {
+  $("#eventName").value = state.name;
+  $("#allowOutside").value = String(state.settings.allowOutside);
+  $("#defaultMode").value = state.settings.defaultMode;
+  $("#balanceWeight").value = state.settings.balanceWeight;
+  $("#cohortMin").value = state.settings.cohortMin;
+
+  const validation = validateEvent(state);
+  const cards = [
+    [state.participants.length, "Teilnehmer"],
+    [courseTypes().length, "Kursarten"],
+    [state.workshops.length, "Durchführungen"],
+    [state.workshops.filter((w) => w.mode === "Pflicht").length, "Pflichtkurse"],
+    [state.locks.length, "Sperrungen"],
+    [state.participants.filter((p) => p.fixed).length, "Feste Setzungen"],
+  ];
+  $("#stats").innerHTML = cards.map(([value, label]) => `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`).join("");
+
+  const messages = [];
+  validation.errors.forEach((message) => messages.push(`<div class="message error">${escapeHtml(message)}</div>`));
+  validation.warnings.slice(0, 12).forEach((message) => messages.push(`<div class="message warning">${escapeHtml(message)}</div>`));
+  if (!messages.length) messages.push(`<div class="message">Eingaben sind grundsätzlich plausibel.</div>`);
+  if (validation.warnings.length > 12) messages.push(`<div class="message warning">Weitere ${validation.warnings.length - 12} Warnungen werden beim Berechnen angezeigt.</div>`);
+  $("#validationSummary").innerHTML = messages.join("");
+}
+
+function renderWorkshops() {
+  const rows = state.workshops.map((w, index) => `
+    <tr data-index="${index}">
+      <td class="row-number">${index + 1}</td>
+      <td><input data-entity="workshop" data-field="id" value="${escapeHtml(w.id)}" title="Eindeutige ID dieser Durchführung"></td>
+      <td><input data-entity="workshop" data-field="offerId" value="${escapeHtml(w.offerId)}" title="Gleiche Kursart-ID = ein gemeinsamer Wunsch"></td>
+      <td><input data-entity="workshop" data-field="name" value="${escapeHtml(w.name)}"></td>
+      <td><input data-entity="workshop" data-field="session" value="${escapeHtml(w.session)}" placeholder="A"></td>
+      <td><input type="number" min="1" max="20" data-entity="workshop" data-field="gradeFrom" value="${w.gradeFrom}"></td>
+      <td><input type="number" min="1" max="20" data-entity="workshop" data-field="gradeTo" value="${w.gradeTo}"></td>
+      <td><select data-entity="workshop" data-field="schoolForm">${["Alle", "Regional", "Gymnasial"].map((v) => option(v, w.schoolForm)).join("")}</select></td>
+      <td><input type="number" min="0" max="20" data-entity="workshop" data-field="cohortMin" value="${w.cohortMin ?? ""}" placeholder="global" title="leer = global, 0 = aus"></td>
+      <td><input type="number" min="0" max="500" data-entity="workshop" data-field="min" value="${w.min}"></td>
+      <td><input type="number" min="1" max="500" data-entity="workshop" data-field="max" value="${w.max}"></td>
+      <td><select data-entity="workshop" data-field="mode">${["Pflicht", "Optional"].map((v) => option(v, w.mode)).join("")}</select></td>
+      <td class="row-actions"><button class="icon-button" data-action="duplicate-workshop" title="Weitere Durchführung derselben Kursart">＋</button><button class="icon-button" data-action="delete-workshop" title="Löschen">×</button></td>
+    </tr>`).join("");
+  $("#workshopsTable").innerHTML = `
+    <thead><tr><th>#</th><th>Durchführungs-ID</th><th>Kursart-ID</th><th>Kursart</th><th>Gruppe</th><th>Klasse von</th><th>Klasse bis</th><th>Bildungsgang</th><th>Kohorte min.</th><th>Minimum</th><th>Maximum</th><th>Pflicht/Optional</th><th></th></tr></thead>
+    <tbody>${rows || `<tr><td colspan="13">Keine Workshops eingetragen.</td></tr>`}</tbody>`;
+}
+
+function renderParticipants() {
+  const query = $("#participantSearch").value.trim().toLowerCase();
+  const wishOptions = [`<option value="">–</option>`, ...courseTypes().map((course) => `<option value="${escapeHtml(course.id)}">${escapeHtml(course.id)} · ${escapeHtml(course.name)}</option>`)].join("");
+  const fixedOptions = [`<option value="">–</option>`, ...state.workshops.map((w) => `<option value="${escapeHtml(w.id)}">${escapeHtml(w.id)} · ${escapeHtml(workshopLabel(w))}</option>`)].join("");
+  const visible = state.participants.map((p, index) => ({ p, index })).filter(({ p }) => {
+    if (!query) return true;
+    return [p.id, p.firstName, p.lastName, p.className, p.schoolForm].join(" ").toLowerCase().includes(query);
+  });
+
+  const rows = visible.map(({ p, index }) => {
+    const wishSelect = (slot) => `<select data-entity="participant" data-field="wish${slot}">${wishOptions.replace(`value="${escapeHtml(p.wishes[slot])}"`, `value="${escapeHtml(p.wishes[slot])}" selected`)}</select>`;
+    const fixedSelect = `<select data-entity="participant" data-field="fixed">${fixedOptions.replace(`value="${escapeHtml(p.fixed)}"`, `value="${escapeHtml(p.fixed)}" selected`)}</select>`;
+    return `<tr data-index="${index}">
+      <td class="row-number">${index + 1}</td>
+      <td><input data-entity="participant" data-field="id" value="${escapeHtml(p.id)}"></td>
+      <td><input data-entity="participant" data-field="firstName" value="${escapeHtml(p.firstName)}"></td>
+      <td><input data-entity="participant" data-field="lastName" value="${escapeHtml(p.lastName)}"></td>
+      <td><input data-entity="participant" data-field="className" value="${escapeHtml(p.className)}"></td>
+      <td><select data-entity="participant" data-field="schoolForm">${["Regional", "Gymnasial"].map((v) => option(v, p.schoolForm)).join("")}</select></td>
+      <td>${wishSelect(0)}</td><td>${wishSelect(1)}</td><td>${wishSelect(2)}</td><td>${wishSelect(3)}</td>
+      <td>${fixedSelect}</td>
+      <td><button class="icon-button" data-action="delete-participant" title="Löschen">×</button></td>
+    </tr>`;
+  }).join("");
+
+  $("#participantsTable").innerHTML = `
+    <thead><tr><th>#</th><th>Person-ID</th><th>Vorname</th><th>Nachname</th><th>Klasse</th><th>Bildungsgang</th><th>1. Wunsch</th><th>2. Wunsch</th><th>3. Wunsch</th><th>4. Wunsch</th><th>Feste Setzung (Durchführung)</th><th></th></tr></thead>
+    <tbody>${rows || `<tr><td colspan="12">Keine passenden Teilnehmer.</td></tr>`}</tbody>`;
+}
+
+function renderLocks() {
+  const personOptions = [`<option value="">–</option>`, ...state.participants.map((p) => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} · ${escapeHtml(p.lastName)}, ${escapeHtml(p.firstName)}</option>`)].join("");
+  const workshopOptions = [`<option value="">–</option>`, ...state.workshops.map((w) => `<option value="${escapeHtml(w.id)}">${escapeHtml(w.id)} · ${escapeHtml(workshopLabel(w))}</option>`)].join("");
+  const rows = state.locks.map((lock, index) => `
+    <tr data-index="${index}">
+      <td class="row-number">${index + 1}</td>
+      <td><select data-entity="lock" data-field="personId">${personOptions.replace(`value="${escapeHtml(lock.personId)}"`, `value="${escapeHtml(lock.personId)}" selected`)}</select></td>
+      <td><select data-entity="lock" data-field="workshopId">${workshopOptions.replace(`value="${escapeHtml(lock.workshopId)}"`, `value="${escapeHtml(lock.workshopId)}" selected`)}</select></td>
+      <td><input data-entity="lock" data-field="reason" value="${escapeHtml(lock.reason)}"></td>
+      <td><button class="icon-button" data-action="delete-lock" title="Löschen">×</button></td>
+    </tr>`).join("");
+  $("#locksTable").innerHTML = `
     <thead><tr><th>#</th><th>Person</th><th>Workshop</th><th>Grund</th><th></th></tr></thead>
-    <tbody>${r||'<tr><td colspan="5">Keine Sperrungen eingetragen.</td></tr>'}</tbody>`}function SD(t){return[[t.first,"Erstw\xFCnsche"],[t.second,"Zweitw\xFCnsche"],[t.third,"Drittw\xFCnsche"],[t.fourth,"Viertw\xFCnsche"],[t.fixed,"Feste Setzungen"],[t.outside,"Au\xDFerhalb W\xFCnsche"],[t.unassigned,"Nicht zugeteilt"],[t.meanDeviation.toFixed(2),"\xD8 Zielabweichung"]].map(([r,n])=>`<div class="stat"><strong>${r}</strong><span>${n}</span></div>`).join("")}function Q2(){let t=vr("#resultPlaceholder"),e=vr("#resultContent");if(!Di?.ok){t.hidden=!1,e.hidden=!0;return}t.hidden=!0,e.hidden=!1,vr("#resultStats").innerHTML=SD(Di.stats),vr("#courseResultsTable").innerHTML=`
-    <thead><tr><th>ID</th><th>Workshop</th><th>Durchf\xFChrung</th><th>Minimum</th><th>Ziel</th><th>Belegung</th><th>Maximum</th><th>Abweichung</th><th>Status</th></tr></thead>
-    <tbody>${Di.courseResults.map(r=>`<tr>
-      <td>${Dr(r.id)}</td><td>${Dr(r.name)}</td><td>${Dr(r.mode)}</td>
-      <td>${r.effectiveMin}</td><td>${r.target}</td><td>${r.load}</td><td>${r.max}</td><td>${r.deviation}</td>
-      <td><span class="badge ${r.open?"good":"warn"}">${Dr(r.status)}</span></td>
-    </tr>`).join("")}</tbody>`,vr("#participantResultsTable").innerHTML=`
+    <tbody>${rows || `<tr><td colspan="5">Keine Sperrungen eingetragen.</td></tr>`}</tbody>`;
+}
+
+function statCards(stats) {
+  const items = [
+    [stats.first, "Erstwünsche"], [stats.second, "Zweitwünsche"], [stats.third, "Drittwünsche"],
+    [stats.fourth, "Viertwünsche"], [stats.fixed, "Feste Setzungen"], [stats.outside, "Außerhalb Wünsche"],
+    [stats.unassigned, "Nicht zugeteilt"], [stats.meanDeviation.toFixed(2), "Ø Zielabweichung"],
+  ];
+  return items.map(([value, label]) => `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`).join("");
+}
+
+function renderResults() {
+  const placeholder = $("#resultPlaceholder");
+  const content = $("#resultContent");
+  if (!result?.ok) {
+    placeholder.hidden = false;
+    content.hidden = true;
+    return;
+  }
+  placeholder.hidden = true;
+  content.hidden = false;
+  $("#resultStats").innerHTML = statCards(result.stats);
+  $("#courseResultsTable").innerHTML = `
+    <thead><tr><th>Kursart</th><th>Gruppe</th><th>Pflicht/Optional</th><th>Kohorte min.</th><th>Minimum</th><th>Ziel</th><th>Belegung</th><th>Maximum</th><th>Abweichung</th><th>Kohorten</th><th>Status</th></tr></thead>
+    <tbody>${result.courseResults.map((course) => `<tr>
+      <td>${escapeHtml(course.name)}</td><td>${escapeHtml(course.session || "–")}</td><td>${escapeHtml(course.mode)}</td><td>${course.cohortMinEffective || "–"}</td>
+      <td>${course.effectiveMin}</td><td>${course.target}</td><td>${course.load}</td><td>${course.max}</td><td>${course.deviation}</td>
+      <td>${escapeHtml(course.cohorts.map((c) => `${c.label}: ${c.count}`).join(" · ") || "–")}</td>
+      <td><span class="badge ${course.open ? "good" : "warn"}">${escapeHtml(course.status)}</span></td>
+    </tr>`).join("")}</tbody>`;
+  $("#participantResultsTable").innerHTML = `
     <thead><tr><th>Nachname</th><th>Vorname</th><th>Klasse</th><th>Workshop</th><th>Zuteilungsart</th><th>Hinweis</th></tr></thead>
-    <tbody>${[...Di.participantResults].sort((r,n)=>r.lastName.localeCompare(n.lastName,"de")||r.firstName.localeCompare(n.firstName,"de")).map(r=>`<tr>
-      <td>${Dr(r.lastName)}</td><td>${Dr(r.firstName)}</td><td>${Dr(r.className)}</td>
-      <td>${Dr(r.workshopName||"\u2013")}</td><td>${Dr(r.type)}</td><td>${Dr(r.note)}</td>
-    </tr>`).join("")}</tbody>`}function Pp(){T8(),R2(),xu(),tl(),Q2()}function F8(){let t=x8(or);if(!t.ok){el("Zuteilung nicht m\xF6glich",t.errors,"error");return}Di=t,Q2(),t.warnings.length?el("Zuteilung berechnet \u2013 mit Hinweisen",t.warnings,"warning"):Rp("Zuteilung erfolgreich berechnet."),I8("results")}function I8(t){E8(".tab").forEach(e=>e.classList.toggle("active",e.dataset.tab===t)),E8(".panel").forEach(e=>e.classList.toggle("active-panel",e.dataset.panel===t))}function U8(t,e){for(let r=1;r<=9999;r+=1){let n=`${t}${String(r).padStart(2,"0")}`;if(!e.has(n))return n}return""}function ED(){if(or.workshops.length>=30)return el("Grenze erreicht","Es k\xF6nnen h\xF6chstens 30 Workshops eingetragen werden.","warning");or.workshops.push({id:U8("W",new Set(or.workshops.map(t=>t.id))),name:"Neuer Workshop",gradeFrom:7,gradeTo:12,schoolForm:"Alle",min:0,max:12,mode:or.settings.defaultMode}),_a(),R2(),xu(),tl()}function FD(){if(or.participants.length>=500)return el("Grenze erreicht","Es k\xF6nnen h\xF6chstens 500 Teilnehmer eingetragen werden.","warning");or.participants.push({id:U8("P",new Set(or.participants.map(t=>t.id))),firstName:"",lastName:"",className:"7a",schoolForm:"Regional",wishes:["","","",""],fixed:""}),_a(),xu(),tl()}function kD(){or.locks.push({personId:"",workshopId:"",reason:""}),_a(),tl()}function I2(t){let e=t.target.closest("[data-entity]");if(!e)return;let r=e.closest("tr"),n=Number(r?.dataset.index),i=e.dataset.field,a=e.value;e.type==="number"&&(a=Number(a)),e.dataset.entity==="workshop"&&(or.workshops[n][i]=a),e.dataset.entity==="participant"&&(i.startsWith("wish")?or.participants[n].wishes[Number(i.slice(4))]=a:or.participants[n][i]=a),e.dataset.entity==="lock"&&(or.locks[n][i]=a),_a()}function U2(t){let e=t.target.closest("[data-action]");if(!e)return;let r=Number(e.closest("tr")?.dataset.index);if(e.dataset.action==="delete-workshop"){let n=or.workshops[r];or.workshops.splice(r,1),or.participants.forEach(i=>{i.wishes=i.wishes.map(a=>a===n.id?"":a),i.fixed===n.id&&(i.fixed="")}),or.locks=or.locks.filter(i=>i.workshopId!==n.id),_a(),R2(),xu(),tl()}if(e.dataset.action==="delete-participant"){let n=or.participants[r];or.participants.splice(r,1),or.locks=or.locks.filter(i=>i.personId!==n.id),_a(),xu(),tl()}e.dataset.action==="delete-lock"&&(or.locks.splice(r,1),_a(),tl())}function TD(){Qp(new Blob([JSON.stringify(or,null,2)],{type:"application/json"}),`${Bu(or.name)}.json`)}async function ID(t){let e=JSON.parse(await t.text());or=_u(e),Di=null,Mp(),Pp(),Rp("JSON-Datei geladen.")}function Ii(t,e){let r=Object.fromEntries(Object.entries(t).map(([n,i])=>[String(n).trim().toLowerCase(),i]));for(let n of e){let i=r[n.toLowerCase()];if(i!=null)return i}return""}function N2(t,e){if(!t)return[];let r=null,n=[];if(t.eachRow({includeEmpty:!1},(a,o)=>{if(r||o>15)return;let s=a.values.slice(1).map(A=>String(A??"").trim());s.some(A=>A.toLowerCase()===e.toLowerCase())&&(r=o,n=s)}),!r)return[];let i=[];return t.eachRow({includeEmpty:!1},(a,o)=>{if(o<=r)return;let s={};n.forEach((A,u)=>{if(!A)return;let l=a.getCell(u+1);s[A]=l.text??l.value??""}),i.push(s)}),i}function UD(t){let e=N2(t.getWorksheet("Workshops"),"Workshop-ID").map(i=>({id:String(Ii(i,["Workshop-ID","ID"])).trim(),name:String(Ii(i,["Workshopname","Workshop","Name"])).trim(),gradeFrom:Number(Ii(i,["Klasse von","Von"])),gradeTo:Number(Ii(i,["Klasse bis","Bis"])),schoolForm:String(Ii(i,["Schulform"])||"Alle").trim(),min:Number(Ii(i,["Mindestbelegung","Minimum","Min"]))||0,max:Number(Ii(i,["Maximalbelegung","Maximum","Max"]))||0,mode:String(Ii(i,["Durchf\xFChrung","Durchfuehrung"])||or.settings.defaultMode).trim()})).filter(i=>i.id),r=N2(t.getWorksheet("Personen"),"Person-ID").map(i=>({id:String(Ii(i,["Person-ID","ID"])).trim(),firstName:String(Ii(i,["Vorname"])).trim(),lastName:String(Ii(i,["Nachname"])).trim(),className:String(Ii(i,["Klasse"])).trim(),schoolForm:String(Ii(i,["Schulform"])||"Regional").trim(),wishes:["Erstwunsch","Zweitwunsch","Drittwunsch","Viertwunsch"].map(a=>String(Ii(i,[a])).trim()),fixed:String(Ii(i,["Feste Setzung"])).trim()})).filter(i=>i.id),n=N2(t.getWorksheet("Sperrungen"),"Person-ID").map(i=>({personId:String(Ii(i,["Person-ID","Person"])).trim(),workshopId:String(Ii(i,["Workshop-ID","Workshop"])).trim(),reason:String(Ii(i,["Grund / Hinweis","Grund","Hinweis"])).trim()})).filter(i=>i.personId||i.workshopId);if(!e.length||!r.length)throw new Error("Die Bl\xE4tter \u201EWorkshops\u201C und \u201EPersonen\u201C wurden nicht erkannt oder enthalten keine Daten.");return _u({...or,workshops:e,participants:r,locks:n})}async function ND(t){let e=new L2.default.Workbook;await e.xlsx.load(await t.arrayBuffer()),or=UD(e),Di=null,Mp(),Pp(),Rp("Excel-Datei importiert.")}function OD(t){t.views=[{state:"frozen",ySplit:1}],t.getRow(1).font={bold:!0,color:{argb:"FFFFFFFF"}},t.getRow(1).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF1F4E78"}},t.columns.forEach(e=>{let r=12;e.eachCell({includeEmpty:!0},n=>{r=Math.min(38,Math.max(r,String(n.text??"").length+2))}),e.width=r})}async function LD(){let t=new L2.default.Workbook;t.creator="Workshop-Zuteilung";let e=(n,i,a)=>{let o=t.addWorksheet(n);o.columns=i.map(([s,A])=>({header:s,key:A})),o.addRows(a),OD(o)};e("Workshops",[["Workshop-ID","id"],["Workshopname","name"],["Klasse von","gradeFrom"],["Klasse bis","gradeTo"],["Schulform","schoolForm"],["Mindestbelegung","min"],["Maximalbelegung","max"],["Durchf\xFChrung","mode"]],or.workshops),e("Personen",[["Person-ID","id"],["Vorname","firstName"],["Nachname","lastName"],["Klasse","className"],["Schulform","schoolForm"],["Erstwunsch","wish1"],["Zweitwunsch","wish2"],["Drittwunsch","wish3"],["Viertwunsch","wish4"],["Feste Setzung","fixed"]],or.participants.map(n=>({...n,wish1:n.wishes[0],wish2:n.wishes[1],wish3:n.wishes[2],wish4:n.wishes[3]}))),e("Sperrungen",[["Person-ID","personId"],["Workshop-ID","workshopId"],["Grund / Hinweis","reason"]],or.locks),Di?.ok&&(e("Ergebnis",[["Nachname","lastName"],["Vorname","firstName"],["Klasse","className"],["Workshop","workshopName"],["Zuteilungsart","type"],["Hinweis","note"]],Di.participantResults),e("Kurs\xFCbersicht",[["Workshop","name"],["Durchf\xFChrung","mode"],["Minimum","effectiveMin"],["Ziel","target"],["Belegung","load"],["Maximum","max"],["Abweichung","deviation"],["Status","status"]],Di.courseResults));let r=await t.xlsx.writeBuffer();Qp(new Blob([r],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),`${Bu(or.name)}.xlsx`)}function N8(){return Di?.ok?!0:(el("Noch kein Ergebnis","Bitte zuerst die Zuteilung berechnen.","warning"),!1)}function O8(t,e,r){t.setFont("helvetica","bold"),t.setFontSize(16),t.text(e,14,18),t.setFont("helvetica","normal"),t.setFontSize(9),t.text(r,14,25)}async function MD(){if(!N8())return;let t=new M2.default;for(let e of Di.courseResults.filter(r=>r.open)){let r=Di.participantResults.filter(i=>i.workshopId===e.id).sort((i,a)=>i.lastName.localeCompare(a.lastName,"de")||i.firstName.localeCompare(a.firstName,"de")),n=new ar({format:"a4",unit:"mm"});O8(n,`Teilnehmerliste: ${e.name}`,`Klasse ${e.gradeFrom}\u2013${e.gradeTo} \xB7 Belegung ${e.load} \xB7 Ziel ${e.target} \xB7 Maximum ${e.max}`),B2(n,{startY:31,head:[["Nr.","Nachname","Vorname","Klasse","Zuteilungsart"]],body:r.map((i,a)=>[a+1,i.lastName,i.firstName,String(i.className),i.type]),styles:{font:"helvetica",fontSize:9},headStyles:{fillColor:[31,78,120]}}),t.file(`${Bu(e.name)}.pdf`,n.output("arraybuffer"))}Qp(await t.generateAsync({type:"blob"}),`${Bu(or.name)}_Kurslisten.zip`)}async function RD(){if(!N8())return;let t=new M2.default,e=[...new Set(Di.participantResults.map(r=>r.className))].sort((r,n)=>String(r).localeCompare(String(n),"de",{numeric:!0}));for(let r of e){let n=Di.participantResults.filter(a=>a.className===r).sort((a,o)=>a.lastName.localeCompare(o.lastName,"de")||a.firstName.localeCompare(o.firstName,"de")),i=new ar({format:"a4",unit:"mm"});O8(i,`Klassenliste: ${r}`,"Alphabetisch nach Nachname und Vorname"),B2(i,{startY:31,head:[["Nr.","Nachname","Vorname","Workshop","Zuteilungsart"]],body:n.map((a,o)=>[o+1,a.lastName,a.firstName,a.workshopName||"Nicht zugeteilt",a.type]),styles:{font:"helvetica",fontSize:9},headStyles:{fillColor:[31,78,120]}}),t.file(`Klasse_${Bu(r)}.pdf`,i.output("arraybuffer"))}Qp(await t.generateAsync({type:"blob"}),`${Bu(or.name)}_Klassenlisten.zip`)}function QD(){vr("#tabs").addEventListener("click",t=>{let e=t.target.closest("[data-tab]");e&&I8(e.dataset.tab)}),vr("#eventName").addEventListener("input",t=>{or.name=t.target.value,_a({invalidate:!1})}),vr("#allowOutside").addEventListener("change",t=>{or.settings.allowOutside=t.target.value==="true",_a()}),vr("#defaultMode").addEventListener("change",t=>{or.settings.defaultMode=t.target.value,_a({invalidate:!1})}),vr("#balanceWeight").addEventListener("change",t=>{or.settings.balanceWeight=Number(t.target.value)||0,_a()}),vr("#workshopsTable").addEventListener("change",I2),vr("#participantsTable").addEventListener("change",I2),vr("#locksTable").addEventListener("change",I2),vr("#workshopsTable").addEventListener("click",U2),vr("#participantsTable").addEventListener("click",U2),vr("#locksTable").addEventListener("click",U2),vr("#participantSearch").addEventListener("input",xu),vr("#addWorkshopBtn").addEventListener("click",ED),vr("#addParticipantBtn").addEventListener("click",FD),vr("#addLockBtn").addEventListener("click",kD),vr("#optimizeBtn").addEventListener("click",F8),vr("#optimizeBtnSecondary").addEventListener("click",F8),vr("#sampleBtn").addEventListener("click",()=>{confirm("Aktuelle Daten durch die Beispieldaten ersetzen?")&&(or=Np(),Di=null,Mp(),Pp(),Rp("Beispieldaten geladen."))}),vr("#jsonExportBtn").addEventListener("click",TD),vr("#jsonImportBtn").addEventListener("click",()=>vr("#jsonFile").click()),vr("#excelImportBtn").addEventListener("click",()=>vr("#excelFile").click()),vr("#excelExportBtn").addEventListener("click",LD),vr("#coursePdfBtn").addEventListener("click",MD),vr("#classPdfBtn").addEventListener("click",RD),vr("#jsonFile").addEventListener("change",async t=>{try{t.target.files[0]&&await ID(t.target.files[0])}catch(e){el("JSON-Import fehlgeschlagen",e.message)}t.target.value=""}),vr("#excelFile").addEventListener("change",async t=>{try{t.target.files[0]&&await ND(t.target.files[0])}catch(e){el("Excel-Import fehlgeschlagen",e.message)}t.target.value=""})}QD();Pp();"serviceWorker"in navigator&&location.protocol.startsWith("http")&&navigator.serviceWorker.register("sw.js").catch(()=>{});})();
-/*! Bundled license information:
+    <tbody>${[...result.participantResults].sort((a, b) => a.lastName.localeCompare(b.lastName, "de") || a.firstName.localeCompare(b.firstName, "de")).map((row) => `<tr>
+      <td>${escapeHtml(row.lastName)}</td><td>${escapeHtml(row.firstName)}</td><td>${escapeHtml(row.className)}</td>
+      <td>${escapeHtml(row.workshopName || "–")}</td><td>${escapeHtml(row.type)}</td><td>${escapeHtml(row.note)}</td>
+    </tr>`).join("")}</tbody>`;
+}
 
-exceljs/dist/exceljs.min.js:
-  (*! ExcelJS 19-10-2023 *)
-  (*!
-   * The buffer module from node.js, for the browser.
-   *
-   * @author   Feross Aboukhadijeh <https://feross.org>
-   * @license  MIT
-   *)
-  (*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> *)
-  (*!
-  
-  JSZip v3.10.1 - A JavaScript class for generating and reading zip files
-  <http://stuartk.com/jszip>
-  
-  (c) 2009-2016 Stuart Knightley <stuart [at] stuartk.com>
-  Dual licenced under the MIT license or GPLv3. See https://raw.github.com/Stuk/jszip/main/LICENSE.markdown.
-  
-  JSZip uses the library pako released under the MIT license :
-  https://github.com/nodeca/pako/blob/main/LICENSE
-  *)
-  (*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> *)
-  (**
-   * Character classes and associated utilities for the 5th edition of XML 1.0.
-   *
-   * @author Louis-Dominique Dubeau
-   * @license MIT
-   * @copyright Louis-Dominique Dubeau
-   *)
-  (**
-   * Character classes and associated utilities for the 2nd edition of XML 1.1.
-   *
-   * @author Louis-Dominique Dubeau
-   * @license MIT
-   * @copyright Louis-Dominique Dubeau
-   *)
-  (**
-   * Character class utilities for XML NS 1.0 edition 3.
-   *
-   * @author Louis-Dominique Dubeau
-   * @license MIT
-   * @copyright Louis-Dominique Dubeau
-   *)
+function renderAll() {
+  renderDashboard();
+  renderWorkshops();
+  renderParticipants();
+  renderLocks();
+  renderResults();
+}
 
-html2canvas/dist/html2canvas.js:
-  (*!
-   * html2canvas 1.4.1 <https://html2canvas.hertzen.com>
-   * Copyright (c) 2022 Niklas von Hertzen <https://hertzen.com>
-   * Released under MIT License
-   *)
-  (*! *****************************************************************************
-      Copyright (c) Microsoft Corporation.
-  
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted.
-  
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-      REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-      AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-      INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-      LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-      OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-      PERFORMANCE OF THIS SOFTWARE.
-      ***************************************************************************** *)
+function runOptimization() {
+  const calculated = optimizeEvent(state);
+  if (!calculated.ok) {
+    showDialog("Zuteilung nicht möglich", calculated.errors, "error");
+    return;
+  }
+  result = calculated;
+  renderResults();
+  if (calculated.warnings.length) showDialog("Zuteilung berechnet – mit Hinweisen", calculated.warnings, "warning");
+  else toast("Zuteilung erfolgreich berechnet.");
+  activateTab("results");
+}
 
-dompurify/dist/purify.es.mjs:
-  (*! @license DOMPurify 3.4.11 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.4.11/LICENSE *)
+function activateTab(name) {
+  $$(".tab").forEach((button) => button.classList.toggle("active", button.dataset.tab === name));
+  $$(".panel").forEach((panel) => panel.classList.toggle("active-panel", panel.dataset.panel === name));
+}
 
-svg-pathdata/lib/SVGPathData.module.js:
-  (*! *****************************************************************************
-  Copyright (c) Microsoft Corporation.
-  
-  Permission to use, copy, modify, and/or distribute this software for any
-  purpose with or without fee is hereby granted.
-  
-  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-  AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-  LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-  PERFORMANCE OF THIS SOFTWARE.
-  ***************************************************************************** *)
+function nextId(prefix, existing) {
+  for (let i = 1; i <= 9999; i += 1) {
+    const id = `${prefix}${String(i).padStart(2, "0")}`;
+    if (!existing.has(id)) return id;
+  }
+  return "";
+}
 
-jszip/dist/jszip.min.js:
-  (*!
-  
-  JSZip v3.10.1 - A JavaScript class for generating and reading zip files
-  <http://stuartk.com/jszip>
-  
-  (c) 2009-2016 Stuart Knightley <stuart [at] stuartk.com>
-  Dual licenced under the MIT license or GPLv3. See https://raw.github.com/Stuk/jszip/main/LICENSE.markdown.
-  
-  JSZip uses the library pako released under the MIT license :
-  https://github.com/nodeca/pako/blob/main/LICENSE
-  *)
+function addWorkshop() {
+  if (state.workshops.length >= 30) return showDialog("Grenze erreicht", "Es können höchstens 30 Durchführungen eingetragen werden.", "warning");
+  const id = nextId("W", new Set(state.workshops.map((w) => w.id)));
+  const offerId = nextId("K", new Set(state.workshops.map((w) => w.offerId)));
+  state.workshops.push({
+    id, offerId, name: "Neuer Workshop", session: "A", gradeFrom: 7, gradeTo: 12,
+    schoolForm: "Alle", cohortMin: null, min: 0, max: 12, mode: state.settings.defaultMode,
+  });
+  commit(); renderWorkshops(); renderParticipants(); renderLocks();
+}
 
-pako/dist/pako.esm.mjs:
-  (*! pako 2.2.0 https://github.com/nodeca/pako @license (MIT AND Zlib) *)
+function addParticipant() {
+  if (state.participants.length >= 500) return showDialog("Grenze erreicht", "Es können höchstens 500 Teilnehmer eingetragen werden.", "warning");
+  state.participants.push({
+    id: nextId("P", new Set(state.participants.map((p) => p.id))), firstName: "", lastName: "", className: "7a",
+    schoolForm: "Regional", wishes: ["", "", "", ""], fixed: "",
+  });
+  commit(); renderParticipants(); renderLocks();
+}
 
-jspdf/dist/jspdf.es.min.js:
-  (** @license
-   *
-   * jsPDF - PDF Document creation from JavaScript
-   * Version 4.2.1 Built on 2026-03-17T11:11:27.057Z
-   *                      CommitID 00000000
-   *
-   * Copyright (c) 2010-2025 James Hall <james@parall.ax>, https://github.com/MrRio/jsPDF
-   *               2015-2025 yWorks GmbH, http://www.yworks.com
-   *               2015-2025 Lukas Holländer <lukas.hollaender@yworks.com>, https://github.com/HackbrettXXX
-   *               2016-2018 Aras Abbasi <aras.abbasi@gmail.com>
-   *               2010 Aaron Spike, https://github.com/acspike
-   *               2012 Willow Systems Corporation, https://github.com/willowsystems
-   *               2012 Pablo Hess, https://github.com/pablohess
-   *               2012 Florian Jenett, https://github.com/fjenett
-   *               2013 Warren Weckesser, https://github.com/warrenweckesser
-   *               2013 Youssef Beddad, https://github.com/lifof
-   *               2013 Lee Driscoll, https://github.com/lsdriscoll
-   *               2013 Stefan Slonevskiy, https://github.com/stefslon
-   *               2013 Jeremy Morel, https://github.com/jmorel
-   *               2013 Christoph Hartmann, https://github.com/chris-rock
-   *               2014 Juan Pablo Gaviria, https://github.com/juanpgaviria
-   *               2014 James Makes, https://github.com/dollaruw
-   *               2014 Diego Casorran, https://github.com/diegocr
-   *               2014 Steven Spungin, https://github.com/Flamenco
-   *               2014 Kenneth Glassey, https://github.com/Gavvers
-   *
-   * Permission is hereby granted, free of charge, to any person obtaining
-   * a copy of this software and associated documentation files (the
-   * "Software"), to deal in the Software without restriction, including
-   * without limitation the rights to use, copy, modify, merge, publish,
-   * distribute, sublicense, and/or sell copies of the Software, and to
-   * permit persons to whom the Software is furnished to do so, subject to
-   * the following conditions:
-   *
-   * The above copyright notice and this permission notice shall be
-   * included in all copies or substantial portions of the Software.
-   *
-   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-   * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-   * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-   * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-   * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-   * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-   *
-   * Contributor(s):
-   *    siefkenj, ahwolf, rickygu, Midnith, saintclair, eaparango,
-   *    kim3er, mfo, alnorth, Flamenco
-   *)
-  (**
-   * A class to parse color values
-   * @author Stoyan Stefanov <sstoo@gmail.com>
-   * {@link   http://www.phpied.com/rgb-color-parser-in-javascript/}
-   * @license Use it if you like it
-   *)
-  (**
-   * @license
-   * Joseph Myers does not specify a particular license for his work.
-   *
-   * Author: Joseph Myers
-   * Accessed from: http://www.myersdaily.org/joseph/javascript/md5.js
-   *
-   * Modified by: Owen Leong
-   *)
-  (**
-   * @license
-   * FPDF is released under a permissive license: there is no usage restriction.
-   * You may embed it freely in your application (commercial or not), with or
-   * without modifications.
-   *
-   * Reference: http://www.fpdf.org/en/script/script37.php
-   *)
-  (**
-   * @license
-   * Licensed under the MIT License.
-   * http://opensource.org/licenses/mit-license
-   * Author: Owen Leong (@owenl131)
-   * Date: 15 Oct 2020
-   * References:
-   * https://www.cs.cmu.edu/~dst/Adobe/Gallery/anon21jul01-pdf-encryption.txt
-   * https://github.com/foliojs/pdfkit/blob/master/lib/security.js
-   * http://www.fpdf.org/en/script/script37.php
-   *)
-  (**
-   * @license
-    Copyright (c) 2008, Adobe Systems Incorporated
-    All rights reserved.
-  
-    Redistribution and use in source and binary forms, with or without 
-    modification, are permitted provided that the following conditions are
-    met:
-  
-    * Redistributions of source code must retain the above copyright notice, 
-      this list of conditions and the following disclaimer.
-    
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the 
-      documentation and/or other materials provided with the distribution.
-    
-    * Neither the name of Adobe Systems Incorporated nor the names of its 
-      contributors may be used to endorse or promote products derived from 
-      this software without specific prior written permission.
-  
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-    IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
-    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *)
-  (**
-   * @license
-   * Copyright (c) 2017 Aras Abbasi
-   *
-   * Licensed under the MIT License.
-   * http://opensource.org/licenses/mit-license
-   *)
-  (** ====================================================================
-   * @license
-   * jsPDF XMP metadata plugin
-   * Copyright (c) 2016 Jussi Utunen, u-jussi@suomi24.fi
-   *
-   * Permission is hereby granted, free of charge, to any person obtaining
-   * a copy of this software and associated documentation files (the
-   * "Software"), to deal in the Software without restriction, including
-   * without limitation the rights to use, copy, modify, merge, publish,
-   * distribute, sublicense, and/or sell copies of the Software, and to
-   * permit persons to whom the Software is furnished to do so, subject to
-   * the following conditions:
-   *
-   * The above copyright notice and this permission notice shall be
-   * included in all copies or substantial portions of the Software.
-   *
-   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-   * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-   * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-   * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-   * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-   * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-   * ====================================================================
-   *)
-*/
+function addLock() {
+  state.locks.push({ personId: "", workshopId: "", reason: "" });
+  commit(); renderLocks();
+}
+
+function handleTableChange(event) {
+  const control = event.target.closest("[data-entity]");
+  if (!control) return;
+  const row = control.closest("tr");
+  const index = Number(row?.dataset.index);
+  const field = control.dataset.field;
+  let value = control.value;
+  if (control.type === "number") value = field === "cohortMin" && value === "" ? null : Number(value);
+
+  if (control.dataset.entity === "workshop") state.workshops[index][field] = value;
+  if (control.dataset.entity === "participant") {
+    if (field.startsWith("wish")) state.participants[index].wishes[Number(field.slice(4))] = value;
+    else state.participants[index][field] = value;
+  }
+  if (control.dataset.entity === "lock") state.locks[index][field] = value;
+  commit();
+}
+
+function handleTableClick(event) {
+  const button = event.target.closest("[data-action]");
+  if (!button) return;
+  const index = Number(button.closest("tr")?.dataset.index);
+  if (button.dataset.action === "duplicate-workshop") {
+    if (state.workshops.length >= 30) return showDialog("Grenze erreicht", "Es können höchstens 30 Durchführungen eingetragen werden.", "warning");
+    const source = state.workshops[index];
+    const copy = { ...source, id: nextId("W", new Set(state.workshops.map((w) => w.id))), session: nextSessionLabel(source.offerId), fixed: undefined };
+    state.workshops.splice(index + 1, 0, copy);
+    commit(); renderWorkshops(); renderParticipants(); renderLocks();
+  }
+  if (button.dataset.action === "delete-workshop") {
+    const removed = state.workshops[index];
+    state.workshops.splice(index, 1);
+    const offerStillExists = state.workshops.some((w) => w.offerId === removed.offerId);
+    state.participants.forEach((p) => {
+      if (!offerStillExists) p.wishes = p.wishes.map((wish) => wish === removed.offerId ? "" : wish);
+      if (p.fixed === removed.id) p.fixed = "";
+    });
+    state.locks = state.locks.filter((lock) => lock.workshopId !== removed.id);
+    commit(); renderWorkshops(); renderParticipants(); renderLocks();
+  }
+  if (button.dataset.action === "delete-participant") {
+    const removed = state.participants[index];
+    state.participants.splice(index, 1);
+    state.locks = state.locks.filter((lock) => lock.personId !== removed.id);
+    commit(); renderParticipants(); renderLocks();
+  }
+  if (button.dataset.action === "delete-lock") {
+    state.locks.splice(index, 1); commit(); renderLocks();
+  }
+}
+
+function exportJson() {
+  downloadBlob(new Blob([JSON.stringify(state, null, 2)], { type: "application/json" }), `${safeFilename(state.name)}.json`);
+}
+
+async function importJson(file) {
+  const parsed = JSON.parse(await file.text());
+  state = normalizeEvent(parsed);
+  result = null;
+  scheduleSave(); renderAll(); toast("JSON-Datei geladen.");
+}
+
+function getRowValue(row, aliases) {
+  const normalized = Object.fromEntries(Object.entries(row).map(([key, value]) => [String(key).trim().toLowerCase(), value]));
+  for (const alias of aliases) {
+    const value = normalized[alias.toLowerCase()];
+    if (value !== undefined && value !== null) return value;
+  }
+  return "";
+}
+
+function worksheetObjects(worksheet, requiredHeader) {
+  if (!worksheet) return [];
+  let headerRow = null;
+  let headers = [];
+  worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+    if (headerRow || rowNumber > 15) return;
+    const values = row.values.slice(1).map((value) => String(value ?? "").trim());
+    if (values.some((value) => value.toLowerCase() === requiredHeader.toLowerCase())) {
+      headerRow = rowNumber;
+      headers = values;
+    }
+  });
+  if (!headerRow) return [];
+  const rows = [];
+  worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+    if (rowNumber <= headerRow) return;
+    const object = {};
+    headers.forEach((header, index) => {
+      if (!header) return;
+      const cell = row.getCell(index + 1);
+      object[header] = cell.text ?? cell.value ?? "";
+    });
+    rows.push(object);
+  });
+  return rows;
+}
+
+function parseExcelWorkbook(workbook) {
+  const workshopSheet = workbook.getWorksheet("Workshops");
+  const participantSheet = workbook.getWorksheet("Kursanwahl") || workbook.getWorksheet("Personen");
+  const lockSheet = workbook.getWorksheet("Sperrungen");
+
+  let workshopRows = worksheetObjects(workshopSheet, "Durchführungs-ID");
+  if (!workshopRows.length) workshopRows = worksheetObjects(workshopSheet, "Durchfuehrungs-ID");
+  if (!workshopRows.length) workshopRows = worksheetObjects(workshopSheet, "Workshop-ID");
+  const importedWorkshops = workshopRows.map((row) => {
+    const id = String(getRowValue(row, ["Durchführungs-ID", "Durchfuehrungs-ID", "Workshop-ID", "ID"])).trim();
+    return {
+      id,
+      offerId: String(getRowValue(row, ["Kursart-ID", "Anwahl-ID", "Kurs-ID"]) || id).trim(),
+      name: String(getRowValue(row, ["Kursart", "Workshopname", "Workshop", "Name"])).trim(),
+      session: String(getRowValue(row, ["Gruppe", "Durchführungsgruppe", "Durchfuehrungsgruppe"])).trim(),
+      gradeFrom: Number(getRowValue(row, ["Klasse von", "Von"])),
+      gradeTo: Number(getRowValue(row, ["Klasse bis", "Bis"])),
+      schoolForm: String(getRowValue(row, ["Bildungsgang", "Schulform"]) || "Alle").trim(),
+      cohortMin: (() => { const v = getRowValue(row, ["Kohortenminimum", "Kohorte min.", "Jahrgang/Bildungsgang min."]); return v === "" ? null : Number(v); })(),
+      min: Number(getRowValue(row, ["Mindestbelegung", "Minimum", "Min"])) || 0,
+      max: Number(getRowValue(row, ["Maximalbelegung", "Maximum", "Max"])) || 0,
+      mode: String(getRowValue(row, ["Pflicht/Optional", "Durchführung", "Durchfuehrung"]) || state.settings.defaultMode).trim(),
+    };
+  }).filter((row) => row.id);
+
+  const participants = worksheetObjects(participantSheet, "Person-ID").map((row) => ({
+    id: String(getRowValue(row, ["Person-ID", "ID"])).trim(),
+    firstName: String(getRowValue(row, ["Vorname"])).trim(),
+    lastName: String(getRowValue(row, ["Nachname"])).trim(),
+    className: String(getRowValue(row, ["Klasse"])).trim(),
+    schoolForm: String(getRowValue(row, ["Bildungsgang", "Schulform"]) || "Regional").trim(),
+    wishes: ["Erstwunsch", "Zweitwunsch", "Drittwunsch", "Viertwunsch"].map((key) => String(getRowValue(row, [key])).trim()),
+    fixed: String(getRowValue(row, ["Feste Setzung"])).trim(),
+  })).filter((row) => row.id);
+
+  const importedLocks = worksheetObjects(lockSheet, "Person-ID").map((row) => ({
+    personId: String(getRowValue(row, ["Person-ID", "Person"])).trim(),
+    workshopId: String(getRowValue(row, ["Workshop-ID", "Workshop"])).trim(),
+    reason: String(getRowValue(row, ["Grund / Hinweis", "Grund", "Hinweis"])).trim(),
+  })).filter((row) => row.personId || row.workshopId);
+
+  if (!participants.length) throw new Error("Das Blatt „Kursanwahl“ oder „Personen“ wurde nicht erkannt oder enthält keine Person-IDs.");
+
+  const workshops = importedWorkshops.length ? importedWorkshops : state.workshops;
+  const locks = lockSheet ? importedLocks : state.locks;
+  if (!workshops.length) throw new Error("Es sind keine Workshops vorhanden. Bitte zuerst Workshops anlegen oder ein Blatt „Workshops“ mit importieren.");
+  return normalizeEvent({ ...state, workshops, participants, locks });
+}
+
+async function importExcel(file) {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(await file.arrayBuffer());
+  state = parseExcelWorkbook(workbook);
+  result = null; scheduleSave(); renderAll(); toast("Excel-Datei importiert.");
+}
+
+function styleWorksheet(worksheet) {
+  worksheet.views = [{ state: "frozen", ySplit: 1 }];
+  worksheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
+  worksheet.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1F4E78" } };
+  worksheet.columns.forEach((column) => {
+    let width = 12;
+    column.eachCell({ includeEmpty: true }, (cell) => { width = Math.min(38, Math.max(width, String(cell.text ?? "").length + 2)); });
+    column.width = width;
+  });
+}
+
+async function exportExcel() {
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Workshop-Zuteilung";
+  const addTableSheet = (name, columns, rows) => {
+    const worksheet = workbook.addWorksheet(name);
+    worksheet.columns = columns.map(([header, key]) => ({ header, key }));
+    worksheet.addRows(rows);
+    styleWorksheet(worksheet);
+  };
+  addTableSheet("Workshops", [
+    ["Durchführungs-ID", "id"], ["Kursart-ID", "offerId"], ["Kursart", "name"], ["Gruppe", "session"],
+    ["Klasse von", "gradeFrom"], ["Klasse bis", "gradeTo"], ["Bildungsgang", "schoolForm"], ["Kohortenminimum", "cohortMin"],
+    ["Mindestbelegung", "min"], ["Maximalbelegung", "max"], ["Pflicht/Optional", "mode"],
+  ], state.workshops);
+  addTableSheet("Personen", [
+    ["Person-ID", "id"], ["Vorname", "firstName"], ["Nachname", "lastName"], ["Klasse", "className"], ["Bildungsgang", "schoolForm"],
+    ["Erstwunsch", "wish1"], ["Zweitwunsch", "wish2"], ["Drittwunsch", "wish3"], ["Viertwunsch", "wish4"], ["Feste Setzung", "fixed"],
+  ], state.participants.map((p) => ({ ...p, wish1: p.wishes[0], wish2: p.wishes[1], wish3: p.wishes[2], wish4: p.wishes[3] })));
+  addTableSheet("Sperrungen", [["Person-ID", "personId"], ["Durchführungs-ID", "workshopId"], ["Grund / Hinweis", "reason"]], state.locks);
+  if (result?.ok) {
+    addTableSheet("Ergebnis", [["Nachname", "lastName"], ["Vorname", "firstName"], ["Klasse", "className"], ["Workshop", "workshopName"], ["Zuteilungsart", "type"], ["Hinweis", "note"]], result.participantResults);
+    addTableSheet("Kursübersicht", [["Kursart", "name"], ["Gruppe", "session"], ["Pflicht/Optional", "mode"], ["Kohortenminimum", "cohortMinEffective"], ["Minimum", "effectiveMin"], ["Ziel", "target"], ["Belegung", "load"], ["Maximum", "max"], ["Abweichung", "deviation"], ["Status", "status"]], result.courseResults);
+  }
+  const buffer = await workbook.xlsx.writeBuffer();
+  downloadBlob(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${safeFilename(state.name)}.xlsx`);
+}
+
+function ensureResult() {
+  if (result?.ok) return true;
+  showDialog("Noch kein Ergebnis", "Bitte zuerst die Zuteilung berechnen.", "warning");
+  return false;
+}
+
+function addPdfHeader(doc, title, subtitle) {
+  doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.text(title, 14, 18);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.text(subtitle, 14, 25);
+}
+
+async function exportCoursePdfs() {
+  if (!ensureResult()) return;
+  const zip = new JSZip();
+  for (const course of result.courseResults.filter((c) => c.open)) {
+    const persons = result.participantResults
+      .filter((p) => p.workshopId === course.id)
+      .sort((a, b) => a.lastName.localeCompare(b.lastName, "de") || a.firstName.localeCompare(b.firstName, "de"));
+    const doc = new jsPDF({ format: "a4", unit: "mm" });
+    addPdfHeader(doc, `Teilnehmerliste: ${workshopLabel(course)}`, `Klasse ${course.gradeFrom}–${course.gradeTo} · Belegung ${course.load} · Ziel ${course.target} · Maximum ${course.max} · Kohorte min. ${course.cohortMinEffective || "aus"}`);
+    autoTable(doc, {
+      startY: 31,
+      head: [["Nr.", "Nachname", "Vorname", "Klasse", "Zuteilungsart"]],
+      body: persons.map((p, i) => [i + 1, p.lastName, p.firstName, String(p.className), p.type]),
+      styles: { font: "helvetica", fontSize: 9 },
+      headStyles: { fillColor: [31, 78, 120] },
+    });
+    zip.file(`${safeFilename(workshopLabel(course))}.pdf`, doc.output("arraybuffer"));
+  }
+  downloadBlob(await zip.generateAsync({ type: "blob" }), `${safeFilename(state.name)}_Kurslisten.zip`);
+}
+
+async function exportClassPdfs() {
+  if (!ensureResult()) return;
+  const zip = new JSZip();
+  const classes = [...new Set(result.participantResults.map((p) => p.className))].sort((a, b) => String(a).localeCompare(String(b), "de", { numeric: true }));
+  for (const className of classes) {
+    const persons = result.participantResults
+      .filter((p) => p.className === className)
+      .sort((a, b) => a.lastName.localeCompare(b.lastName, "de") || a.firstName.localeCompare(b.firstName, "de"));
+    const doc = new jsPDF({ format: "a4", unit: "mm" });
+    addPdfHeader(doc, `Klassenliste: ${className}`, "Alphabetisch nach Nachname und Vorname");
+    autoTable(doc, {
+      startY: 31,
+      head: [["Nr.", "Nachname", "Vorname", "Workshop", "Zuteilungsart"]],
+      body: persons.map((p, i) => [i + 1, p.lastName, p.firstName, p.workshopName || "Nicht zugeteilt", p.type]),
+      styles: { font: "helvetica", fontSize: 9 },
+      headStyles: { fillColor: [31, 78, 120] },
+    });
+    zip.file(`Klasse_${safeFilename(className)}.pdf`, doc.output("arraybuffer"));
+  }
+  downloadBlob(await zip.generateAsync({ type: "blob" }), `${safeFilename(state.name)}_Klassenlisten.zip`);
+}
+
+
+async function downloadCourseChoiceTemplate() {
+  if (!state.workshops.length) return showDialog("Keine Kursarten", "Bitte zuerst Workshops bzw. Kursarten anlegen.", "warning");
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Workshop-Zuteilung";
+  const guide = workbook.addWorksheet("Anleitung");
+  guide.addRow(["Kursanwahl-Vorlage"]);
+  guide.addRow([]);
+  guide.addRow(["Hinweis", "Die vier Wünsche beziehen sich auf Kursarten. Bei mehreren Gruppen derselben Kursart entscheidet die Anwendung automatisch über die konkrete Durchführung."]);
+  guide.addRow(["Kohortenregel", `Aktuell global: mindestens ${state.settings.cohortMin || "aus"} Schüler je Jahrgang + Bildungsgang, sofern die Regel für die Durchführung nicht überschrieben ist.`]);
+  guide.getColumn(1).width = 22; guide.getColumn(2).width = 100;
+  guide.getRow(1).font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
+  guide.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1F4E78" } };
+
+  const sheet = workbook.addWorksheet("Kursanwahl");
+  sheet.columns = [
+    ["Person-ID", 16], ["Vorname", 20], ["Nachname", 22], ["Klasse", 12], ["Bildungsgang", 16],
+    ["Erstwunsch", 18], ["Zweitwunsch", 18], ["Drittwunsch", 18], ["Viertwunsch", 18], ["Feste Setzung", 20],
+  ].map(([header, width]) => ({ header, width }));
+  for (let i = 0; i < 500; i += 1) sheet.addRow({});
+  styleWorksheet(sheet);
+
+  const types = workbook.addWorksheet("Kursarten");
+  types.columns = [{ header: "Kursart-ID", key: "id", width: 18 }, { header: "Kursart", key: "name", width: 38 }];
+  types.addRows(courseTypes());
+  styleWorksheet(types);
+
+  const sessions = workbook.addWorksheet("Durchführungen");
+  sessions.columns = [{ header: "Durchführungs-ID", key: "id", width: 20 }, { header: "Kursart", key: "label", width: 42 }];
+  sessions.addRows(state.workshops.map((w) => ({ id: w.id, label: workshopLabel(w) })));
+  styleWorksheet(sessions);
+
+  const typeEnd = Math.max(2, courseTypes().length + 1);
+  const sessionEnd = Math.max(2, state.workshops.length + 1);
+  for (let row = 2; row <= 501; row += 1) {
+    sheet.getCell(row, 5).dataValidation = { type: "list", allowBlank: false, formulae: ['"Regional,Gymnasial"'] };
+    for (let col = 6; col <= 9; col += 1) sheet.getCell(row, col).dataValidation = { type: "list", allowBlank: true, formulae: [`'Kursarten'!$A$2:$A$${typeEnd}`] };
+    sheet.getCell(row, 10).dataValidation = { type: "list", allowBlank: true, formulae: [`'Durchführungen'!$A$2:$A$${sessionEnd}`] };
+  }
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  downloadBlob(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${safeFilename(state.name)}_Kursanwahl_Vorlage.xlsx`);
+}
+
+function bindEvents() {
+  $("#tabs").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-tab]");
+    if (button) activateTab(button.dataset.tab);
+  });
+  $("#eventName").addEventListener("input", (event) => { state.name = event.target.value; commit({ invalidate: false }); });
+  $("#allowOutside").addEventListener("change", (event) => { state.settings.allowOutside = event.target.value === "true"; commit(); });
+  $("#defaultMode").addEventListener("change", (event) => { state.settings.defaultMode = event.target.value; commit({ invalidate: false }); });
+  $("#balanceWeight").addEventListener("change", (event) => { state.settings.balanceWeight = Number(event.target.value) || 0; commit(); });
+  $("#cohortMin").addEventListener("change", (event) => { const value = Number(event.target.value); state.settings.cohortMin = value === 0 ? 0 : Math.max(2, value || 3); commit(); });
+  $("#workshopsTable").addEventListener("change", handleTableChange);
+  $("#participantsTable").addEventListener("change", handleTableChange);
+  $("#locksTable").addEventListener("change", handleTableChange);
+  $("#workshopsTable").addEventListener("click", handleTableClick);
+  $("#participantsTable").addEventListener("click", handleTableClick);
+  $("#locksTable").addEventListener("click", handleTableClick);
+  $("#participantSearch").addEventListener("input", renderParticipants);
+  $("#addWorkshopBtn").addEventListener("click", addWorkshop);
+  $("#addParticipantBtn").addEventListener("click", addParticipant);
+  $("#addLockBtn").addEventListener("click", addLock);
+  $("#optimizeBtn").addEventListener("click", runOptimization);
+  $("#optimizeBtnSecondary").addEventListener("click", runOptimization);
+  $("#sampleBtn").addEventListener("click", () => {
+    if (!confirm("Aktuelle Daten durch die Beispieldaten ersetzen?")) return;
+    state = createSampleData(); result = null; scheduleSave(); renderAll(); toast("Beispieldaten geladen.");
+  });
+  $("#jsonExportBtn").addEventListener("click", exportJson);
+  $("#jsonImportBtn").addEventListener("click", () => $("#jsonFile").click());
+  $("#templateBtn").addEventListener("click", downloadCourseChoiceTemplate);
+  $("#excelImportBtn").addEventListener("click", () => $("#excelFile").click());
+  $("#excelExportBtn").addEventListener("click", exportExcel);
+  $("#coursePdfBtn").addEventListener("click", exportCoursePdfs);
+  $("#classPdfBtn").addEventListener("click", exportClassPdfs);
+  $("#jsonFile").addEventListener("change", async (event) => {
+    try { if (event.target.files[0]) await importJson(event.target.files[0]); }
+    catch (error) { showDialog("JSON-Import fehlgeschlagen", error.message); }
+    event.target.value = "";
+  });
+  $("#excelFile").addEventListener("change", async (event) => {
+    try { if (event.target.files[0]) await importExcel(event.target.files[0]); }
+    catch (error) { showDialog("Excel-Import fehlgeschlagen", error.message); }
+    event.target.value = "";
+  });
+}
+
+bindEvents();
+renderAll();
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
+})();
+})();
