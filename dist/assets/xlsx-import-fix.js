@@ -129,10 +129,13 @@
     return {
       existing,
       settings: {
+        ...(existing?.settings || {}),
         allowOutside: document.querySelector("#allowOutside")?.value === "true",
         defaultMode: document.querySelector("#defaultMode")?.value || existing?.settings?.defaultMode || "Pflicht",
-        balanceWeight: Number(document.querySelector("#balanceWeight")?.value ?? existing?.settings?.balanceWeight ?? 1) || 0,
-        cohortMin: Number(document.querySelector("#cohortMin")?.value ?? existing?.settings?.cohortMin ?? 3) || 0,
+        balanceWeight: Number(document.querySelector("#balanceLevel")?.value ?? existing?.settings?.balanceWeight ?? 10) || 0,
+        balanceThreshold: Number(document.querySelector("#balanceThreshold")?.value ?? existing?.settings?.balanceThreshold ?? 10) || 0,
+        cohortMin: Number(existing?.settings?.cohortMin ?? 0) || 0,
+        rules: Array.isArray(existing?.settings?.rules) ? existing.settings.rules : [],
       },
       name: document.querySelector("#eventName")?.value || existing?.name || "Workshop-Veranstaltung",
     };

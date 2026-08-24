@@ -226,7 +226,7 @@ function createSampleData() {
 
   return {
     name: "Workshopwoche – Beispiel",
-    settings: { allowOutside: false, defaultMode: "Pflicht", balanceWeight: 1, cohortMin: 3 },
+    settings: { allowOutside: false, defaultMode: "Pflicht", balanceWeight: 10, balanceThreshold: 10, cohortMin: 0, rules: [{ id: "R1", type: "gradeForm", min: 2, mode: "preferred", enabled: true }] },
     workshops,
     participants,
     locks,
@@ -245,20 +245,33 @@ function normalizeEvent(input) {
   const settings = {
     allowOutside: false,
     defaultMode: "Pflicht",
-    balanceWeight: 1,
-    cohortMin: 3,
+    balanceWeight: 10,
+    balanceThreshold: 10,
+    cohortMin: 0,
+    rules: [],
     ...(input?.settings ?? {}),
   };
 
   const normalizedCohortMin = Number(settings.cohortMin);
+  const rawRules = Array.isArray(settings.rules) ? settings.rules : [];
+  const ruleTypes = new Set(["class", "grade", "gradeForm", "gradeAnyForm"]);
+  const normalizedRules = rawRules.map((rule, index) => ({
+    id: String(rule?.id || `R${index + 1}`),
+    type: ruleTypes.has(rule?.type) ? rule.type : "gradeForm",
+    min: Math.max(2, Math.min(20, Number(rule?.min) || 2)),
+    mode: rule?.mode === "hard" ? "hard" : "preferred",
+    enabled: rule?.enabled !== false,
+  }));
 
   return {
     name: String(input?.name || "Workshop-Veranstaltung"),
     settings: {
       allowOutside: Boolean(settings.allowOutside),
       defaultMode: MODES.has(settings.defaultMode) ? settings.defaultMode : "Pflicht",
-      balanceWeight: Math.max(0, Math.min(100, Number(settings.balanceWeight) || 0)),
-      cohortMin: normalizedCohortMin === 0 ? 0 : Math.max(2, Math.min(20, Number.isFinite(normalizedCohortMin) ? normalizedCohortMin : 3)),
+      balanceWeight: Math.max(0, Math.min(500, Number(settings.balanceWeight) || 0)),
+      balanceThreshold: Math.max(0, Math.min(500, Number(settings.balanceThreshold) || 0)),
+      cohortMin: normalizedCohortMin === 0 ? 0 : Math.max(2, Math.min(20, Number.isFinite(normalizedCohortMin) ? normalizedCohortMin : 0)),
+      rules: normalizedRules,
     },
     workshops: (input?.workshops ?? []).map((w) => {
       const id = String(w.id ?? "").trim();
@@ -740,7 +753,10 @@ function assignRemaining(event, openSet, lockSet, courseMap, assignments, loads,
     const available = Math.max(0, course.max - current);
     for (let seat = 1; seat <= available; seat += 1) {
       const resultingLoad = current + seat;
-      const penalty = Math.round(event.settings.balanceWeight * Math.abs(resultingLoad - (targets.get(course.id) || 0)));
+      const balanceActive = course.max >= event.settings.balanceThreshold;
+      const penalty = balanceActive
+        ? Math.round(event.settings.balanceWeight * Math.abs(resultingLoad - (targets.get(course.id) || 0)))
+        : 0;
       flow.addEdge(courseStart + ci, sink, 1, penalty);
     }
   });
@@ -943,6 +959,220 @@ function cohortSummaryForCourse(event, course, assignments, personMap) {
     .map(([key, count]) => ({ key, label: cohortLabelFromKey(key), count }));
 }
 
+function flexibleRuleGroupKey(rule, person) {
+  const grade = parseGrade(person.className);
+  if (rule.type === "class") return String(person.className || "").trim();
+  if (rule.type === "grade") return String(grade);
+  if (rule.type === "gradeForm") return `${grade}\u0000${person.schoolForm}`;
+  if (rule.type === "gradeAnyForm") return String(grade);
+  return "";
+}
+
+function flexibleRuleGroupLabel(rule, key) {
+  if (rule.type === "class") return `Klasse ${key}`;
+  if (rule.type === "grade") return `Jahrgang ${key}`;
+  if (rule.type === "gradeForm") {
+    const [grade, form] = String(key).split("\u0000");
+    return `Jahrgang ${grade} / ${form}`;
+  }
+  if (rule.type === "gradeAnyForm") return `Jahrgang ${key} (mindestens ein Bildungsgang)`;
+  return String(key);
+}
+
+function ruleTypeLabel(type) {
+  return ({
+    class: "Klasse",
+    grade: "Jahrgang",
+    gradeForm: "Jahrgang + Bildungsgang",
+    gradeAnyForm: "Jahrgang: mindestens ein Bildungsgang",
+  })[type] || type;
+}
+
+function peopleByCourse(event, assignments) {
+  const personMap = new Map(event.participants.map((person) => [person.id, person]));
+  const map = new Map(event.workshops.map((course) => [course.id, []]));
+  for (const [personId, courseId] of assignments) {
+    if (!courseId || !map.has(courseId)) continue;
+    const person = personMap.get(personId);
+    if (person) map.get(courseId).push(person);
+  }
+  return map;
+}
+
+function violationsForFlexibleRule(rule, course, people) {
+  if (!rule.enabled || !people.length) return [];
+  const groups = new Map();
+  for (const person of people) {
+    const key = flexibleRuleGroupKey(rule, person);
+    if (!key || key === "NaN") continue;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(person);
+  }
+  const violations = [];
+  if (rule.type !== "gradeAnyForm") {
+    for (const [key, members] of groups) {
+      if (members.length > 0 && members.length < rule.min) {
+        violations.push({ rule, course, key, members, count: members.length, min: rule.min, label: flexibleRuleGroupLabel(rule, key) });
+      }
+    }
+    return violations;
+  }
+
+  for (const [gradeKey, members] of groups) {
+    const byForm = new Map();
+    for (const person of members) {
+      if (!byForm.has(person.schoolForm)) byForm.set(person.schoolForm, []);
+      byForm.get(person.schoolForm).push(person);
+    }
+    const formEntries = [...byForm.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], "de"));
+    const best = formEntries[0];
+    const bestCount = best?.[1]?.length || 0;
+    if (members.length > 0 && bestCount < rule.min) {
+      violations.push({
+        rule, course, key: gradeKey, members, count: bestCount, total: members.length, min: rule.min,
+        preferredForm: best?.[0] || "", label: flexibleRuleGroupLabel(rule, gradeKey),
+      });
+    }
+  }
+  return violations;
+}
+
+function flexibleRuleViolations(event, openSet, courseMap, assignments, mode = null) {
+  const byCourse = peopleByCourse(event, assignments);
+  const violations = [];
+  const rules = (event.settings.rules || []).filter((rule) => rule.enabled && (!mode || rule.mode === mode));
+  for (const courseId of openSet) {
+    const course = courseMap.get(courseId);
+    if (!course) continue;
+    for (const rule of rules) violations.push(...violationsForFlexibleRule(rule, course, byCourse.get(courseId) || []));
+  }
+  return violations;
+}
+
+function moveWouldKeepCourseHardRules(event, course, people) {
+  if (people.length < effectiveMinimum(course)) return false;
+  for (const rule of (event.settings.rules || []).filter((r) => r.enabled && r.mode === "hard")) {
+    if (violationsForFlexibleRule(rule, course, people).length) return false;
+  }
+  return true;
+}
+
+function flexibleCandidateMatches(violation, person) {
+  const rule = violation.rule;
+  if (rule.type === "gradeAnyForm") {
+    if (String(parseGrade(person.className)) !== violation.key) return false;
+    return !violation.preferredForm || person.schoolForm === violation.preferredForm;
+  }
+  return flexibleRuleGroupKey(rule, person) === violation.key;
+}
+
+function repairFlexibleRules(event, openSet, lockSet, courseMap, assignments, loads, targets, mode = "hard") {
+  const maxPasses = Math.max(30, event.workshops.length * 6);
+  const personMap = new Map(event.participants.map((person) => [person.id, person]));
+  const preferredBudget = 100_000; // deutlich kleiner als der Sprung Erst- -> Zweitwunsch
+
+  for (let pass = 0; pass < maxPasses; pass += 1) {
+    const violations = flexibleRuleViolations(event, openSet, courseMap, assignments, mode);
+    if (!violations.length) return [];
+    violations.sort((a, b) => (a.min - a.count) - (b.min - b.count) || a.course.id.localeCompare(b.course.id, "de"));
+    let changed = false;
+
+    for (const violation of violations) {
+      const target = violation.course;
+      const need = Math.max(1, violation.min - violation.count);
+      const targetLoad = loads.get(target.id) || 0;
+      if (targetLoad + need <= target.max) {
+        const byCourse = peopleByCourse(event, assignments);
+        const candidates = event.participants
+          .filter((person) => !person.fixed && flexibleCandidateMatches(violation, person))
+          .filter((person) => {
+            const fromId = assignments.get(person.id) || "";
+            if (!fromId || fromId === target.id) return false;
+            if (!courseEligible(person, target, lockSet, event.settings.allowOutside)) return false;
+            const donor = courseMap.get(fromId);
+            if (!donor) return false;
+            const donorPeople = (byCourse.get(fromId) || []).filter((p) => p.id !== person.id);
+            const targetPeople = [...(byCourse.get(target.id) || []), person];
+            return moveWouldKeepCourseHardRules(event, donor, donorPeople) && moveWouldKeepCourseHardRules(event, target, targetPeople);
+          })
+          .map((person) => {
+            const fromId = assignments.get(person.id) || "";
+            const donor = courseMap.get(fromId);
+            const preferenceDelta = preferenceCost(person, target) - preferenceCost(person, donor);
+            const balanceDelta = Math.round(event.settings.balanceWeight * (
+              Math.abs(targetLoad + 1 - (targets.get(target.id) || 0)) - Math.abs(targetLoad - (targets.get(target.id) || 0))
+            ));
+            return { person, fromId, score: preferenceDelta + balanceDelta };
+          })
+          .sort((a, b) => a.score - b.score || a.person.id.localeCompare(b.person.id, "de"));
+
+        const affordable = mode === "preferred" ? candidates.filter((item) => item.score <= preferredBudget) : candidates;
+        if (affordable.length >= need) {
+          for (const candidate of affordable.slice(0, need)) {
+            const fromId = candidate.fromId;
+            assignments.set(candidate.person.id, target.id);
+            loads.set(fromId, (loads.get(fromId) || 0) - 1);
+            loads.set(target.id, (loads.get(target.id) || 0) + 1);
+          }
+          changed = true;
+          break;
+        }
+      }
+
+      // Zweite Möglichkeit: die zu kleine Gruppe vollständig aus der Durchführung entfernen.
+      const members = violation.members.filter((person) => !person.fixed);
+      if (members.length === violation.members.length && (loads.get(target.id) || 0) - members.length >= effectiveMinimum(target)) {
+        const byCourse = peopleByCourse(event, assignments);
+        const planned = [];
+        const tempLoads = new Map(loads);
+        let feasible = true;
+        for (const person of members) {
+          const destinations = [...openSet]
+            .map((id) => courseMap.get(id))
+            .filter((course) => course && course.id !== target.id)
+            .filter((course) => (tempLoads.get(course.id) || 0) < course.max)
+            .filter((course) => courseEligible(person, course, lockSet, event.settings.allowOutside))
+            .map((course) => {
+              const existing = byCourse.get(course.id) || [];
+              const after = [...existing, person];
+              const hardValid = moveWouldKeepCourseHardRules(event, course, after);
+              const prefDelta = preferenceCost(person, course) - preferenceCost(person, target);
+              return { course, hardValid, prefDelta };
+            })
+            .filter((item) => item.hardValid)
+            .sort((a, b) => a.prefDelta - b.prefDelta || a.course.id.localeCompare(b.course.id, "de"));
+          const chosen = destinations[0];
+          if (!chosen || (mode === "preferred" && chosen.prefDelta > preferredBudget)) { feasible = false; break; }
+          planned.push({ person, toId: chosen.course.id });
+          tempLoads.set(chosen.course.id, (tempLoads.get(chosen.course.id) || 0) + 1);
+        }
+        if (feasible) {
+          for (const move of planned) {
+            assignments.set(move.person.id, move.toId);
+            loads.set(target.id, (loads.get(target.id) || 0) - 1);
+            loads.set(move.toId, (loads.get(move.toId) || 0) + 1);
+          }
+          changed = true;
+          break;
+        }
+      }
+    }
+
+    if (!changed) {
+      if (mode === "preferred") return violations;
+      const first = violations[0];
+      throw new Error(`${first.course.name}${first.course.session ? ` – Gruppe ${first.course.session}` : ""}: harte Regel „${ruleTypeLabel(first.rule.type)} – mindestens ${first.min}“ kann für ${first.label} nicht erfüllt werden.`);
+    }
+  }
+  return flexibleRuleViolations(event, openSet, courseMap, assignments, mode);
+}
+
+function summarizeFlexibleRules(event, openSet, courseMap, assignments) {
+  const hard = flexibleRuleViolations(event, openSet, courseMap, assignments, "hard");
+  const preferred = flexibleRuleViolations(event, openSet, courseMap, assignments, "preferred");
+  return { hard, preferred };
+}
+
 function optimizeEvent(raw) {
   const { event, errors, warnings } = validateEvent(raw);
   if (errors.length) return { ok: false, errors, warnings };
@@ -967,6 +1197,8 @@ function optimizeEvent(raw) {
     assignMinimums(event, openSet, lockSet, courseMap, assignments, loads);
     assignRemaining(event, openSet, lockSet, courseMap, assignments, loads, targets);
     repairCohortMinimums(event, openSet, lockSet, courseMap, assignments, loads, targets);
+    repairFlexibleRules(event, openSet, lockSet, courseMap, assignments, loads, targets, "hard");
+    const preferredRemaining = repairFlexibleRules(event, openSet, lockSet, courseMap, assignments, loads, targets, "preferred");
 
     const participantResults = event.participants.map((person) => {
       const courseId = assignments.get(person.id) || "";
@@ -1006,6 +1238,18 @@ function optimizeEvent(raw) {
       };
     });
 
+    const ruleSummary = summarizeFlexibleRules(event, openSet, courseMap, assignments);
+    const allRuleViolations = [...ruleSummary.hard, ...ruleSummary.preferred];
+    for (const course of courseResults) {
+      const courseViolations = allRuleViolations.filter((item) => item.course.id === course.id);
+      course.ruleHardViolations = courseViolations.filter((item) => item.rule.mode === "hard").length;
+      course.rulePreferredViolations = courseViolations.filter((item) => item.rule.mode === "preferred").length;
+      course.ruleStatus = course.ruleHardViolations ? "Regel verletzt" : course.rulePreferredViolations ? "Hinweis" : "Regeln erfüllt";
+      course.ruleDetails = courseViolations.map((item) => ({
+        mode: item.rule.mode, type: item.rule.type, min: item.min, label: item.label, count: item.count,
+      }));
+    }
+
     const counts = new Map();
     for (const result of participantResults) counts.set(result.type, (counts.get(result.type) || 0) + 1);
     const openCourses = courseResults.filter((course) => course.open);
@@ -1031,6 +1275,12 @@ function optimizeEvent(raw) {
         outside: counts.get("Kein Wunsch") || 0,
         unassigned: counts.get("Nicht zugeteilt") || 0,
         meanDeviation,
+        preferredRuleViolations: ruleSummary.preferred.length,
+        hardRuleViolations: ruleSummary.hard.length,
+        largeCourseSpread: (() => {
+          const loadsLarge = openCourses.filter((course) => course.max >= event.settings.balanceThreshold).map((course) => course.load);
+          return loadsLarge.length ? Math.max(...loadsLarge) - Math.min(...loadsLarge) : 0;
+        })(),
       },
       personMap,
       courseMap,
@@ -1047,6 +1297,9 @@ let state = loadState();
 let result = null;
 let saveTimer = null;
 let toastTimer = null;
+let selectedCourseId = "";
+let courseDetailTab = "assigned";
+const resultUndoStack = [];
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -1150,8 +1403,10 @@ function renderDashboard() {
   $("#eventName").value = state.name;
   $("#allowOutside").value = String(state.settings.allowOutside);
   $("#defaultMode").value = state.settings.defaultMode;
-  $("#balanceWeight").value = state.settings.balanceWeight;
-  $("#cohortMin").value = state.settings.cohortMin;
+  const levels = [0, 10, 50, 100];
+  const nearest = levels.reduce((best, value) => Math.abs(value - state.settings.balanceWeight) < Math.abs(best - state.settings.balanceWeight) ? value : best, 0);
+  $("#balanceLevel").value = String(nearest);
+  $("#balanceThreshold").value = state.settings.balanceThreshold ?? 10;
 
   const validation = validateEvent(state);
   const cards = [
@@ -1159,7 +1414,7 @@ function renderDashboard() {
     [courseTypes().length, "Kursarten"],
     [state.workshops.length, "Durchführungen"],
     [state.workshops.filter((w) => w.mode === "Pflicht").length, "Pflichtkurse"],
-    [state.locks.length, "Sperrungen"],
+    [(state.settings.rules || []).filter((r) => r.enabled).length, "Aktive Regeln"],
     [state.participants.filter((p) => p.fixed).length, "Feste Setzungen"],
   ];
   $("#stats").innerHTML = cards.map(([value, label]) => `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`).join("");
@@ -1170,6 +1425,61 @@ function renderDashboard() {
   if (!messages.length) messages.push(`<div class="message">Eingaben sind grundsätzlich plausibel.</div>`);
   if (validation.warnings.length > 12) messages.push(`<div class="message warning">Weitere ${validation.warnings.length - 12} Warnungen werden beim Berechnen angezeigt.</div>`);
   $("#validationSummary").innerHTML = messages.join("");
+  renderRules();
+}
+
+function ruleTypeName(type) {
+  return ({
+    class: "Pro Klasse",
+    grade: "Pro Jahrgang",
+    gradeForm: "Jahrgang + Bildungsgang",
+    gradeAnyForm: "Jahrgang: mindestens ein Bildungsgang",
+  })[type] || type;
+}
+
+function renderRules() {
+  const rules = state.settings.rules || [];
+  $("#rulesTable").innerHTML = `
+    <thead><tr><th>Aktiv</th><th>Regel</th><th>Mindestens</th><th>Verbindlichkeit</th><th></th></tr></thead>
+    <tbody>${rules.map((rule, index) => `<tr data-index="${index}">
+      <td><input type="checkbox" data-rule-field="enabled" ${rule.enabled ? "checked" : ""}></td>
+      <td><select data-rule-field="type">
+        ${["class","grade","gradeForm","gradeAnyForm"].map((type) => option(type, rule.type, ruleTypeName(type))).join("")}
+      </select></td>
+      <td><input type="number" min="2" max="20" step="1" data-rule-field="min" value="${rule.min}"></td>
+      <td><select data-rule-field="mode">${option("preferred", rule.mode, "Bevorzugt")}${option("hard", rule.mode, "Hart")}</select></td>
+      <td><button class="icon-button" data-action="delete-rule" title="Regel löschen">×</button></td>
+    </tr>`).join("") || `<tr><td colspan="5" class="muted">Keine zusätzliche Regel. Das ist völlig in Ordnung.</td></tr>`}</tbody>`;
+}
+
+function addRule() {
+  state.settings.rules = state.settings.rules || [];
+  state.settings.rules.push({ id: `R${Date.now()}`, type: "gradeForm", min: 2, mode: "preferred", enabled: true });
+  commit();
+  renderRules();
+  $("#rulesDetails").open = true;
+}
+
+function handleRuleChange(event) {
+  const control = event.target.closest("[data-rule-field]");
+  if (!control) return;
+  const row = control.closest("tr");
+  const rule = state.settings.rules?.[Number(row?.dataset.index)];
+  if (!rule) return;
+  const field = control.dataset.ruleField;
+  if (field === "enabled") rule.enabled = control.checked;
+  else if (field === "min") rule.min = Math.max(2, Number(control.value) || 2);
+  else rule[field] = control.value;
+  commit();
+}
+
+function handleRuleClick(event) {
+  const button = event.target.closest('[data-action="delete-rule"]');
+  if (!button) return;
+  const index = Number(button.closest("tr")?.dataset.index);
+  state.settings.rules.splice(index, 1);
+  commit();
+  renderRules();
 }
 
 function renderWorkshops() {
@@ -1190,7 +1500,7 @@ function renderWorkshops() {
       <td class="row-actions"><button class="icon-button" data-action="duplicate-workshop" title="Weitere Durchführung derselben Kursart">＋</button><button class="icon-button" data-action="delete-workshop" title="Löschen">×</button></td>
     </tr>`).join("");
   $("#workshopsTable").innerHTML = `
-    <thead><tr><th>#</th><th>Durchführungs-ID</th><th>Kursart-ID</th><th>Kursart</th><th>Gruppe</th><th>Klasse von</th><th>Klasse bis</th><th>Bildungsgang</th><th>Kohorte min.</th><th>Minimum</th><th>Maximum</th><th>Pflicht/Optional</th><th></th></tr></thead>
+    <thead><tr><th>#</th><th>Durchführungs-ID</th><th>Kursart-ID</th><th>Kursart</th><th>Gruppe</th><th>Klasse von</th><th>Klasse bis</th><th>Bildungsgang</th><th>Kohorte min. (hart, optional)</th><th>Minimum</th><th>Maximum</th><th>Pflicht/Optional</th><th></th></tr></thead>
     <tbody>${rows || `<tr><td colspan="13">Keine Workshops eingetragen.</td></tr>`}</tbody>`;
 }
 
@@ -1241,10 +1551,17 @@ function renderLocks() {
 }
 
 function statCards(stats) {
+  const totalChoices = Math.max(1, (stats.first || 0) + (stats.second || 0) + (stats.third || 0) + (stats.fourth || 0) + (stats.outside || 0));
+  const pct = (value) => `${Math.round(100 * (value || 0) / totalChoices)} %`;
   const items = [
-    [stats.first, "Erstwünsche"], [stats.second, "Zweitwünsche"], [stats.third, "Drittwünsche"],
-    [stats.fourth, "Viertwünsche"], [stats.fixed, "Feste Setzungen"], [stats.outside, "Außerhalb Wünsche"],
-    [stats.unassigned, "Nicht zugeteilt"], [stats.meanDeviation.toFixed(2), "Ø Zielabweichung"],
+    [`${stats.first} (${pct(stats.first)})`, "Erstwünsche"],
+    [`${stats.second} (${pct(stats.second)})`, "Zweitwünsche"],
+    [`${stats.third} (${pct(stats.third)})`, "Drittwünsche"],
+    [`${stats.fourth} (${pct(stats.fourth)})`, "Viertwünsche"],
+    [stats.unassigned, "Nicht zugeteilt"],
+    [stats.largeCourseSpread ?? "–", "Spannweite große Kurse"],
+    [stats.preferredRuleViolations ?? 0, "Weiche Regelhinweise"],
+    [stats.meanDeviation.toFixed(2), "Ø Zielabweichung"],
   ];
   return items.map(([value, label]) => `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`).join("");
 }
@@ -1261,12 +1578,14 @@ function renderResults() {
   content.hidden = false;
   $("#resultStats").innerHTML = statCards(result.stats);
   $("#courseResultsTable").innerHTML = `
-    <thead><tr><th>Kursart</th><th>Gruppe</th><th>Pflicht/Optional</th><th>Kohorte min.</th><th>Minimum</th><th>Ziel</th><th>Belegung</th><th>Maximum</th><th>Abweichung</th><th>Kohorten</th><th>Status</th></tr></thead>
-    <tbody>${result.courseResults.map((course) => `<tr>
-      <td>${escapeHtml(course.name)}</td><td>${escapeHtml(course.session || "–")}</td><td>${escapeHtml(course.mode)}</td><td>${course.cohortMinEffective || "–"}</td>
-      <td>${course.effectiveMin}</td><td>${course.target}</td><td>${course.load}</td><td>${course.max}</td><td>${course.deviation}</td>
-      <td>${escapeHtml(course.cohorts.map((c) => `${c.label}: ${c.count}`).join(" · ") || "–")}</td>
+    <thead><tr><th>Kurs</th><th>Belegung</th><th>Ziel</th><th>Min / Max</th><th>Wunschqualität</th><th>Regeln</th><th>Status</th><th></th></tr></thead>
+    <tbody>${result.courseResults.map((course) => `<tr class="course-result-row" data-course-id="${escapeHtml(course.id)}">
+      <td><strong>${escapeHtml(workshopLabel(course))}</strong></td>
+      <td>${course.load}</td><td>${course.target}</td><td>${course.effectiveMin} / ${course.max}</td>
+      <td>${escapeHtml(wishQualityForCourse(course.id))}</td>
+      <td>${resultRuleBadge(course)}</td>
       <td><span class="badge ${course.open ? "good" : "warn"}">${escapeHtml(course.status)}</span></td>
+      <td><button class="button compact-button" type="button" data-action="open-course-detail" data-course-id="${escapeHtml(course.id)}">Details</button></td>
     </tr>`).join("")}</tbody>`;
   $("#participantResultsTable").innerHTML = `
     <thead><tr><th>Nachname</th><th>Vorname</th><th>Klasse</th><th>Workshop</th><th>Zuteilungsart</th><th>Hinweis</th></tr></thead>
@@ -1274,6 +1593,266 @@ function renderResults() {
       <td>${escapeHtml(row.lastName)}</td><td>${escapeHtml(row.firstName)}</td><td>${escapeHtml(row.className)}</td>
       <td>${escapeHtml(row.workshopName || "–")}</td><td>${escapeHtml(row.type)}</td><td>${escapeHtml(row.note)}</td>
     </tr>`).join("")}</tbody>`;
+}
+
+function wishQualityForCourse(courseId) {
+  const rows = result?.participantResults?.filter((row) => row.workshopId === courseId) || [];
+  const counts = { Erstwunsch: 0, Zweitwunsch: 0, Drittwunsch: 0, Viertwunsch: 0, "Feste Setzung": 0, "Kein Wunsch": 0 };
+  rows.forEach((row) => { if (counts[row.type] !== undefined) counts[row.type] += 1; });
+  const parts = [];
+  if (counts.Erstwunsch) parts.push(`${counts.Erstwunsch}× 1.`);
+  if (counts.Zweitwunsch) parts.push(`${counts.Zweitwunsch}× 2.`);
+  if (counts.Drittwunsch) parts.push(`${counts.Drittwunsch}× 3.`);
+  if (counts.Viertwunsch) parts.push(`${counts.Viertwunsch}× 4.`);
+  if (counts["Feste Setzung"]) parts.push(`${counts["Feste Setzung"]} fest`);
+  if (counts["Kein Wunsch"]) parts.push(`${counts["Kein Wunsch"]} außerhalb`);
+  return parts.join(" · ") || "–";
+}
+
+function resultRuleBadge(course) {
+  if (course.ruleHardViolations) return `<span class="badge bad">${course.ruleHardViolations} harte Regel(n)</span>`;
+  if (course.rulePreferredViolations) return `<span class="badge warn">${course.rulePreferredViolations} Hinweis(e)</span>`;
+  return `<span class="badge good">erfüllt</span>`;
+}
+
+function courseById(id) {
+  return result?.courseResults?.find((course) => course.id === id) || null;
+}
+
+function participantStateById(id) {
+  return state.participants.find((person) => person.id === id) || null;
+}
+
+function participantResultById(id) {
+  return result?.participantResults?.find((person) => person.personId === id) || null;
+}
+
+function hardGroupingKey(rule, person) {
+  const grade = String(person.className || "").match(/^(\d{1,2})/)?.[1] || "";
+  if (rule.type === "class") return String(person.className || "");
+  if (rule.type === "grade") return grade;
+  if (rule.type === "gradeForm") return `${grade}\u0000${person.schoolForm}`;
+  return grade;
+}
+
+function hardViolationsForCourseFromResult(courseId) {
+  const course = state.workshops.find((item) => item.id === courseId);
+  if (!course) return [];
+  const assigned = result.participantResults.filter((row) => row.workshopId === courseId).map((row) => participantStateById(row.personId)).filter(Boolean);
+  const violations = [];
+  const rules = (state.settings.rules || []).filter((rule) => rule.enabled && rule.mode === "hard");
+  for (const rule of rules) {
+    if (rule.type !== "gradeAnyForm") {
+      const groups = new Map();
+      assigned.forEach((person) => {
+        const key = hardGroupingKey(rule, person);
+        if (!key) return;
+        groups.set(key, (groups.get(key) || 0) + 1);
+      });
+      for (const [key, count] of groups) if (count > 0 && count < rule.min) violations.push(`${ruleTypeName(rule.type)} ${key}: ${count} < ${rule.min}`);
+    } else {
+      const byGrade = new Map();
+      assigned.forEach((person) => {
+        const grade = hardGroupingKey(rule, person);
+        if (!byGrade.has(grade)) byGrade.set(grade, new Map());
+        const forms = byGrade.get(grade);
+        forms.set(person.schoolForm, (forms.get(person.schoolForm) || 0) + 1);
+      });
+      for (const [grade, forms] of byGrade) {
+        const max = Math.max(0, ...forms.values());
+        if (max > 0 && max < rule.min) violations.push(`Jahrgang ${grade}: kein Bildungsgang erreicht ${rule.min}`);
+      }
+    }
+  }
+  const legacyMin = course.cohortMin === null ? (state.settings.cohortMin || 0) : course.cohortMin;
+  if (legacyMin >= 2) {
+    const groups = new Map();
+    assigned.forEach((person) => {
+      const grade = String(person.className || "").match(/^(\d{1,2})/)?.[1] || "";
+      const key = `${grade} / ${person.schoolForm}`;
+      groups.set(key, (groups.get(key) || 0) + 1);
+    });
+    for (const [key, count] of groups) if (count > 0 && count < legacyMin) violations.push(`${key}: ${count} < ${legacyMin}`);
+  }
+  return violations;
+}
+
+function manualEligibility(person, course) {
+  const grade = Number(String(person.className || "").match(/^(\d{1,2})/)?.[1]);
+  if (!Number.isFinite(grade) || grade < course.gradeFrom || grade > course.gradeTo) return "Klassenstufe passt nicht.";
+  if (course.schoolForm !== "Alle" && course.schoolForm !== person.schoolForm) return "Bildungsgang passt nicht.";
+  if (state.locks.some((lock) => lock.personId === person.id && lock.workshopId === course.id)) return "Diese Kombination ist gesperrt.";
+  return "";
+}
+
+function snapshotResult() {
+  resultUndoStack.push(JSON.parse(JSON.stringify(result)));
+  if (resultUndoStack.length > 20) resultUndoStack.shift();
+}
+
+function refreshResultAfterManualChange() {
+  const courseMap = new Map(state.workshops.map((course) => [course.id, course]));
+  const personMap = new Map(state.participants.map((person) => [person.id, person]));
+  const loads = new Map(state.workshops.map((course) => [course.id, 0]));
+  for (const row of result.participantResults) {
+    const person = personMap.get(row.personId);
+    const course = courseMap.get(row.workshopId);
+    if (row.workshopId) loads.set(row.workshopId, (loads.get(row.workshopId) || 0) + 1);
+    row.workshopName = course ? workshopLabel(course) : "";
+    row.offerId = course?.offerId || "";
+    row.courseTypeName = course?.name || "";
+    row.session = course?.session || "";
+    if (person && course) {
+      const idx = person.wishes.findIndex((wish) => wish === course.offerId);
+      row.type = person.fixed === course.id ? "Feste Setzung" : (["Erstwunsch","Zweitwunsch","Drittwunsch","Viertwunsch"][idx] || "Kein Wunsch");
+    } else row.type = "Nicht zugeteilt";
+  }
+  for (const course of result.courseResults) {
+    course.load = loads.get(course.id) || 0;
+    course.deviation = course.open ? course.load - course.target : 0;
+    const hard = hardViolationsForCourseFromResult(course.id);
+    course.ruleHardViolations = hard.length;
+    course.ruleStatus = hard.length ? "Regel verletzt" : (course.rulePreferredViolations ? "Hinweis" : "Regeln erfüllt");
+  }
+  const counts = new Map();
+  result.participantResults.forEach((row) => counts.set(row.type, (counts.get(row.type) || 0) + 1));
+  result.stats.first = counts.get("Erstwunsch") || 0;
+  result.stats.second = counts.get("Zweitwunsch") || 0;
+  result.stats.third = counts.get("Drittwunsch") || 0;
+  result.stats.fourth = counts.get("Viertwunsch") || 0;
+  result.stats.fixed = counts.get("Feste Setzung") || 0;
+  result.stats.outside = counts.get("Kein Wunsch") || 0;
+  result.stats.unassigned = counts.get("Nicht zugeteilt") || 0;
+  const open = result.courseResults.filter((course) => course.open);
+  result.stats.meanDeviation = open.length ? open.reduce((sum, course) => sum + Math.abs(course.deviation), 0) / open.length : 0;
+  result.stats.hardRuleViolations = result.courseResults.reduce((sum, course) => sum + (course.ruleHardViolations || 0), 0);
+  renderResults();
+}
+
+function moveParticipant(personId, toCourseId) {
+  const row = participantResultById(personId);
+  const person = participantStateById(personId);
+  const target = courseById(toCourseId);
+  const source = row ? courseById(row.workshopId) : null;
+  if (!row || !person || !target) return;
+  if (person.fixed && person.fixed !== toCourseId) return showDialog("Verschieben nicht möglich", "Die Person hat eine feste Setzung. Diese zuerst lösen.", "warning");
+  const eligibility = manualEligibility(person, target);
+  if (eligibility) return showDialog("Verschieben nicht möglich", eligibility, "warning");
+  if (target.load >= target.max) return showDialog("Verschieben nicht möglich", "Der Zielkurs ist bereits voll.", "warning");
+  if (source && source.load - 1 < source.effectiveMin) return showDialog("Verschieben nicht möglich", "Der bisherige Kurs würde unter seine Mindestbelegung fallen.", "warning");
+
+  snapshotResult();
+  const oldId = row.workshopId;
+  row.workshopId = toCourseId;
+  refreshResultAfterManualChange();
+  const hardIssues = [...new Set([...(oldId ? hardViolationsForCourseFromResult(oldId) : []), ...hardViolationsForCourseFromResult(toCourseId)])];
+  if (hardIssues.length) {
+    result = resultUndoStack.pop();
+    renderResults();
+    return showDialog("Verschieben verletzt eine harte Regel", hardIssues, "warning");
+  }
+  renderCourseDetail();
+  toast("Person verschoben. Mit ↶ kann die Änderung rückgängig gemacht werden.");
+}
+
+function fixParticipant(personId) {
+  const row = participantResultById(personId);
+  const person = participantStateById(personId);
+  if (!row || !person || !row.workshopId) return;
+  person.fixed = row.workshopId;
+  commit({ invalidate: false });
+  refreshResultAfterManualChange();
+  renderCourseDetail();
+  toast("Aktuelle Zuordnung wurde festgesetzt.");
+}
+
+function swapSuggestions(courseId) {
+  const assigned = result.participantResults.filter((row) => row.workshopId === courseId);
+  const outside = result.participantResults.filter((row) => row.workshopId && row.workshopId !== courseId);
+  const suggestions = [];
+  const currentCourse = courseById(courseId);
+  for (const a of assigned) {
+    const pa = participantStateById(a.personId);
+    if (!pa || pa.fixed) continue;
+    for (const b of outside) {
+      const pb = participantStateById(b.personId);
+      const otherCourse = courseById(b.workshopId);
+      if (!pb || pb.fixed || !otherCourse) continue;
+      if (manualEligibility(pa, otherCourse) || manualEligibility(pb, currentCourse)) continue;
+      const aNow = pa.wishes.indexOf(currentCourse.offerId); const aNew = pa.wishes.indexOf(otherCourse.offerId);
+      const bNow = pb.wishes.indexOf(otherCourse.offerId); const bNew = pb.wishes.indexOf(currentCourse.offerId);
+      const norm = (idx) => idx < 0 ? 5 : idx;
+      const gain = (norm(aNow) - norm(aNew)) + (norm(bNow) - norm(bNew));
+      if (gain > 0) suggestions.push({ a, b, gain, otherCourse });
+    }
+  }
+  return suggestions.sort((x, y) => y.gain - x.gain).slice(0, 8);
+}
+
+function applySwap(aId, bId) {
+  const a = participantResultById(aId); const b = participantResultById(bId);
+  if (!a || !b) return;
+  snapshotResult();
+  const aCourse = a.workshopId; const bCourse = b.workshopId;
+  a.workshopId = bCourse; b.workshopId = aCourse;
+  refreshResultAfterManualChange();
+  const issues = [...hardViolationsForCourseFromResult(aCourse), ...hardViolationsForCourseFromResult(bCourse)];
+  if (issues.length) {
+    result = resultUndoStack.pop(); renderResults();
+    return showDialog("Tausch verletzt eine harte Regel", issues, "warning");
+  }
+  renderCourseDetail(); toast("Tausch durchgeführt.");
+}
+
+function renderCourseDetail() {
+  if (!result?.ok) return;
+  const courses = result.courseResults.filter((course) => course.open);
+  if (!courses.length) return;
+  if (!selectedCourseId || !courses.some((course) => course.id === selectedCourseId)) selectedCourseId = courses[0].id;
+  const course = courseById(selectedCourseId);
+  if (!course) return;
+  $("#courseDetailTitle").textContent = workshopLabel(course);
+  $("#courseDetailSelect").innerHTML = courses.map((item) => option(item.id, selectedCourseId, workshopLabel(item))).join("");
+  const quality = wishQualityForCourse(course.id);
+  $("#courseDetailStats").innerHTML = [
+    [course.load, "Belegung"], [course.target, "Ziel"], [`${course.effectiveMin} / ${course.max}`, "Min / Max"], [quality, "Wünsche"]
+  ].map(([value, label]) => `<div class="stat"><strong>${escapeHtml(value)}</strong><span>${label}</span></div>`).join("");
+  const details = course.ruleDetails || [];
+  $("#courseRuleSummary").innerHTML = details.length
+    ? `<details><summary>${resultRuleBadge(course)} Regeldetails anzeigen</summary>${details.map((item) => `<div class="message ${item.mode === "hard" ? "error" : "warning"}">${escapeHtml(ruleTypeName(item.type))}: ${escapeHtml(item.label)} · ${item.count} von mindestens ${item.min}</div>`).join("")}</details>`
+    : `<span class="badge good">Regeln erfüllt</span>`;
+
+  $$(".detail-tab").forEach((button) => button.classList.toggle("active", button.dataset.detailTab === courseDetailTab));
+  const assigned = result.participantResults.filter((row) => row.workshopId === course.id).sort((a,b) => a.lastName.localeCompare(b.lastName,"de") || a.firstName.localeCompare(b.firstName,"de"));
+  if (courseDetailTab === "assigned") {
+    $("#courseDetailBody").innerHTML = `<div class="table-wrap"><table class="detail-table"><thead><tr><th>Name</th><th>Klasse</th><th>Bildungsgang</th><th>Wunsch</th><th>Nachbearbeitung</th></tr></thead><tbody>${assigned.map((row) => {
+      const person = participantStateById(row.personId);
+      const destinationOptions = result.courseResults
+        .filter((item) => item.open && item.id !== course.id && item.load < item.max)
+        .filter((item) => person && !manualEligibility(person, item))
+        .map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(workshopLabel(item))}</option>`).join("");
+      return `<tr>
+      <td><strong>${escapeHtml(row.lastName)}, ${escapeHtml(row.firstName)}</strong></td><td>${escapeHtml(row.className)}</td><td>${escapeHtml(row.schoolForm)}</td><td>${escapeHtml(row.type)}</td>
+      <td><div class="move-controls"><select data-move-person="${escapeHtml(row.personId)}"><option value="">Zielkurs …</option>${destinationOptions}</select><button type="button" class="button" data-action="move-person" data-person-id="${escapeHtml(row.personId)}">Verschieben</button><button type="button" class="button" data-action="fix-person" data-person-id="${escapeHtml(row.personId)}">Festsetzen</button></div></td>
+    </tr>`; }).join("")}</tbody></table></div>`;
+  } else if (courseDetailTab === "applicants") {
+    const applicants = result.participantResults.filter((row) => participantStateById(row.personId)?.wishes.includes(course.offerId)).sort((a,b) => {
+      const pa = participantStateById(a.personId); const pb = participantStateById(b.personId);
+      return pa.wishes.indexOf(course.offerId) - pb.wishes.indexOf(course.offerId) || a.lastName.localeCompare(b.lastName,"de");
+    });
+    $("#courseDetailBody").innerHTML = `<div class="table-wrap"><table class="detail-table"><thead><tr><th>Name</th><th>Klasse</th><th>Bildungsgang</th><th>Einwahl</th><th>Tatsächlich zugeteilt</th></tr></thead><tbody>${applicants.map((row) => { const person=participantStateById(row.personId); const rank=person.wishes.indexOf(course.offerId); return `<tr><td>${escapeHtml(row.lastName)}, ${escapeHtml(row.firstName)}</td><td>${escapeHtml(row.className)}</td><td>${escapeHtml(row.schoolForm)}</td><td>${rank+1}. Wunsch</td><td>${escapeHtml(row.workshopName || "Nicht zugeteilt")}</td></tr>`; }).join("")}</tbody></table></div>`;
+  } else {
+    const swaps = swapSuggestions(course.id);
+    $("#courseDetailBody").innerHTML = swaps.length ? `<div class="swap-list">${swaps.map((item) => `<div class="swap-card"><div><strong>${escapeHtml(item.a.lastName)}, ${escapeHtml(item.a.firstName)}</strong> ↔ <strong>${escapeHtml(item.b.lastName)}, ${escapeHtml(item.b.firstName)}</strong><br><span class="muted">${escapeHtml(workshopLabel(course))} ↔ ${escapeHtml(workshopLabel(item.otherCourse))} · Verbesserung: ${item.gain} Wunschstufe(n)</span></div><button type="button" class="button" data-action="apply-swap" data-a="${escapeHtml(item.a.personId)}" data-b="${escapeHtml(item.b.personId)}">Tauschen</button></div>`).join("")}</div>` : `<div class="empty-state">Keine einfache Tauschverbesserung gefunden.</div>`;
+  }
+  $("#undoMoveBtn").disabled = !resultUndoStack.length;
+}
+
+function openCourseDetail(courseId) {
+  selectedCourseId = courseId;
+  courseDetailTab = "assigned";
+  renderCourseDetail();
+  $("#courseDetailDialog").showModal();
 }
 
 function renderAll() {
@@ -1291,6 +1870,8 @@ function runOptimization() {
     return;
   }
   result = calculated;
+  resultUndoStack.length = 0;
+  selectedCourseId = result.courseResults.find((course) => course.open)?.id || "";
   renderResults();
   if (calculated.warnings.length) showDialog("Zuteilung berechnet – mit Hinweisen", calculated.warnings, "warning");
   else toast("Zuteilung erfolgreich berechnet.");
@@ -1590,7 +2171,7 @@ async function downloadCourseChoiceTemplate() {
   guide.addRow(["Kursanwahl-Vorlage"]);
   guide.addRow([]);
   guide.addRow(["Hinweis", "Die vier Wünsche beziehen sich auf Kursarten. Bei mehreren Gruppen derselben Kursart entscheidet die Anwendung automatisch über die konkrete Durchführung."]);
-  guide.addRow(["Kohortenregel", `Aktuell global: mindestens ${state.settings.cohortMin || "aus"} Schüler je Jahrgang + Bildungsgang, sofern die Regel für die Durchführung nicht überschrieben ist.`]);
+  guide.addRow(["Zuteilungsregeln", `${(state.settings.rules || []).filter((r) => r.enabled).length} zusätzliche Regel(n) sind in der Anwendung aktiv. Die Einwahldatei enthält nur die Wünsche; Regeln werden in der Anwendung gepflegt.`]);
   guide.getColumn(1).width = 22; guide.getColumn(2).width = 100;
   guide.getRow(1).font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
   guide.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1F4E78" } };
@@ -1633,8 +2214,11 @@ function bindEvents() {
   $("#eventName").addEventListener("input", (event) => { state.name = event.target.value; commit({ invalidate: false }); });
   $("#allowOutside").addEventListener("change", (event) => { state.settings.allowOutside = event.target.value === "true"; commit(); });
   $("#defaultMode").addEventListener("change", (event) => { state.settings.defaultMode = event.target.value; commit({ invalidate: false }); });
-  $("#balanceWeight").addEventListener("change", (event) => { state.settings.balanceWeight = Number(event.target.value) || 0; commit(); });
-  $("#cohortMin").addEventListener("change", (event) => { const value = Number(event.target.value); state.settings.cohortMin = value === 0 ? 0 : Math.max(2, value || 3); commit(); });
+  $("#balanceLevel").addEventListener("change", (event) => { state.settings.balanceWeight = Number(event.target.value) || 0; commit(); });
+  $("#balanceThreshold").addEventListener("change", (event) => { state.settings.balanceThreshold = Math.max(0, Number(event.target.value) || 0); commit(); });
+  $("#addRuleBtn").addEventListener("click", addRule);
+  $("#rulesTable").addEventListener("change", handleRuleChange);
+  $("#rulesTable").addEventListener("click", handleRuleClick);
   $("#workshopsTable").addEventListener("change", handleTableChange);
   $("#participantsTable").addEventListener("change", handleTableChange);
   $("#locksTable").addEventListener("change", handleTableChange);
@@ -1647,6 +2231,23 @@ function bindEvents() {
   $("#addLockBtn").addEventListener("click", addLock);
   $("#optimizeBtn").addEventListener("click", runOptimization);
   $("#optimizeBtnSecondary").addEventListener("click", runOptimization);
+  $("#courseResultsTable").addEventListener("click", (event) => {
+    const button = event.target.closest('[data-action="open-course-detail"]');
+    const row = event.target.closest("tr[data-course-id]");
+    const id = button?.dataset.courseId || row?.dataset.courseId;
+    if (id) openCourseDetail(id);
+  });
+  $("#courseDetailSelect").addEventListener("change", (event) => { selectedCourseId = event.target.value; renderCourseDetail(); });
+  $("#prevCourseBtn").addEventListener("click", () => { const courses=result?.courseResults?.filter(c=>c.open)||[]; const i=courses.findIndex(c=>c.id===selectedCourseId); if(courses.length){selectedCourseId=courses[(i-1+courses.length)%courses.length].id;renderCourseDetail();} });
+  $("#nextCourseBtn").addEventListener("click", () => { const courses=result?.courseResults?.filter(c=>c.open)||[]; const i=courses.findIndex(c=>c.id===selectedCourseId); if(courses.length){selectedCourseId=courses[(i+1)%courses.length].id;renderCourseDetail();} });
+  $("#undoMoveBtn").addEventListener("click", () => { if(resultUndoStack.length){result=resultUndoStack.pop();renderResults();renderCourseDetail();toast("Letzte manuelle Änderung rückgängig gemacht.");} });
+  $("#courseDetailDialog").addEventListener("click", (event) => {
+    const tab=event.target.closest("[data-detail-tab]"); if(tab){courseDetailTab=tab.dataset.detailTab;renderCourseDetail();return;}
+    const action=event.target.closest("[data-action]"); if(!action)return;
+    if(action.dataset.action==="move-person"){const id=action.dataset.personId;const select=$("[data-move-person='"+CSS.escape(id)+"']");if(select?.value)moveParticipant(id,select.value);}
+    if(action.dataset.action==="fix-person") fixParticipant(action.dataset.personId);
+    if(action.dataset.action==="apply-swap") applySwap(action.dataset.a,action.dataset.b);
+  });
   $("#sampleBtn").addEventListener("click", () => {
     if (!confirm("Aktuelle Daten durch die Beispieldaten ersetzen?")) return;
     state = createSampleData(); result = null; scheduleSave(); renderAll(); toast("Beispieldaten geladen.");
