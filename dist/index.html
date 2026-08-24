@@ -78,6 +78,14 @@
               <label>Standard für neue Kurse
                 <select id="defaultMode"><option>Pflicht</option><option>Optional</option></select>
               </label>
+              <label>Berechnungsqualität
+                <select id="qualityMode">
+                  <option value="fast">Schnell – 1 Berechnung</option>
+                  <option value="standard" selected>Standard – 6 Varianten prüfen</option>
+                  <option value="thorough">Gründlich – 24 Varianten prüfen</option>
+                </select>
+                <small>Standard ist empfohlen. Gründlich testet mehr unterschiedliche Startreihenfolgen und behält automatisch die beste gültige Verteilung.</small>
+              </label>
               <label>Ausgleich der Kursgrößen / Lehrerbelastung
                 <select id="balanceLevel">
                   <option value="0">Aus – Wünsche haben allein Vorrang</option>
@@ -108,6 +116,7 @@
           <h3>So funktioniert die Berechnung</h3>
           <ol class="steps">
             <li>Die Einwahl erfolgt nach <strong>Kursarten</strong>. Mehrere Durchführungen derselben Kursart zählen als derselbe Wunsch.</li>
+            <li>Bei <strong>Standard</strong> oder <strong>Gründlich</strong> werden mehrere zulässige Startvarianten berechnet. Gewählt wird die Lösung mit der besten Wunschqualität; danach zählen weiche Regeln und Kursgrößenausgleich.</li>
             <li>Pflichtkurse und feste Setzungen werden zwingend geöffnet; Zweit-, Dritt- und Viertwünsche dürfen Mindestbelegungen sichern.</li>
             <li>Optionale Gruppenregeln können pro Klasse, Jahrgang oder Jahrgang + Bildungsgang wirken – standardmäßig als <strong>Bevorzugt</strong>, auf Wunsch als harte Bedingung.</li>
             <li>Optionale Durchführungen dürfen entfallen, wenn ihre Mindestbelegung nicht erreichbar ist.</li>
