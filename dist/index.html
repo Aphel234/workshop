@@ -23,7 +23,7 @@
   </header>
 
   <div class="privacy-banner">
-    <strong>Datenschutz:</strong> Die Anwendung überträgt keine Teilnehmerdaten an einen Server. Nicht versehentlich echte Schülerdaten in das öffentliche GitHub-Repository hochladen.
+    <strong>Datenschutz:</strong> Die Anwendung überträgt keine Teilnehmerdaten an einen Server.
   </div>
 
   <main class="shell">
@@ -51,6 +51,7 @@
         <button id="jsonExportBtn" class="button full">JSON sichern</button>
         <button id="jsonImportBtn" class="button full">JSON laden</button>
         <button id="excelExportBtn" class="button full">Excel exportieren</button>
+        <button id="deleteProjectBtn" class="button full danger project-delete" type="button">Aktuelles Projekt löschen</button>
         <input id="jsonFile" type="file" accept="application/json,.json" hidden>
         <input id="excelFile" type="file" accept=".xlsx,.xls" hidden>
       </section>
@@ -214,5 +215,6 @@
   <script src="assets/app.js" defer></script>
   <script src="assets/jszip.min.js" defer></script>
   <script src="assets/xlsx-import-fix.js" defer></script>
+  <script src="assets/project-delete.js" defer></script>
 </body>
 </html>

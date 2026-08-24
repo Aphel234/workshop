@@ -60,6 +60,8 @@ h3 { margin-bottom: 1rem; }
 .button.primary { border-color: var(--navy); color: white; background: var(--navy); }
 .button.primary:hover { background: var(--navy-dark); }
 .button.danger { color: #8f1d1d; border-color: #e1aaaa; }
+.button.danger:hover { background: #fff1f1; border-color: #c97777; }
+.project-delete { margin-top: 1rem !important; }
 .button.full { width: 100%; margin-top: .45rem; text-align: left; }
 .status-pill { padding: .38rem .65rem; border-radius: 999px; background: rgba(255,255,255,.15); font-size: .8rem; font-weight: 800; }
 .table-wrap { overflow: auto; max-width: 100%; border: 1px solid var(--line); border-radius: 12px; background: white; }
