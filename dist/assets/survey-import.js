@@ -143,7 +143,11 @@
   function elementsByLocalName(root, name) { return [...root.getElementsByTagName("*")].filter((el) => localName(el) === name); }
   function textOf(node) { return node?.textContent ?? ""; }
   function parseXml(text, source) {
-    const doc = new DOMParser().parseFromString(text, "application/xml");
+    // Manche Umfrage-Exporte schreiben ein UTF-8-BOM vor die XML-Deklaration.
+    // Safari/DOMParser wertet das als Zeichen vor <?xml ...?> und bricht ab.
+    let clean = String(text ?? "").replace(/^\uFEFF/, "");
+    clean = clean.replace(/^[\u0000-\u0020]+(?=<\?xml)/, "");
+    const doc = new DOMParser().parseFromString(clean, "application/xml");
     const error = doc.querySelector("parsererror");
     if (error) throw new Error(`Ungültige Excel-Struktur in ${source}.`);
     return doc;
@@ -328,15 +332,54 @@
     const courses = courseTypes(project);
     const saved = loadMappings();
     const rawParticipants = filesData.flat();
-    const labels = [...new Set(rawParticipants.flatMap((p) => p.rawWishes).filter(Boolean))];
-    const mappings = labels.map((label) => ({ label, name: cleanSurveyName(label), code: extractSurveyCode(label), ...suggestMapping(label, courses, saved) }));
+
+    // Gleichartige Umfrage-Bezeichnungen werden zuerst zusammengeführt.
+    // Wenn eine stabile Kennung wie „Pro 6“ vorhanden ist, ist sie der Primärschlüssel.
+    // Dadurch bleiben auch Tippfehler im Namen innerhalb derselben Pro-Kennung ein Kurs.
+    const grouped = new Map();
+    for (const label of rawParticipants.flatMap((p) => p.rawWishes).filter(Boolean)) {
+      const code = extractSurveyCode(label);
+      const key = code ? `code:${normalizeCode(code)}` : `name:${normalizeText(cleanSurveyName(label))}`;
+      if (!grouped.has(key)) grouped.set(key, { key, labels: [], code, name: cleanSurveyName(label) });
+      const group = grouped.get(key);
+      if (!group.labels.includes(label)) group.labels.push(label);
+      if (!group.code && code) group.code = code;
+    }
+
+    const mappings = [...grouped.values()].map((group) => {
+      const preferredLabel = group.labels[0];
+      const suggestion = suggestMapping(preferredLabel, courses, saved);
+      let mapping = {
+        label: preferredLabel,
+        labels: group.labels,
+        name: group.name,
+        code: group.code,
+        ...suggestion,
+      };
+
+      // Ohne vorhandene Projekt-Kursarten darf die Umfrage selbst das Kursangebot liefern.
+      // Eine stabile Pro-/Kurskennung ist dabei eindeutig genug für automatische Neuanlage.
+      if (!courses.length) {
+        mapping.offerId = "__new__";
+        mapping.status = group.code ? "detected-code" : "detected-new";
+        mapping.confirm = !group.code;
+      } else if (!mapping.offerId) {
+        // Gibt es schon ein Projekt, werden unbekannte Angebote nicht stillschweigend
+        // hineingemischt: sie werden als neue Kursart vorgeschlagen und bestätigt.
+        mapping.offerId = "__new__";
+        mapping.status = "detected-new";
+        mapping.confirm = true;
+      }
+      return mapping;
+    });
+
     const existingByKey = new Map((project.participants || []).map((p) => [personKey(p), p]));
     const seenBatch = new Map();
     const participants = rawParticipants.map((p, index) => {
       const key = personKey(p);
       const existing = existingByKey.get(key) || null;
       const priorBatch = seenBatch.get(key);
-      if (!priorBatch) seenBatch.set(key, index);
+      if (priorBatch === undefined) seenBatch.set(key, index);
       return {
         ...p, key,
         duplicateType: existing ? "existing" : priorBatch !== undefined ? "batch" : "",
@@ -352,8 +395,10 @@
     if (mapping.status === "code") return ["Eindeutige ID", "good"];
     if (mapping.status === "name") return ["Exakter Name", "good"];
     if (mapping.status === "saved") return ["Gespeicherte Zuordnung", "good"];
+    if (mapping.status === "detected-code" && !mapping.confirm) return ["Aus Umfrage erkannt", "good"];
+    if (mapping.status === "detected-new" && mapping.confirm) return ["Neues Angebot – prüfen", "warn"];
     if (mapping.status === "fuzzy" && mapping.confirm) return ["Ähnlich – bitte bestätigen", "warn"];
-    if (mapping.offerId === "__new__" && !mapping.confirm) return ["Neue Kursart", "warn"];
+    if (mapping.offerId === "__new__" && !mapping.confirm) return ["Neue Kursart", "good"];
     if (mapping.offerId && !mapping.confirm) return ["Bestätigt", "good"];
     return ["Zuordnung erforderlich", "bad"];
   }
@@ -372,14 +417,15 @@
     $("#surveyImportSummary").innerHTML = `
       <div class="stat"><strong>${pending.fileCount}</strong><span>Dateien</span></div>
       <div class="stat"><strong>${pending.participants.length}</strong><span>Antworten erkannt</span></div>
-      <div class="stat"><strong>${pending.mappings.length - unresolved}/${pending.mappings.length}</strong><span>Workshop-Zuordnungen geklärt</span></div>
+      <div class="stat"><strong>${pending.mappings.length - unresolved}/${pending.mappings.length}</strong><span>Kursangebote geklärt</span></div>
       <div class="stat"><strong>${dupes}</strong><span>mögliche Dubletten</span></div>`;
 
     const options = pending.courses.map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.id)} · ${escapeHtml(c.name)}</option>`).join("");
-    $("#surveyMappingTable").innerHTML = `<thead><tr><th>Aus Umfrage</th><th>Zuordnung im Projekt</th><th>Status</th><th></th></tr></thead><tbody>${pending.mappings.map((m, i) => {
+    $("#surveyMappingTable").innerHTML = `<thead><tr><th>Aus Umfrage</th><th>Kursart-Zuordnung</th><th>Status</th><th></th></tr></thead><tbody>${pending.mappings.map((m, i) => {
       const [label, cls] = mappingStatus(m);
-      return `<tr data-map-index="${i}"><td><strong>${escapeHtml(m.name)}</strong>${m.code ? `<small class="mapping-code">${escapeHtml(m.code)}</small>` : ""}<small>${escapeHtml(m.label)}</small></td>
-        <td><select data-map-select><option value="">Bitte zuordnen …</option>${options}<option value="__new__">＋ Neue Kursart anlegen</option></select></td>
+      const variants = (m.labels || [m.label]);
+      return `<tr data-map-index="${i}"><td><strong>${escapeHtml(m.name)}</strong>${m.code ? `<small class="mapping-code">${escapeHtml(m.code)}</small>` : ""}<small>${escapeHtml(variants.join(" · "))}</small></td>
+        <td><select data-map-select><option value="">Bitte zuordnen …</option>${options}<option value="__new__">＋ Als neue Kursart übernehmen</option></select></td>
         <td><span class="badge ${cls}">${escapeHtml(label)}</span>${m.status === "fuzzy" ? `<small>${Math.round(m.score * 100)} % Namensähnlichkeit</small>` : ""}</td>
         <td>${m.confirm && m.offerId ? `<button type="button" class="button compact-button" data-map-confirm>Bestätigen</button>` : ""}</td></tr>`;
     }).join("")}</tbody>`;
@@ -411,11 +457,13 @@
   function createNewCourse(project, mapping, existingWorkshopIds, existingOfferIds) {
     if ((project.workshops || []).length >= MAX_WORKSHOPS) throw new Error(`Es können höchstens ${MAX_WORKSHOPS} Durchführungen angelegt werden.`);
     const id = nextId("W", existingWorkshopIds, 2);
-    const offerId = nextId("K", existingOfferIds, 2);
+    let offerId = String(mapping.code || "").trim();
+    if (!offerId || existingOfferIds.has(offerId)) offerId = nextId("K", existingOfferIds, 2);
+    else existingOfferIds.add(offerId);
     project.workshops.push({
       id, offerId, name: mapping.name || mapping.label || "Neuer Workshop", session: "",
       gradeFrom: 7, gradeTo: 12, schoolForm: "Alle", cohortMin: null,
-      min: 0, max: 12, mode: project.settings?.defaultMode || "Pflicht",
+      min: 0, max: 20, mode: project.settings?.defaultMode || "Pflicht",
     });
     mapping.offerId = offerId;
     return offerId;
@@ -433,7 +481,8 @@
     for (const mapping of pending.mappings) {
       if (mapping.offerId === "__new__") createNewCourse(project, mapping, existingWorkshopIds, existingOfferIds);
     }
-    const mapByLabel = new Map(pending.mappings.map((m) => [m.label, m.offerId]));
+    const mapByLabel = new Map();
+    for (const m of pending.mappings) for (const label of (m.labels || [m.label])) mapByLabel.set(label, m.offerId);
     const usedIds = new Set(project.participants.map((p) => p.id));
     const projectByKey = new Map(project.participants.map((p, index) => [personKey(p), { p, index }]));
     let added = 0; let replaced = 0; let skipped = 0;
@@ -485,7 +534,6 @@
 
   async function openFiles(files) {
     const project = loadProject();
-    if (!(project.workshops || []).length) throw new Error("Bitte zuerst die Workshops/Kursarten im Projekt anlegen. Sie dienen als Referenz für die Umfrage-Zuordnung.");
     const arrays = [];
     for (const file of files) arrays.push(await parseSurveyFile(file));
     if (!arrays.flat().length) throw new Error("In den ausgewählten Dateien wurden keine Antworten gefunden.");
