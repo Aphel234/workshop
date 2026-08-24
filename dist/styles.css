@@ -143,3 +143,10 @@ dialog form { display: grid; gap: 1rem; }
   .move-controls { grid-template-columns: 1fr; }
   .swap-card { align-items: flex-start; flex-direction: column; }
 }
+
+.app-footer {
+  padding: 1.25rem 1.5rem 1.5rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: .82rem;
+}
