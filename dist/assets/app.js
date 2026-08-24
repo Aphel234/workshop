@@ -2590,17 +2590,59 @@ async function exportClassDocx() {
 
 
 async function downloadCourseChoiceTemplate() {
-  if (!state.workshops.length) return showDialog("Keine Kursarten", "Bitte zuerst Workshops bzw. Kursarten anlegen.", "warning");
+  if (!state.workshops.length) return showDialog("Keine Workshops", "Bitte zuerst Workshops anlegen.", "warning");
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "Workshop-Zuteilung";
+
   const guide = workbook.addWorksheet("Anleitung");
-  guide.addRow(["Kursanwahl-Vorlage"]);
+  guide.addRow(["Workshop-Zuteilung – vollständige Importvorlage"]);
   guide.addRow([]);
-  guide.addRow(["Hinweis", "Die vier Wünsche beziehen sich auf Kursarten. Bei mehreren Gruppen derselben Kursart entscheidet die Anwendung automatisch über die konkrete Durchführung."]);
-  guide.addRow(["Zuteilungsregeln", `${(state.settings.rules || []).filter((r) => r.enabled).length} zusätzliche Regel(n) sind in der Anwendung aktiv. Die Einwahldatei enthält nur die Wünsche; Regeln werden in der Anwendung gepflegt.`]);
-  guide.getColumn(1).width = 22; guide.getColumn(2).width = 100;
+  guide.addRow(["Blatt", "Verwendung"]);
+  guide.addRow(["Workshops", "Kurse und Durchführungen einschließlich Klassenbereich, Bildungsgang, Kohortenminimum sowie Mindest-/Maximalbelegung pflegen. Beim Import ersetzen diese Angaben die Workshops im aktuellen Projekt."]);
+  guide.addRow(["Kursanwahl", "Teilnehmerdaten und vier Wünsche erfassen. Die Wünsche beziehen sich auf die Kursart-ID; die feste Setzung auf die konkrete Durchführungs-ID."]);
+  guide.addRow(["Sperrungen", "Unerlaubte Kombinationen aus Person-ID und Durchführungs-ID eintragen. Ein vorhandenes Blatt Sperrungen ersetzt beim Import die Sperrungen des aktuellen Projekts."]);
+  guide.addRow([]);
+  guide.addRow(["Kohortenminimum", "Leer = globaler Wert der Anwendung, 0 = aus, ab 2 = eigener harter Wert für diese Durchführung."]);
+  guide.addRow(["Hinweis", "Die Vorlage enthält die aktuell im Projekt eingetragenen Workshops und Sperrungen. Änderungen können direkt in Excel vorgenommen und anschließend wieder importiert werden."]);
+  guide.getColumn(1).width = 24;
+  guide.getColumn(2).width = 110;
   guide.getRow(1).font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
   guide.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1F4E78" } };
+  guide.getRow(3).font = { bold: true };
+
+  const workshops = workbook.addWorksheet("Workshops");
+  workshops.columns = [
+    { header: "Durchführungs-ID", key: "id", width: 20 },
+    { header: "Kursart-ID", key: "offerId", width: 16 },
+    { header: "Kursart", key: "name", width: 30 },
+    { header: "Gruppe", key: "session", width: 12 },
+    { header: "Klasse von", key: "gradeFrom", width: 12 },
+    { header: "Klasse bis", key: "gradeTo", width: 12 },
+    { header: "Bildungsgang", key: "schoolForm", width: 16 },
+    { header: "Kohortenminimum", key: "cohortMin", width: 18 },
+    { header: "Mindestbelegung", key: "min", width: 18 },
+    { header: "Maximalbelegung", key: "max", width: 18 },
+    { header: "Pflicht/Optional", key: "mode", width: 18 },
+  ];
+  workshops.addRows(state.workshops.map((w) => ({
+    id: w.id,
+    offerId: w.offerId || w.id,
+    name: w.name,
+    session: w.session || "",
+    gradeFrom: w.gradeFrom ?? "",
+    gradeTo: w.gradeTo ?? "",
+    schoolForm: w.schoolForm || "Alle",
+    cohortMin: w.cohortMin ?? "",
+    min: w.min ?? 0,
+    max: w.max ?? 0,
+    mode: w.mode || state.settings.defaultMode,
+  })));
+  while (workshops.rowCount < 31) workshops.addRow({});
+  styleWorksheet(workshops);
+  for (let row = 2; row <= 31; row += 1) {
+    workshops.getCell(row, 7).dataValidation = { type: "list", allowBlank: false, formulae: ['"Alle,Regional,Gymnasial"'] };
+    workshops.getCell(row, 11).dataValidation = { type: "list", allowBlank: false, formulae: ['"Pflicht,Optional"'] };
+  }
 
   const sheet = workbook.addWorksheet("Kursanwahl");
   sheet.columns = [
@@ -2609,27 +2651,34 @@ async function downloadCourseChoiceTemplate() {
   ].map(([header, width]) => ({ header, width }));
   for (let i = 0; i < 500; i += 1) sheet.addRow({});
   styleWorksheet(sheet);
-
-  const types = workbook.addWorksheet("Kursarten");
-  types.columns = [{ header: "Kursart-ID", key: "id", width: 18 }, { header: "Kursart", key: "name", width: 38 }];
-  types.addRows(courseTypes());
-  styleWorksheet(types);
-
-  const sessions = workbook.addWorksheet("Durchführungen");
-  sessions.columns = [{ header: "Durchführungs-ID", key: "id", width: 20 }, { header: "Kursart", key: "label", width: 42 }];
-  sessions.addRows(state.workshops.map((w) => ({ id: w.id, label: workshopLabel(w) })));
-  styleWorksheet(sessions);
-
-  const typeEnd = Math.max(2, courseTypes().length + 1);
-  const sessionEnd = Math.max(2, state.workshops.length + 1);
   for (let row = 2; row <= 501; row += 1) {
     sheet.getCell(row, 5).dataValidation = { type: "list", allowBlank: false, formulae: ['"Regional,Gymnasial"'] };
-    for (let col = 6; col <= 9; col += 1) sheet.getCell(row, col).dataValidation = { type: "list", allowBlank: true, formulae: [`'Kursarten'!$A$2:$A$${typeEnd}`] };
-    sheet.getCell(row, 10).dataValidation = { type: "list", allowBlank: true, formulae: [`'Durchführungen'!$A$2:$A$${sessionEnd}`] };
+    for (let col = 6; col <= 9; col += 1) {
+      sheet.getCell(row, col).dataValidation = { type: "list", allowBlank: true, formulae: ["'Workshops'!$B$2:$B$31"] };
+    }
+    sheet.getCell(row, 10).dataValidation = { type: "list", allowBlank: true, formulae: ["'Workshops'!$A$2:$A$31"] };
+  }
+
+  const locks = workbook.addWorksheet("Sperrungen");
+  locks.columns = [
+    { header: "Person-ID", key: "personId", width: 18 },
+    { header: "Durchführungs-ID", key: "workshopId", width: 22 },
+    { header: "Grund / Hinweis", key: "reason", width: 42 },
+  ];
+  locks.addRows((state.locks || []).map((lock) => ({
+    personId: lock.personId,
+    workshopId: lock.workshopId,
+    reason: lock.reason || "",
+  })));
+  while (locks.rowCount < 501) locks.addRow({});
+  styleWorksheet(locks);
+  for (let row = 2; row <= 501; row += 1) {
+    locks.getCell(row, 1).dataValidation = { type: "list", allowBlank: true, formulae: ["'Kursanwahl'!$A$2:$A$501"] };
+    locks.getCell(row, 2).dataValidation = { type: "list", allowBlank: true, formulae: ["'Workshops'!$A$2:$A$31"] };
   }
 
   const buffer = await workbook.xlsx.writeBuffer();
-  downloadBlob(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${safeFilename(state.name)}_Kursanwahl_Vorlage.xlsx`);
+  downloadBlob(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${safeFilename(state.name)}_Importvorlage.xlsx`);
 }
 
 function bindEvents() {
