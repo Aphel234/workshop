@@ -48,6 +48,7 @@
         </div>
         <button id="excelImportBtn" class="button full">Ausgefüllte Vorlage importieren</button>
         <button id="surveyImportBtn" class="button full survey-import-button" type="button">Umfrage-Dateien importieren</button>
+        <button id="attendanceCheckBtn" class="button full attendance-check-button" type="button">Teilnahmekontrolle Umfrage</button>
         <button id="sampleBtn" class="button full">Beispieldaten laden</button>
         <button id="jsonExportBtn" class="button full">JSON sichern</button>
         <button id="jsonImportBtn" class="button full">JSON laden</button>
@@ -56,6 +57,7 @@
         <input id="jsonFile" type="file" accept="application/json,.json" hidden>
         <input id="excelFile" type="file" accept=".xlsx,.xls" hidden>
         <input id="surveyFiles" type="file" accept=".xlsx" multiple hidden>
+        <input id="attendanceFiles" type="file" accept=".xlsx" multiple hidden>
       </section>
 
       <section class="side-card">
@@ -232,6 +234,33 @@
     </div>
   </dialog>
 
+
+  <dialog id="attendanceDialog" class="wide-dialog attendance-dialog">
+    <div class="attendance-form">
+      <div class="detail-heading">
+        <div><p class="eyebrow">Teilnahmekontrolle Umfrage</p><h2>Soll-Liste mit Umfrageteilnehmern abgleichen</h2><p class="section-help">Importformat: Vorname | Nachname | Klasse. Die Klasse wird bei jeder Person sichtbar angezeigt. Kleine Schreibabweichungen werden zur Prüfung vorgeschlagen.</p></div>
+        <button id="attendanceCloseBtn" class="button" type="button">Schließen</button>
+      </div>
+      <div id="attendanceSummary" class="stats-grid compact-stats"></div>
+      <div id="attendanceIssues" class="message-list"></div>
+      <div class="attendance-toolbar">
+        <label>Status anzeigen
+          <select id="attendanceFilter">
+            <option value="missing">Fehlt</option>
+            <option value="review">Zu prüfen</option>
+            <option value="matched">Teilgenommen</option>
+            <option value="extra">Nur in Umfrage/Teilnehmerliste</option>
+            <option value="duplicates">Doppelte Eingaben</option>
+            <option value="all">Alle</option>
+          </select>
+        </label>
+        <button id="attendanceExportMissingBtn" class="button" type="button">Fehlende als Excel exportieren</button>
+      </div>
+      <div class="table-wrap"><table id="attendanceTable" class="attendance-table"></table></div>
+      <p class="section-help attendance-footnote">Hinweis: Als „teilgenommen“ gelten die aktuell in der Anwendung vorhandenen Teilnehmer. Exakte Dubletten und sehr ähnliche Namen derselben Klasse werden gesondert markiert.</p>
+    </div>
+  </dialog>
+
   <dialog id="messageDialog">
     <form method="dialog">
       <h2 id="dialogTitle">Hinweis</h2>
@@ -245,5 +274,7 @@
   <script src="assets/xlsx-import-fix.js" defer></script>
   <script src="assets/project-delete.js" defer></script>
   <script src="assets/survey-import.js" defer></script>
+  <script src="assets/table-sort.js" defer></script>
+  <script src="assets/attendance-check.js" defer></script>
 </body>
 </html>

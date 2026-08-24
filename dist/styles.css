@@ -169,3 +169,36 @@ dialog form { display: grid; gap: 1rem; }
 @media (max-width: 760px) {
   .survey-import-actions { position: static; }
 }
+
+/* V9: Sortierbare Tabellen & Teilnahmekontrolle */
+.sort-header-button {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font-weight: inherit;
+  text-align: left;
+}
+.sort-header-button:hover { color: var(--navy); }
+.sort-header-button:focus-visible { outline: 2px solid var(--navy); outline-offset: 3px; border-radius: 4px; }
+.sort-indicator { color: var(--muted); font-size: .72rem; flex: 0 0 auto; }
+.attendance-check-button { border-color: #547a65; background: #f3f8f5; }
+.attendance-check-button:hover { background: #e8f2eb; }
+.attendance-dialog { width: min(1180px, calc(100vw - 2rem)); }
+.attendance-form { display: grid; gap: 1rem; }
+.attendance-toolbar { display: flex; justify-content: space-between; align-items: end; gap: .8rem; flex-wrap: wrap; }
+.attendance-toolbar label { display: grid; gap: .3rem; min-width: 220px; font-weight: 700; }
+.attendance-table { min-width: 900px; }
+.attendance-table td small, .person-class { display: block; margin-top: .2rem; color: var(--muted); font-size: .78rem; }
+.review-actions { display: flex; gap: .35rem; flex-wrap: wrap; }
+.duplicate-people { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.duplicate-separator { color: var(--muted); font-weight: 800; }
+.attendance-footnote { margin-bottom: 0; }
+@media (max-width: 720px) {
+  .attendance-toolbar { align-items: stretch; }
+  .attendance-toolbar label, .attendance-toolbar .button { width: 100%; }
+}
