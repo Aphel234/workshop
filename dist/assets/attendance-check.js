@@ -144,15 +144,70 @@
     return rows;
   }
 
-  function findRosterHeader(rows) {
-    for (let i = 0; i < Math.min(rows.length, 20); i += 1) {
-      const h = (rows[i] || []).map(normalizeText);
-      const first = h.findIndex((x) => x === "vorname" || x === "vornamen");
-      const last = h.findIndex((x) => x === "nachname" || x === "familienname");
-      const cls = h.findIndex((x) => x === "klasse" || x === "klassenbezeichnung" || x.includes("klasse lerngruppe"));
-      if (first >= 0 && last >= 0 && cls >= 0) return { row: i, first, last, cls };
+  function headerScore(value, field) {
+    const h = normalizeText(value);
+    const compact = h.replace(/\s+/g, "");
+    if (!h) return 0;
+
+    if (field === "first") {
+      if (["vorname", "vornamen", "rufname", "firstname", "givenname"].includes(compact)) return 120;
+      if (h.includes("vorname") || h.includes("vornamen") || h.includes("rufname")) return 115;
+      if (h.includes("first name") || h.includes("given name")) return 110;
+      if (compact === "vn") return 70;
+      return 0;
     }
-    return null;
+
+    if (field === "last") {
+      if (["nachname", "familienname", "familiennamen", "lastname", "surname"].includes(compact)) return 120;
+      // FuxSchool-Exporte verwenden häufig schlicht „Name“ für den Nachnamen.
+      if (compact === "name") return 112;
+      if (h.includes("nachname") || h.includes("familienname") || h.includes("familien namen")) return 118;
+      if (h.includes("last name") || h.includes("surname")) return 112;
+      if (h.includes("schulername") || h.includes("schuelername") || h.includes("name schuler") || h.includes("name schueler")) return 100;
+      if (["famname", "famname", "fn"].includes(compact)) return 72;
+      return 0;
+    }
+
+    if (field === "class") {
+      if (["klasse", "klassenbezeichnung", "klassenname", "schulklasse", "class"].includes(compact)) return 120;
+      if (["kl", "klassekurs", "klasselerngruppe", "lerngruppe"].includes(compact)) return 108;
+      if (h.includes("klasse") || h.includes("lerngruppe")) return 115;
+      if (h.includes("class")) return 100;
+      return 0;
+    }
+    return 0;
+  }
+
+  function findRosterHeader(rows) {
+    let best = null;
+    for (let i = 0; i < Math.min(rows.length, 30); i += 1) {
+      const row = rows[i] || [];
+      const firstScores = row.map((v) => headerScore(v, "first"));
+      const lastScores = row.map((v) => headerScore(v, "last"));
+      const classScores = row.map((v) => headerScore(v, "class"));
+
+      for (let first = 0; first < row.length; first += 1) {
+        if (firstScores[first] < 60) continue;
+        for (let last = 0; last < row.length; last += 1) {
+          if (last === first || lastScores[last] < 60) continue;
+          for (let cls = 0; cls < row.length; cls += 1) {
+            if (cls === first || cls === last || classScores[cls] < 60) continue;
+            const score = firstScores[first] + lastScores[last] + classScores[cls];
+            if (!best || score > best.score) {
+              best = {
+                row: i, first, last, cls, score,
+                headers: {
+                  first: String(row[first] ?? "").trim(),
+                  last: String(row[last] ?? "").trim(),
+                  cls: String(row[cls] ?? "").trim(),
+                },
+              };
+            }
+          }
+        }
+      }
+    }
+    return best;
   }
 
   async function parseRosterFile(file) {
@@ -175,7 +230,7 @@
       }
       if (records.length) return records;
     }
-    throw new Error(`${file.name}: Keine Tabelle mit den Spalten Vorname, Nachname und Klasse gefunden.`);
+    throw new Error(`${file.name}: Vorname, Nachname und Klasse konnten nicht eindeutig erkannt werden. Unterstützt werden auch Überschriften wie „Name“, „Familienname“, „Vorname(n)“, „Kl.“ oder „Klassenbezeichnung“.`);
   }
 
   function exactDuplicateGroups(records, sourceType) {
