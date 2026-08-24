@@ -344,14 +344,51 @@ function rankLabel(person, course) {
   return ["Erstwunsch", "Zweitwunsch", "Drittwunsch", "Viertwunsch"][index] ?? "Kein Wunsch";
 }
 
+const PREFERENCE_COST = Object.freeze({
+  first: 0,
+  second: 1_000_000,
+  third: 1_000_000_000,
+  fourth: 1_000_000_000_000,
+  outside: 2_000_000_000_000,
+  unassigned: 5_000_000_000_000,
+});
+
+function rankBucket(person, course) {
+  const index = rankIndex(person, course);
+  return index >= 0 ? index : 4;
+}
+
 function preferenceCost(person, course) {
   if (person.fixed === course.id) return 0;
-  const index = rankIndex(person, course);
-  if (index === 0) return 0;
-  if (index === 1) return 1_000_000;
-  if (index === 2) return 1_010_000;
-  if (index === 3) return 1_010_100;
-  return 1_010_200;
+  const index = rankBucket(person, course);
+  if (index === 0) return PREFERENCE_COST.first;
+  if (index === 1) return PREFERENCE_COST.second;
+  if (index === 2) return PREFERENCE_COST.third;
+  if (index === 3) return PREFERENCE_COST.fourth;
+  return PREFERENCE_COST.outside;
+}
+
+function badWishMarginalPenalty(rank, ordinal) {
+  // Nur als Tie-Breaker innerhalb derselben Wunschqualität:
+  // weitere Dritt-/Viertwünsche im selben Kurs werden zunehmend teurer.
+  // Die Summen bleiben deutlich kleiner als der Sprung zur nächsten Wunschstufe.
+  if (rank === 2) return ordinal * 100;
+  if (rank === 3) return ordinal * 100_000;
+  return 0;
+}
+
+function rankCountsFromAssignments(event, assignments, courseMap) {
+  const counts = new Map();
+  for (const courseId of courseMap.keys()) counts.set(courseId, [0, 0, 0, 0, 0]);
+  const personMap = new Map(event.participants.map((person) => [person.id, person]));
+  for (const [personId, courseId] of assignments) {
+    if (!courseId || !courseMap.has(courseId)) continue;
+    const person = personMap.get(personId);
+    if (!person || person.fixed === courseId) continue;
+    const bucket = rankBucket(person, courseMap.get(courseId));
+    counts.get(courseId)[bucket] += 1;
+  }
+  return counts;
 }
 
 function courseEligible(person, course, lockSet, allowOutside) {
@@ -668,31 +705,70 @@ function calculateTargets(event, openSet, courseMap, fixed) {
   const openCourses = [...openSet].map((id) => courseMap.get(id)).filter(Boolean);
   let baseTotal = 0;
   let maxTotal = 0;
+
   for (const course of openCourses) {
     const base = Math.max(effectiveMinimum(course), fixed.get(course.id) || 0);
-    targets.set(course.id, Math.min(base, course.max));
-    baseTotal += Math.min(base, course.max);
+    const target = Math.min(base, course.max);
+    targets.set(course.id, target);
+    baseTotal += target;
     maxTotal += course.max;
   }
+
   if (baseTotal > event.participants.length) throw new Error("Die Mindestbelegungen übersteigen die Teilnehmerzahl.");
   let remaining = Math.min(event.participants.length, maxTotal) - baseTotal;
-  while (remaining > 0) {
-    const candidates = openCourses
-      .filter((course) => targets.get(course.id) < course.max)
-      .sort((a, b) => targets.get(a.id) - targets.get(b.id) || a.max - b.max || a.id.localeCompare(b.id, "de"));
+  const threshold = Math.max(0, Number(event.settings.balanceThreshold) || 0);
+
+  // Kleine Kurse (bis einschließlich der eingestellten Schwelle) erhalten
+  // bevorzugt ihre Maximalgröße als Ziel. Die Mindestbelegungen aller anderen
+  // Kurse sind zu diesem Zeitpunkt bereits reserviert.
+  const smallCourses = openCourses
+    .filter((course) => threshold > 0 && course.max <= threshold)
+    .sort((a, b) => a.max - b.max || a.id.localeCompare(b.id, "de"));
+
+  for (const course of smallCourses) {
+    if (remaining <= 0) break;
+    const gap = Math.max(0, course.max - (targets.get(course.id) || 0));
+    const add = Math.min(gap, remaining);
+    targets.set(course.id, (targets.get(course.id) || 0) + add);
+    remaining -= add;
+  }
+
+  // Der Rest wird auf die größeren Kurse nach absoluter Teilnehmerzahl
+  // möglichst gleichmäßig verteilt. Maximalgrößen bleiben harte Grenzen.
+  const largeCourses = openCourses.filter((course) => !(threshold > 0 && course.max <= threshold));
+  while (remaining > 0 && largeCourses.length) {
+    const candidates = largeCourses
+      .filter((course) => (targets.get(course.id) || 0) < course.max)
+      .sort((a, b) => (targets.get(a.id) || 0) - (targets.get(b.id) || 0) || a.max - b.max || a.id.localeCompare(b.id, "de"));
     if (!candidates.length) break;
-    targets.set(candidates[0].id, targets.get(candidates[0].id) + 1);
+    const course = candidates[0];
+    targets.set(course.id, (targets.get(course.id) || 0) + 1);
     remaining -= 1;
   }
+
+  // Falls es ausschließlich kleine Kurse gibt oder große Kurse bereits voll sind.
+  while (remaining > 0) {
+    const candidates = openCourses
+      .filter((course) => (targets.get(course.id) || 0) < course.max)
+      .sort((a, b) => (targets.get(a.id) || 0) - (targets.get(b.id) || 0) || a.max - b.max || a.id.localeCompare(b.id, "de"));
+    if (!candidates.length) break;
+    const course = candidates[0];
+    targets.set(course.id, (targets.get(course.id) || 0) + 1);
+    remaining -= 1;
+  }
+
   return targets;
 }
 
 function assignMinimums(event, openSet, lockSet, courseMap, assignments, loads) {
   const nonFixed = event.participants.filter((person) => !assignments.has(person.id));
   const courses = [...openSet].map((id) => courseMap.get(id)).filter(Boolean);
+  const existingRanks = rankCountsFromAssignments(event, assignments, courseMap);
   const source = 0;
   const courseStart = 1;
-  const personStart = courseStart + courses.length;
+  const rankStart = courseStart + courses.length;
+  const rankNode = (ci, rank) => rankStart + ci * 5 + rank;
+  const personStart = rankStart + courses.length * 5;
   const sink = personStart + nonFixed.length;
   const flow = new MinCostMaxFlow(sink + 1);
   const assignmentEdges = [];
@@ -702,9 +778,23 @@ function assignMinimums(event, openSet, lockSet, courseMap, assignments, loads) 
     const required = Math.max(0, effectiveMinimum(course) - (loads.get(course.id) || 0));
     requiredTotal += required;
     flow.addEdge(source, courseStart + ci, required, 0);
+
+    for (let rank = 0; rank < 5; rank += 1) {
+      const already = existingRanks.get(course.id)?.[rank] || 0;
+      for (let seat = 1; seat <= required; seat += 1) {
+        flow.addEdge(
+          courseStart + ci,
+          rankNode(ci, rank),
+          1,
+          badWishMarginalPenalty(rank, already + seat),
+        );
+      }
+    }
+
     nonFixed.forEach((person, pi) => {
       if (!courseEligible(person, course, lockSet, event.settings.allowOutside)) return;
-      const edge = flow.addEdge(courseStart + ci, personStart + pi, 1, preferenceCost(person, course), {
+      const rank = rankBucket(person, course);
+      const edge = flow.addEdge(rankNode(ci, rank), personStart + pi, 1, preferenceCost(person, course), {
         personId: person.id,
         courseId: course.id,
       });
@@ -713,8 +803,8 @@ function assignMinimums(event, openSet, lockSet, courseMap, assignments, loads) 
   });
   nonFixed.forEach((_, pi) => flow.addEdge(personStart + pi, sink, 1, 0));
 
-  const result = flow.run(source, sink, requiredTotal);
-  if (result.flow !== requiredTotal) throw new Error("Die Mindestbelegungen konnten nicht erfüllt werden.");
+  const outcome = flow.run(source, sink, requiredTotal);
+  if (outcome.flow !== requiredTotal) throw new Error("Die Mindestbelegungen konnten nicht erfüllt werden.");
   for (const edge of assignmentEdges) {
     if (edge.initialCap === 1 && edge.cap === 0) {
       assignments.set(edge.meta.personId, edge.meta.courseId);
@@ -726,9 +816,12 @@ function assignMinimums(event, openSet, lockSet, courseMap, assignments, loads) 
 function assignRemaining(event, openSet, lockSet, courseMap, assignments, loads, targets) {
   const remainingPeople = event.participants.filter((person) => !assignments.has(person.id));
   const courses = [...openSet].map((id) => courseMap.get(id)).filter(Boolean);
+  const existingRanks = rankCountsFromAssignments(event, assignments, courseMap);
   const source = 0;
   const personStart = 1;
-  const courseStart = personStart + remainingPeople.length;
+  const rankStart = personStart + remainingPeople.length;
+  const rankNode = (ci, rank) => rankStart + ci * 5 + rank;
+  const courseStart = rankStart + courses.length * 5;
   const sink = courseStart + courses.length;
   const flow = new MinCostMaxFlow(sink + 1);
   const assignmentEdges = [];
@@ -740,31 +833,55 @@ function assignRemaining(event, openSet, lockSet, courseMap, assignments, loads,
     courses.forEach((course, ci) => {
       if (!courseEligible(person, course, lockSet, event.settings.allowOutside)) return;
       if ((loads.get(course.id) || 0) >= course.max) return;
-      const edge = flow.addEdge(personNode, courseStart + ci, 1, preferenceCost(person, course), {
+      const rank = rankBucket(person, course);
+      const edge = flow.addEdge(personNode, rankNode(ci, rank), 1, preferenceCost(person, course), {
         personId: person.id,
         courseId: course.id,
       });
       assignmentEdges.push(edge);
     });
-    const edge = flow.addEdge(personNode, sink, 1, 1_000_000_000, { personId: person.id });
+    const edge = flow.addEdge(personNode, sink, 1, PREFERENCE_COST.unassigned, { personId: person.id });
     unassignedEdges.push(edge);
   });
 
   courses.forEach((course, ci) => {
     const current = loads.get(course.id) || 0;
     const available = Math.max(0, course.max - current);
+
+    for (let rank = 0; rank < 5; rank += 1) {
+      const already = existingRanks.get(course.id)?.[rank] || 0;
+      for (let seat = 1; seat <= available; seat += 1) {
+        flow.addEdge(
+          rankNode(ci, rank),
+          courseStart + ci,
+          1,
+          badWishMarginalPenalty(rank, already + seat),
+        );
+      }
+    }
+
     for (let seat = 1; seat <= available; seat += 1) {
       const resultingLoad = current + seat;
-      const balanceActive = course.max >= event.settings.balanceThreshold;
-      const penalty = balanceActive
-        ? Math.round(event.settings.balanceWeight * Math.abs(resultingLoad - (targets.get(course.id) || 0)))
-        : 0;
+      const threshold = Math.max(0, Number(event.settings.balanceThreshold) || 0);
+      const smallCourse = threshold > 0 && course.max <= threshold;
+      const balanceActive = event.settings.balanceWeight > 0;
+      let penalty = 0;
+      if (balanceActive) {
+        if (smallCourse) {
+          // Kleine Kurse sollen bevorzugt ihr Maximum erreichen. Eine leichte
+          // Zusatzstrafe auf große Kurse macht bei ansonsten gleicher
+          // Wunschqualität den kleinen Kurs attraktiver.
+          penalty = Math.round(event.settings.balanceWeight * Math.max(0, resultingLoad - course.max));
+        } else {
+          penalty = Math.round(event.settings.balanceWeight * Math.abs(resultingLoad - (targets.get(course.id) || 0)));
+        }
+      }
       flow.addEdge(courseStart + ci, sink, 1, penalty);
     }
   });
 
-  const result = flow.run(source, sink, remainingPeople.length);
-  if (result.flow !== remainingPeople.length) throw new Error("Die restlichen Teilnehmer konnten nicht verarbeitet werden.");
+  const outcome = flow.run(source, sink, remainingPeople.length);
+  if (outcome.flow !== remainingPeople.length) throw new Error("Die restlichen Teilnehmer konnten nicht verarbeitet werden.");
   for (const edge of assignmentEdges) {
     if (edge.initialCap === 1 && edge.cap === 0) {
       assignments.set(edge.meta.personId, edge.meta.courseId);
@@ -1259,6 +1376,19 @@ function optimizeEventSingle(raw) {
       ? openCourses.reduce((sum, course) => sum + Math.abs(course.deviation), 0) / openCourses.length
       : 0;
 
+    const badWishByCourse = openCourses.map((course) => {
+      const rows = participantResults.filter((person) => person.workshopId === course.id);
+      return {
+        courseId: course.id,
+        third: rows.filter((person) => person.type === "Drittwunsch").length,
+        fourth: rows.filter((person) => person.type === "Viertwunsch").length,
+      };
+    });
+    const maxThirdPerCourse = badWishByCourse.length ? Math.max(...badWishByCourse.map((item) => item.third)) : 0;
+    const maxFourthPerCourse = badWishByCourse.length ? Math.max(...badWishByCourse.map((item) => item.fourth)) : 0;
+    const thirdConcentration = badWishByCourse.reduce((sum, item) => sum + item.third * item.third, 0);
+    const fourthConcentration = badWishByCourse.reduce((sum, item) => sum + item.fourth * item.fourth, 0);
+
     return {
       ok: true,
       event,
@@ -1279,8 +1409,15 @@ function optimizeEventSingle(raw) {
         meanDeviation,
         preferredRuleViolations: ruleSummary.preferred.length,
         hardRuleViolations: ruleSummary.hard.length,
+        maxThirdPerCourse,
+        maxFourthPerCourse,
+        thirdConcentration,
+        fourthConcentration,
         largeCourseSpread: (() => {
-          const loadsLarge = openCourses.filter((course) => course.max >= event.settings.balanceThreshold).map((course) => course.load);
+          const threshold = Math.max(0, Number(event.settings.balanceThreshold) || 0);
+          const loadsLarge = openCourses
+            .filter((course) => threshold <= 0 || course.max > threshold)
+            .map((course) => course.load);
           return loadsLarge.length ? Math.max(...loadsLarge) - Math.min(...loadsLarge) : 0;
         })(),
       },
@@ -1326,13 +1463,22 @@ function variantForQualityRun(raw, runIndex) {
 function qualityTuple(result) {
   const s = result?.stats ?? {};
   return [
+    // Zuerst muss die Lösung zulässig und vollständig sein.
     -(s.hardRuleViolations ?? 0),
     -(s.unassigned ?? 0),
+    -(s.outside ?? 0),
+    // Viertwunsch ist die absolute Notkategorie, Drittwunsch nur Notfall.
+    -(s.fourth ?? 0),
+    -(s.third ?? 0),
+    // Sind die Notkategorien gleich, zählen Erst- und Zweitwünsche.
     s.first ?? 0,
     s.second ?? 0,
-    s.third ?? 0,
-    s.fourth ?? 0,
-    -(s.outside ?? 0),
+    // Unvermeidbare Dritt-/Viertwünsche möglichst nicht auf einzelne Kurse konzentrieren.
+    -(s.maxFourthPerCourse ?? 0),
+    -(s.fourthConcentration ?? 0),
+    -(s.maxThirdPerCourse ?? 0),
+    -(s.thirdConcentration ?? 0),
+    // Danach folgen weiche Regeln und der Lehrerbelastungsausgleich.
     -(s.preferredRuleViolations ?? 0),
     -(s.largeCourseSpread ?? 0),
     -(s.meanDeviation ?? 0),
@@ -1652,6 +1798,8 @@ function statCards(stats) {
     [`${stats.second} (${pct(stats.second)})`, "Zweitwünsche"],
     [`${stats.third} (${pct(stats.third)})`, "Drittwünsche"],
     [`${stats.fourth} (${pct(stats.fourth)})`, "Viertwünsche"],
+    [stats.maxThirdPerCourse ?? 0, "Max. Drittwünsche / Kurs"],
+    [stats.maxFourthPerCourse ?? 0, "Max. Viertwünsche / Kurs"],
     [stats.unassigned, "Nicht zugeteilt"],
     [stats.largeCourseSpread ?? "–", "Spannweite große Kurse"],
     [stats.preferredRuleViolations ?? 0, "Weiche Regelhinweise"],
@@ -1659,6 +1807,26 @@ function statCards(stats) {
     [result?.quality ? `${result.quality.successfulRuns}/${result.quality.runsTried}` : "–", "Qualitätsläufe"],
   ];
   return items.map(([value, label]) => `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`).join("");
+}
+
+function wishQualityForCourse(courseId) {
+  const rows = result?.participantResults?.filter((row) => row.workshopId === courseId) || [];
+  const counts = { Erstwunsch: 0, Zweitwunsch: 0, Drittwunsch: 0, Viertwunsch: 0, "Feste Setzung": 0, "Kein Wunsch": 0 };
+  rows.forEach((row) => { if (counts[row.type] !== undefined) counts[row.type] += 1; });
+  const parts = [];
+  if (counts.Erstwunsch) parts.push(`${counts.Erstwunsch}× 1.`);
+  if (counts.Zweitwunsch) parts.push(`${counts.Zweitwunsch}× 2.`);
+  if (counts.Drittwunsch) parts.push(`${counts.Drittwunsch}× 3.`);
+  if (counts.Viertwunsch) parts.push(`${counts.Viertwunsch}× 4.`);
+  if (counts["Feste Setzung"]) parts.push(`${counts["Feste Setzung"]} fest`);
+  if (counts["Kein Wunsch"]) parts.push(`${counts["Kein Wunsch"]} außerhalb`);
+  return parts.join(" · ") || "–";
+}
+
+function resultRuleBadge(course) {
+  if (course.ruleHardViolations) return `<span class="badge bad">${course.ruleHardViolations} harte Regel(n)</span>`;
+  if (course.rulePreferredViolations) return `<span class="badge warn">${course.rulePreferredViolations} Hinweis(e)</span>`;
+  return `<span class="badge good">erfüllt</span>`;
 }
 
 function renderResults() {
@@ -1688,26 +1856,6 @@ function renderResults() {
       <td>${escapeHtml(row.lastName)}</td><td>${escapeHtml(row.firstName)}</td><td>${escapeHtml(row.className)}</td>
       <td>${escapeHtml(row.workshopName || "–")}</td><td>${escapeHtml(row.type)}</td><td>${escapeHtml(row.note)}</td>
     </tr>`).join("")}</tbody>`;
-}
-
-function wishQualityForCourse(courseId) {
-  const rows = result?.participantResults?.filter((row) => row.workshopId === courseId) || [];
-  const counts = { Erstwunsch: 0, Zweitwunsch: 0, Drittwunsch: 0, Viertwunsch: 0, "Feste Setzung": 0, "Kein Wunsch": 0 };
-  rows.forEach((row) => { if (counts[row.type] !== undefined) counts[row.type] += 1; });
-  const parts = [];
-  if (counts.Erstwunsch) parts.push(`${counts.Erstwunsch}× 1.`);
-  if (counts.Zweitwunsch) parts.push(`${counts.Zweitwunsch}× 2.`);
-  if (counts.Drittwunsch) parts.push(`${counts.Drittwunsch}× 3.`);
-  if (counts.Viertwunsch) parts.push(`${counts.Viertwunsch}× 4.`);
-  if (counts["Feste Setzung"]) parts.push(`${counts["Feste Setzung"]} fest`);
-  if (counts["Kein Wunsch"]) parts.push(`${counts["Kein Wunsch"]} außerhalb`);
-  return parts.join(" · ") || "–";
-}
-
-function resultRuleBadge(course) {
-  if (course.ruleHardViolations) return `<span class="badge bad">${course.ruleHardViolations} harte Regel(n)</span>`;
-  if (course.rulePreferredViolations) return `<span class="badge warn">${course.rulePreferredViolations} Hinweis(e)</span>`;
-  return `<span class="badge good">erfüllt</span>`;
 }
 
 function courseById(id) {
@@ -2258,6 +2406,101 @@ async function exportClassPdfs() {
 }
 
 
+function docxEscape(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function docxParagraph(text, { bold = false, size = 20, after = 0 } = {}) {
+  const runProps = `${bold ? "<w:b/>" : ""}<w:sz w:val=\"${size}\"/><w:szCs w:val=\"${size}\"/>`;
+  return `<w:p><w:pPr><w:spacing w:after="${after}"/></w:pPr><w:r><w:rPr>${runProps}</w:rPr><w:t xml:space="preserve">${docxEscape(text)}</w:t></w:r></w:p>`;
+}
+
+function docxCell(value, { header = false } = {}) {
+  const shading = header ? '<w:shd w:val="clear" w:color="auto" w:fill="D9EAF7"/>' : "";
+  return `<w:tc><w:tcPr>${shading}</w:tcPr>${docxParagraph(value, { bold: header, size: 18 })}</w:tc>`;
+}
+
+function docxTable(headers, rows) {
+  const borders = `<w:tblBorders><w:top w:val="single" w:sz="4" w:color="B7C9D6"/><w:left w:val="single" w:sz="4" w:color="B7C9D6"/><w:bottom w:val="single" w:sz="4" w:color="B7C9D6"/><w:right w:val="single" w:sz="4" w:color="B7C9D6"/><w:insideH w:val="single" w:sz="4" w:color="D9E2E8"/><w:insideV w:val="single" w:sz="4" w:color="D9E2E8"/></w:tblBorders>`;
+  const headerRow = `<w:tr><w:trPr><w:tblHeader/></w:trPr>${headers.map((value) => docxCell(value, { header: true })).join("")}</w:tr>`;
+  const bodyRows = rows.map((row) => `<w:tr>${row.map((value) => docxCell(value)).join("")}</w:tr>`).join("");
+  return `<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblLayout w:type="autofit"/>${borders}</w:tblPr>${headerRow}${bodyRows}</w:tbl>`;
+}
+
+async function createDocxFile({ title, subtitle, headers, rows }) {
+  const file = new JSZip();
+  file.file("[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`);
+  file.folder("_rels").file(".rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+  const word = file.folder("word");
+  word.file("styles.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="20"/></w:rPr></w:style>
+</w:styles>`);
+  word.folder("_rels").file("document.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>`);
+  word.file("document.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    ${docxParagraph(title, { bold: true, size: 30, after: 80 })}
+    ${docxParagraph(subtitle, { size: 18, after: 160 })}
+    ${docxTable(headers, rows)}
+    <w:p>${docxParagraph("· © 2026 Oliver Richter", { size: 16 }).replace(/^<w:p>|<\/w:p>$/g, "")}</w:p>
+    <w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="850" w:right="850" w:bottom="850" w:left="850" w:header="425" w:footer="425" w:gutter="0"/></w:sectPr>
+  </w:body>
+</w:document>`);
+  return file.generateAsync({ type: "uint8array", compression: "DEFLATE", compressionOptions: { level: 6 } });
+}
+
+async function exportCourseDocx() {
+  if (!ensureResult()) return;
+  const zip = new JSZip();
+  for (const course of result.courseResults.filter((c) => c.open)) {
+    const persons = result.participantResults
+      .filter((p) => p.workshopId === course.id)
+      .sort((a, b) => a.lastName.localeCompare(b.lastName, "de") || a.firstName.localeCompare(b.firstName, "de"));
+    const docx = await createDocxFile({
+      title: `Teilnehmerliste: ${workshopLabel(course)}`,
+      subtitle: `Belegung ${course.load} · Ziel ${course.target} · Minimum ${course.effectiveMin} · Maximum ${course.max}`,
+      headers: ["Nr.", "Nachname", "Vorname", "Klasse", "Zuteilungsart"],
+      rows: persons.map((person, index) => [index + 1, person.lastName, person.firstName, String(person.className), person.type]),
+    });
+    zip.file(`${safeFilename(workshopLabel(course))}.docx`, docx);
+  }
+  downloadBlob(await zip.generateAsync({ type: "blob" }), `${safeFilename(state.name)}_Kurslisten_Word.zip`);
+}
+
+async function exportClassDocx() {
+  if (!ensureResult()) return;
+  const zip = new JSZip();
+  const classes = [...new Set(result.participantResults.map((p) => p.className))]
+    .sort((a, b) => String(a).localeCompare(String(b), "de", { numeric: true }));
+  for (const className of classes) {
+    const persons = result.participantResults
+      .filter((p) => p.className === className)
+      .sort((a, b) => a.lastName.localeCompare(b.lastName, "de") || a.firstName.localeCompare(b.firstName, "de"));
+    const docx = await createDocxFile({
+      title: `Klassenliste: ${className}`,
+      subtitle: "Alphabetisch nach Nachname und Vorname",
+      headers: ["Nr.", "Nachname", "Vorname", "Workshop", "Zuteilungsart"],
+      rows: persons.map((person, index) => [index + 1, person.lastName, person.firstName, person.workshopName || "Nicht zugeteilt", person.type]),
+    });
+    zip.file(`Klasse_${safeFilename(className)}.docx`, docx);
+  }
+  downloadBlob(await zip.generateAsync({ type: "blob" }), `${safeFilename(state.name)}_Klassenlisten_Word.zip`);
+}
+
+
 async function downloadCourseChoiceTemplate() {
   if (!state.workshops.length) return showDialog("Keine Kursarten", "Bitte zuerst Workshops bzw. Kursarten anlegen.", "warning");
   const workbook = new ExcelJS.Workbook();
@@ -2355,6 +2598,8 @@ function bindEvents() {
   $("#excelExportBtn").addEventListener("click", exportExcel);
   $("#coursePdfBtn").addEventListener("click", exportCoursePdfs);
   $("#classPdfBtn").addEventListener("click", exportClassPdfs);
+  $("#courseDocxBtn").addEventListener("click", exportCourseDocx);
+  $("#classDocxBtn").addEventListener("click", exportClassDocx);
   $("#jsonFile").addEventListener("change", async (event) => {
     try { if (event.target.files[0]) await importJson(event.target.files[0]); }
     catch (error) { showDialog("JSON-Import fehlgeschlagen", error.message); }
