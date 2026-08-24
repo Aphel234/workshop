@@ -248,6 +248,7 @@ function normalizeEvent(input) {
     balanceWeight: 10,
     balanceThreshold: 10,
     cohortMin: 0,
+    qualityMode: "standard",
     rules: [],
     ...(input?.settings ?? {}),
   };
@@ -271,6 +272,7 @@ function normalizeEvent(input) {
       balanceWeight: Math.max(0, Math.min(500, Number(settings.balanceWeight) || 0)),
       balanceThreshold: Math.max(0, Math.min(500, Number(settings.balanceThreshold) || 0)),
       cohortMin: normalizedCohortMin === 0 ? 0 : Math.max(2, Math.min(20, Number.isFinite(normalizedCohortMin) ? normalizedCohortMin : 0)),
+      qualityMode: ["fast", "standard", "thorough"].includes(settings.qualityMode) ? settings.qualityMode : "standard",
       rules: normalizedRules,
     },
     workshops: (input?.workshops ?? []).map((w) => {
@@ -1173,7 +1175,7 @@ function summarizeFlexibleRules(event, openSet, courseMap, assignments) {
   return { hard, preferred };
 }
 
-function optimizeEvent(raw) {
+function optimizeEventSingle(raw) {
   const { event, errors, warnings } = validateEvent(raw);
   if (errors.length) return { ok: false, errors, warnings };
 
@@ -1291,6 +1293,97 @@ function optimizeEvent(raw) {
 }
 
 
+
+
+function qualityRunCount(mode) {
+  if (mode === "fast") return 1;
+  if (mode === "thorough") return 24;
+  return 6;
+}
+
+function deterministicHash(text) {
+  let hash = 2166136261;
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function variantForQualityRun(raw, runIndex) {
+  if (runIndex === 0) return raw;
+  const participants = [...(raw?.participants ?? [])].sort((a, b) => {
+    const ha = deterministicHash(`${runIndex}|${a?.id ?? ""}|${a?.lastName ?? ""}`);
+    const hb = deterministicHash(`${runIndex}|${b?.id ?? ""}|${b?.lastName ?? ""}`);
+    return ha - hb || String(a?.id ?? "").localeCompare(String(b?.id ?? ""), "de", { numeric: true });
+  });
+  const workshops = [...(raw?.workshops ?? [])];
+  if (runIndex % 3 === 1) workshops.reverse();
+  else if (runIndex % 3 === 2) workshops.sort((a, b) => deterministicHash(`${runIndex}|${a?.id ?? ""}`) - deterministicHash(`${runIndex}|${b?.id ?? ""}`));
+  return { ...raw, participants, workshops };
+}
+
+function qualityTuple(result) {
+  const s = result?.stats ?? {};
+  return [
+    -(s.hardRuleViolations ?? 0),
+    -(s.unassigned ?? 0),
+    s.first ?? 0,
+    s.second ?? 0,
+    s.third ?? 0,
+    s.fourth ?? 0,
+    -(s.outside ?? 0),
+    -(s.preferredRuleViolations ?? 0),
+    -(s.largeCourseSpread ?? 0),
+    -(s.meanDeviation ?? 0),
+  ];
+}
+
+function betterQualityResult(candidate, best) {
+  if (!best) return true;
+  const a = qualityTuple(candidate);
+  const b = qualityTuple(best);
+  for (let i = 0; i < a.length; i += 1) {
+    if (a[i] !== b[i]) return a[i] > b[i];
+  }
+  return false;
+}
+
+function optimizeEvent(raw) {
+  const mode = ["fast", "standard", "thorough"].includes(raw?.settings?.qualityMode)
+    ? raw.settings.qualityMode
+    : "standard";
+  const runs = qualityRunCount(mode);
+  const started = Date.now();
+  let best = null;
+  let firstFailure = null;
+  let successfulRuns = 0;
+  let selectedRun = 0;
+
+  for (let run = 0; run < runs; run += 1) {
+    const candidate = optimizeEventSingle(variantForQualityRun(raw, run));
+    if (!candidate.ok) {
+      if (!firstFailure) firstFailure = candidate;
+      continue;
+    }
+    successfulRuns += 1;
+    if (betterQualityResult(candidate, best)) {
+      best = candidate;
+      selectedRun = run + 1;
+    }
+  }
+
+  if (!best) return firstFailure || optimizeEventSingle(raw);
+  best.quality = {
+    mode,
+    runsTried: runs,
+    successfulRuns,
+    selectedRun,
+    elapsedMs: Date.now() - started,
+  };
+  return best;
+}
+
 const STORAGE_KEY = "workshop-zuteilung-github-pages-v2";
 const LEGACY_STORAGE_KEY = "workshop-zuteilung-github-pages-v1";
 let state = loadState();
@@ -1407,6 +1500,7 @@ function renderDashboard() {
   const nearest = levels.reduce((best, value) => Math.abs(value - state.settings.balanceWeight) < Math.abs(best - state.settings.balanceWeight) ? value : best, 0);
   $("#balanceLevel").value = String(nearest);
   $("#balanceThreshold").value = state.settings.balanceThreshold ?? 10;
+  $("#qualityMode").value = state.settings.qualityMode ?? "standard";
 
   const validation = validateEvent(state);
   const cards = [
@@ -1562,6 +1656,7 @@ function statCards(stats) {
     [stats.largeCourseSpread ?? "–", "Spannweite große Kurse"],
     [stats.preferredRuleViolations ?? 0, "Weiche Regelhinweise"],
     [stats.meanDeviation.toFixed(2), "Ø Zielabweichung"],
+    [result?.quality ? `${result.quality.successfulRuns}/${result.quality.runsTried}` : "–", "Qualitätsläufe"],
   ];
   return items.map(([value, label]) => `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`).join("");
 }
@@ -2216,6 +2311,7 @@ function bindEvents() {
   $("#defaultMode").addEventListener("change", (event) => { state.settings.defaultMode = event.target.value; commit({ invalidate: false }); });
   $("#balanceLevel").addEventListener("change", (event) => { state.settings.balanceWeight = Number(event.target.value) || 0; commit(); });
   $("#balanceThreshold").addEventListener("change", (event) => { state.settings.balanceThreshold = Math.max(0, Number(event.target.value) || 0); commit(); });
+  $("#qualityMode").addEventListener("change", (event) => { state.settings.qualityMode = event.target.value; commit(); });
   $("#addRuleBtn").addEventListener("click", addRule);
   $("#rulesTable").addEventListener("change", handleRuleChange);
   $("#rulesTable").addEventListener("click", handleRuleClick);
