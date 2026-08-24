@@ -1168,12 +1168,33 @@ function flexibleRuleViolations(event, openSet, courseMap, assignments, mode = n
   return violations;
 }
 
+function hardRuleStateForCourse(event, course, people) {
+  const violations = [];
+  for (const rule of (event.settings.rules || []).filter((r) => r.enabled && r.mode === "hard")) {
+    violations.push(...violationsForFlexibleRule(rule, course, people));
+  }
+  return {
+    count: violations.length,
+    deficit: violations.reduce((sum, violation) => sum + Math.max(1, violation.min - violation.count), 0),
+  };
+}
+
+function hardRuleStateCompare(a, b) {
+  if (a.count !== b.count) return a.count - b.count;
+  return a.deficit - b.deficit;
+}
+
+function hardRuleStateNoWorse(before, after) {
+  return hardRuleStateCompare(after, before) <= 0;
+}
+
+function hardRuleStateImproves(before, after) {
+  return hardRuleStateCompare(after, before) < 0;
+}
+
 function moveWouldKeepCourseHardRules(event, course, people) {
   if (people.length < effectiveMinimum(course)) return false;
-  for (const rule of (event.settings.rules || []).filter((r) => r.enabled && r.mode === "hard")) {
-    if (violationsForFlexibleRule(rule, course, people).length) return false;
-  }
-  return true;
+  return hardRuleStateForCourse(event, course, people).count === 0;
 }
 
 function flexibleCandidateMatches(violation, person) {
@@ -1186,9 +1207,11 @@ function flexibleCandidateMatches(violation, person) {
 }
 
 function repairFlexibleRules(event, openSet, lockSet, courseMap, assignments, loads, targets, mode = "hard") {
-  const maxPasses = Math.max(30, event.workshops.length * 6);
-  const personMap = new Map(event.participants.map((person) => [person.id, person]));
+  const maxPasses = Math.max(40, event.workshops.length * 10);
   const preferredBudget = 100_000; // deutlich kleiner als der Sprung Erst- -> Zweitwunsch
+
+  const violationStillPresent = (violation, people) => violationsForFlexibleRule(violation.rule, violation.course, people)
+    .some((item) => item.key === violation.key);
 
   for (let pass = 0; pass < maxPasses; pass += 1) {
     const violations = flexibleRuleViolations(event, openSet, courseMap, assignments, mode);
@@ -1198,21 +1221,21 @@ function repairFlexibleRules(event, openSet, lockSet, courseMap, assignments, lo
 
     for (const violation of violations) {
       const target = violation.course;
-      const need = Math.max(1, violation.min - violation.count);
       const targetLoad = loads.get(target.id) || 0;
-      if (targetLoad + need <= target.max) {
-        const byCourse = peopleByCourse(event, assignments);
+      const byCourse = peopleByCourse(event, assignments);
+
+      // 1) Die zu kleine Gruppe verstärken. Bei harten Regeln dürfen andere bereits
+      // vorhandene harte Verletzungen im Zielkurs die Reparatur nicht blockieren.
+      // Entscheidend ist, dass jeder Schritt die harte Gesamtsituation verbessert und
+      // im abgebenden Kurs nichts verschlechtert.
+      if (targetLoad < target.max) {
         const candidates = event.participants
           .filter((person) => !person.fixed && flexibleCandidateMatches(violation, person))
           .filter((person) => {
             const fromId = assignments.get(person.id) || "";
             if (!fromId || fromId === target.id) return false;
             if (!courseEligible(person, target, lockSet, event.settings.allowOutside)) return false;
-            const donor = courseMap.get(fromId);
-            if (!donor) return false;
-            const donorPeople = (byCourse.get(fromId) || []).filter((p) => p.id !== person.id);
-            const targetPeople = [...(byCourse.get(target.id) || []), person];
-            return moveWouldKeepCourseHardRules(event, donor, donorPeople) && moveWouldKeepCourseHardRules(event, target, targetPeople);
+            return Boolean(courseMap.get(fromId));
           })
           .map((person) => {
             const fromId = assignments.get(person.id) || "";
@@ -1225,12 +1248,48 @@ function repairFlexibleRules(event, openSet, lockSet, courseMap, assignments, lo
           })
           .sort((a, b) => a.score - b.score || a.person.id.localeCompare(b.person.id, "de"));
 
-        const affordable = mode === "preferred" ? candidates.filter((item) => item.score <= preferredBudget) : candidates;
-        if (affordable.length >= need) {
-          for (const candidate of affordable.slice(0, need)) {
-            const fromId = candidate.fromId;
+        const tempByCourse = new Map([...byCourse.entries()].map(([id, people]) => [id, [...people]]));
+        const tempLoads = new Map(loads);
+        const selected = [];
+
+        for (const candidate of candidates) {
+          if ((tempLoads.get(target.id) || 0) >= target.max) break;
+          if (mode === "preferred" && candidate.score > preferredBudget) continue;
+
+          const donor = courseMap.get(candidate.fromId);
+          const donorBefore = tempByCourse.get(candidate.fromId) || [];
+          const donorAfter = donorBefore.filter((person) => person.id !== candidate.person.id);
+          if (donorAfter.length < effectiveMinimum(donor)) continue;
+
+          const targetBefore = tempByCourse.get(target.id) || [];
+          const targetAfter = [...targetBefore, candidate.person];
+
+          if (mode === "hard") {
+            const donorBeforeState = hardRuleStateForCourse(event, donor, donorBefore);
+            const donorAfterState = hardRuleStateForCourse(event, donor, donorAfter);
+            const targetBeforeState = hardRuleStateForCourse(event, target, targetBefore);
+            const targetAfterState = hardRuleStateForCourse(event, target, targetAfter);
+            if (!hardRuleStateNoWorse(donorBeforeState, donorAfterState)) continue;
+            if (!hardRuleStateImproves(targetBeforeState, targetAfterState)) continue;
+          } else {
+            if (!moveWouldKeepCourseHardRules(event, donor, donorAfter)) continue;
+            if (!moveWouldKeepCourseHardRules(event, target, targetAfter)) continue;
+          }
+
+          selected.push(candidate);
+          tempByCourse.set(candidate.fromId, donorAfter);
+          tempByCourse.set(target.id, targetAfter);
+          tempLoads.set(candidate.fromId, (tempLoads.get(candidate.fromId) || 0) - 1);
+          tempLoads.set(target.id, (tempLoads.get(target.id) || 0) + 1);
+
+          if (!violationStillPresent(violation, targetAfter)) break;
+        }
+
+        const targetAfterPlan = tempByCourse.get(target.id) || [];
+        if (selected.length && !violationStillPresent(violation, targetAfterPlan)) {
+          for (const candidate of selected) {
             assignments.set(candidate.person.id, target.id);
-            loads.set(fromId, (loads.get(fromId) || 0) - 1);
+            loads.set(candidate.fromId, (loads.get(candidate.fromId) || 0) - 1);
             loads.set(target.id, (loads.get(target.id) || 0) + 1);
           }
           changed = true;
@@ -1238,41 +1297,64 @@ function repairFlexibleRules(event, openSet, lockSet, courseMap, assignments, lo
         }
       }
 
-      // Zweite Möglichkeit: die zu kleine Gruppe vollständig aus der Durchführung entfernen.
+      // 2) Falls Verstärken nicht geht, die zu kleine Gruppe vollständig aus dem Kurs
+      // entfernen. Die Zielkurse dürfen durch diese Reparatur keine harten Regeln
+      // verschlechtern. Die Zielgruppe im ursprünglichen Kurs wird als Ganzes bewertet,
+      // damit eine 0-oder-mindestens-N-Regel nicht an einem Zwischenstand scheitert.
       const members = violation.members.filter((person) => !person.fixed);
       if (members.length === violation.members.length && (loads.get(target.id) || 0) - members.length >= effectiveMinimum(target)) {
-        const byCourse = peopleByCourse(event, assignments);
-        const planned = [];
-        const tempLoads = new Map(loads);
-        let feasible = true;
-        for (const person of members) {
-          const destinations = [...openSet]
-            .map((id) => courseMap.get(id))
-            .filter((course) => course && course.id !== target.id)
-            .filter((course) => (tempLoads.get(course.id) || 0) < course.max)
-            .filter((course) => courseEligible(person, course, lockSet, event.settings.allowOutside))
-            .map((course) => {
-              const existing = byCourse.get(course.id) || [];
-              const after = [...existing, person];
-              const hardValid = moveWouldKeepCourseHardRules(event, course, after);
-              const prefDelta = preferenceCost(person, course) - preferenceCost(person, target);
-              return { course, hardValid, prefDelta };
-            })
-            .filter((item) => item.hardValid)
-            .sort((a, b) => a.prefDelta - b.prefDelta || a.course.id.localeCompare(b.course.id, "de"));
-          const chosen = destinations[0];
-          if (!chosen || (mode === "preferred" && chosen.prefDelta > preferredBudget)) { feasible = false; break; }
-          planned.push({ person, toId: chosen.course.id });
-          tempLoads.set(chosen.course.id, (tempLoads.get(chosen.course.id) || 0) + 1);
-        }
-        if (feasible) {
-          for (const move of planned) {
-            assignments.set(move.person.id, move.toId);
-            loads.set(target.id, (loads.get(target.id) || 0) - 1);
-            loads.set(move.toId, (loads.get(move.toId) || 0) + 1);
+        const targetBeforePeople = byCourse.get(target.id) || [];
+        const targetFinalPeople = targetBeforePeople.filter((person) => !violation.members.some((member) => member.id === person.id));
+        const targetBeforeState = hardRuleStateForCourse(event, target, targetBeforePeople);
+        const targetFinalState = hardRuleStateForCourse(event, target, targetFinalPeople);
+        const targetHardOkay = mode === "hard"
+          ? hardRuleStateImproves(targetBeforeState, targetFinalState)
+          : moveWouldKeepCourseHardRules(event, target, targetFinalPeople);
+
+        if (targetHardOkay) {
+          const planned = [];
+          const tempLoads = new Map(loads);
+          const tempByCourse = new Map([...byCourse.entries()].map(([id, people]) => [id, [...people]]));
+          tempByCourse.set(target.id, [...targetFinalPeople]);
+          tempLoads.set(target.id, (tempLoads.get(target.id) || 0) - members.length);
+          let feasible = true;
+
+          for (const person of members) {
+            const destinations = [...openSet]
+              .map((id) => courseMap.get(id))
+              .filter((course) => course && course.id !== target.id)
+              .filter((course) => (tempLoads.get(course.id) || 0) < course.max)
+              .filter((course) => courseEligible(person, course, lockSet, event.settings.allowOutside))
+              .map((course) => {
+                const existing = tempByCourse.get(course.id) || [];
+                const after = [...existing, person];
+                const prefDelta = preferenceCost(person, course) - preferenceCost(person, target);
+                const beforeState = hardRuleStateForCourse(event, course, existing);
+                const afterState = hardRuleStateForCourse(event, course, after);
+                const hardValid = mode === "hard"
+                  ? hardRuleStateNoWorse(beforeState, afterState)
+                  : moveWouldKeepCourseHardRules(event, course, after);
+                return { course, hardValid, prefDelta };
+              })
+              .filter((item) => item.hardValid)
+              .sort((a, b) => a.prefDelta - b.prefDelta || a.course.id.localeCompare(b.course.id, "de"));
+
+            const chosen = destinations[0];
+            if (!chosen || (mode === "preferred" && chosen.prefDelta > preferredBudget)) { feasible = false; break; }
+            planned.push({ person, toId: chosen.course.id });
+            tempLoads.set(chosen.course.id, (tempLoads.get(chosen.course.id) || 0) + 1);
+            tempByCourse.set(chosen.course.id, [...(tempByCourse.get(chosen.course.id) || []), person]);
           }
-          changed = true;
-          break;
+
+          if (feasible) {
+            for (const move of planned) {
+              assignments.set(move.person.id, move.toId);
+              loads.set(move.toId, (loads.get(move.toId) || 0) + 1);
+            }
+            loads.set(target.id, (loads.get(target.id) || 0) - members.length);
+            changed = true;
+            break;
+          }
         }
       }
     }
@@ -1280,10 +1362,16 @@ function repairFlexibleRules(event, openSet, lockSet, courseMap, assignments, lo
     if (!changed) {
       if (mode === "preferred") return violations;
       const first = violations[0];
-      throw new Error(`${first.course.name}${first.course.session ? ` – Gruppe ${first.course.session}` : ""}: harte Regel „${ruleTypeLabel(first.rule.type)} – mindestens ${first.min}“ kann für ${first.label} nicht erfüllt werden.`);
+      throw new Error(`${first.course.name}${first.course.session ? ` – Gruppe ${first.course.session}` : ""}: harte Regel „${ruleTypeLabel(first.rule.type)} – mindestens ${first.min}“ kann für ${first.label} nicht erfüllt werden. Die Optimierung hat Verstärken, Umverteilen und vollständiges Entfernen dieser Gruppe geprüft.`);
     }
   }
-  return flexibleRuleViolations(event, openSet, courseMap, assignments, mode);
+
+  const remaining = flexibleRuleViolations(event, openSet, courseMap, assignments, mode);
+  if (mode === "hard" && remaining.length) {
+    const first = remaining[0];
+    throw new Error(`${first.course.name}: harte Regel „${ruleTypeLabel(first.rule.type)} – mindestens ${first.min}“ konnte nach mehreren Reparaturschritten nicht vollständig erfüllt werden.`);
+  }
+  return remaining;
 }
 
 function summarizeFlexibleRules(event, openSet, courseMap, assignments) {
