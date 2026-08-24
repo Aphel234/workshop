@@ -1,4 +1,4 @@
-const CACHE = "workshop-zuteilung-v6-wunschprioritaet-docx";
+const CACHE = "workshop-zuteilung-v7-harte-regeln";
 const ASSETS = ["./", "./index.html", "./styles.css", "./assets/app.js", "./assets/jszip.min.js", "./assets/xlsx-import-fix.js", "./favicon.svg", "./manifest.webmanifest"];
 self.addEventListener("install", (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS))));
 self.addEventListener("activate", (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))));
