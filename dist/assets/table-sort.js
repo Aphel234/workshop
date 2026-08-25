@@ -2,7 +2,7 @@
   "use strict";
 
   const configs = {
-    workshopsTable: { skip: new Set([0, 12]) },
+    workshopsTable: { skip: new Set([0, 11, 13]) },
     participantsTable: { skip: new Set([0, 11]) },
   };
   const sortState = new Map();

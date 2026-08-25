@@ -241,6 +241,44 @@ function parseGrade(value) {
   return match ? Number(match[1]) : NaN;
 }
 
+function nullableCount(value) {
+  if (value === "" || value === null || value === undefined) return null;
+  const number = Number(value);
+  if (!Number.isFinite(number)) return null;
+  return Math.max(0, Math.min(500, Math.trunc(number)));
+}
+
+function normalizeGradeLimits(raw) {
+  const result = {};
+  if (!raw || typeof raw !== "object") return result;
+  for (const [rawGrade, value] of Object.entries(raw)) {
+    const grade = Number(rawGrade);
+    if (!Number.isInteger(grade) || grade < 1 || grade > 20) continue;
+    const min = nullableCount(value?.min);
+    const max = nullableCount(value?.max);
+    if (min === null && max === null) continue;
+    result[String(grade)] = { min, max };
+  }
+  return result;
+}
+
+function gradeLimitEntries(course) {
+  return Object.entries(course?.gradeLimits || {})
+    .map(([grade, limit]) => ({ grade: Number(grade), min: nullableCount(limit?.min), max: nullableCount(limit?.max) }))
+    .filter((item) => Number.isInteger(item.grade) && item.grade >= 1 && item.grade <= 20)
+    .sort((a, b) => a.grade - b.grade);
+}
+
+function gradeMinimumTotal(course) {
+  return gradeLimitEntries(course).reduce((sum, item) => sum + (item.min ?? 0), 0);
+}
+
+function courseGradeMaximum(course, grade) {
+  const limit = course?.gradeLimits?.[String(grade)];
+  const configured = nullableCount(limit?.max);
+  return configured === null ? course.max : Math.min(course.max, configured);
+}
+
 function normalizeEvent(input) {
   const settings = {
     allowOutside: false,
@@ -293,6 +331,7 @@ function normalizeEvent(input) {
         cohortMin: rawCohortMin === "" || rawCohortMin === null || rawCohortMin === undefined
           ? null
           : Math.max(0, Math.min(20, Number(rawCohortMin) || 0)),
+        gradeLimits: normalizeGradeLimits(w.gradeLimits),
       };
     }),
     participants: (input?.participants ?? []).map((p) => ({
@@ -314,7 +353,7 @@ function normalizeEvent(input) {
 
 function effectiveMinimum(course, isOpen = true) {
   if (!isOpen) return 0;
-  return Math.max(course.min, course.mode === "Pflicht" ? 1 : 0);
+  return Math.max(course.min, course.mode === "Pflicht" ? 1 : 0, gradeMinimumTotal(course));
 }
 
 function effectiveCohortMinimum(event, course) {
@@ -433,6 +472,27 @@ function validateEvent(raw) {
     if (course.min > course.max) errors.push(`${course.id}: Mindestbelegung ist größer als Maximalbelegung.`);
     if (!MODES.has(course.mode)) errors.push(`${course.id}: Durchführung muss Pflicht oder Optional sein.`);
     if (course.cohortMin === 1) errors.push(`${course.id}: Kohortenminimum darf nicht 1 sein (0 = aus, leer = global, sonst mindestens 2).`);
+
+    const gradeLimits = gradeLimitEntries(course);
+    for (const limit of gradeLimits) {
+      if (limit.min !== null && limit.max !== null && limit.min > limit.max) {
+        errors.push(`${course.id}: Jahrgang ${limit.grade}: Minimum ${limit.min} ist größer als Maximum ${limit.max}.`);
+      }
+      if ((limit.min ?? 0) > course.max) {
+        errors.push(`${course.id}: Jahrgang ${limit.grade}: Minimum ${limit.min} ist größer als die gesamte Maximalbelegung ${course.max}.`);
+      }
+      if (limit.grade < course.gradeFrom || limit.grade > course.gradeTo) {
+        if ((limit.min ?? 0) > 0) errors.push(`${course.id}: Jahrgang ${limit.grade} hat ein Minimum, liegt aber außerhalb des zugelassenen Klassenbereichs ${course.gradeFrom}–${course.gradeTo}.`);
+        else warnings.push(`${course.id}: Jahrgang ${limit.grade} liegt außerhalb des zugelassenen Klassenbereichs; die Jahrgangsgrenze hat daher keine Wirkung.`);
+      }
+    }
+    const gradeMinTotal = gradeMinimumTotal(course);
+    if (gradeMinTotal > course.max) {
+      errors.push(`${course.id}: Die Jahrgangs-Minima ergeben zusammen ${gradeMinTotal}, die Maximalbelegung des Kurses ist aber nur ${course.max}.`);
+    }
+    if (effectiveMinimum(course) > course.max) {
+      errors.push(`${course.id}: Die harten Mindestvorgaben ergeben mindestens ${effectiveMinimum(course)} Plätze, die Maximalbelegung ist aber nur ${course.max}.`);
+    }
   });
 
   event.participants.forEach((person, index) => {
@@ -668,9 +728,29 @@ function canMeetMinimums(event, openSet, lockSet, courseMap) {
   return dinic.maxFlow(source, sink) === requiredTotal;
 }
 
+function gradeMinimumFeasibilityIssue(event, openSet, lockSet, courseMap) {
+  for (const courseId of openSet) {
+    const course = courseMap.get(courseId);
+    if (!course) continue;
+    for (const limit of gradeLimitEntries(course)) {
+      if (limit.min === null || limit.min <= 0) continue;
+      const candidates = event.participants.filter((person) =>
+        parseGrade(person.className) === limit.grade && courseEligible(person, course, lockSet, event.settings.allowOutside)
+      ).length;
+      if (candidates < limit.min) return { course, limit, candidates };
+    }
+  }
+  return null;
+}
+
 function determineOpenCourses(event, lockSet, courseMap) {
   const open = new Set(event.workshops.filter((c) => c.mode === "Pflicht").map((c) => c.id));
   for (const person of event.participants) if (person.fixed) open.add(person.fixed);
+
+  const gradeIssue = gradeMinimumFeasibilityIssue(event, open, lockSet, courseMap);
+  if (gradeIssue) {
+    throw new Error(`${gradeIssue.course.name}${gradeIssue.course.session ? ` – Gruppe ${gradeIssue.course.session}` : ""}: Jahrgang ${gradeIssue.limit.grade} benötigt mindestens ${gradeIssue.limit.min} Schüler. Mit den aktuellen Wünschen, Sperrungen und festen Setzungen sind dafür nur ${gradeIssue.candidates} zulässige Person(en) verfügbar.`);
+  }
 
   if (!canMeetMinimums(event, open, lockSet, courseMap)) {
     throw new Error("Die Mindestbelegungen der Pflichtkurse können nicht gleichzeitig erfüllt werden. Prüfe Wünsche, Sperrungen, Klassenstufen und Bildungsgänge.");
@@ -689,13 +769,13 @@ function determineOpenCourses(event, lockSet, courseMap) {
       }
       return { course, score, candidates };
     })
-    .filter(({ course, candidates }) => candidates >= Math.max(course.min, 1))
+    .filter(({ course, candidates }) => candidates >= effectiveMinimum(course))
     .sort((a, b) => b.score - a.score || a.course.id.localeCompare(b.course.id, "de"));
 
   for (const { course } of optional) {
     const trial = new Set(open);
     trial.add(course.id);
-    if (canMeetMinimums(event, trial, lockSet, courseMap)) open.add(course.id);
+    if (!gradeMinimumFeasibilityIssue(event, trial, lockSet, courseMap) && canMeetMinimums(event, trial, lockSet, courseMap)) open.add(course.id);
   }
   return open;
 }
@@ -1078,6 +1158,152 @@ function cohortSummaryForCourse(event, course, assignments, personMap) {
     .map(([key, count]) => ({ key, label: cohortLabelFromKey(key), count }));
 }
 
+function gradeCountsForPeople(people) {
+  const counts = new Map();
+  for (const person of people || []) {
+    const grade = parseGrade(person.className);
+    if (!Number.isFinite(grade)) continue;
+    counts.set(grade, (counts.get(grade) || 0) + 1);
+  }
+  return counts;
+}
+
+function gradeLimitViolationsForPeople(course, people) {
+  const counts = gradeCountsForPeople(people);
+  const violations = [];
+  for (const limit of gradeLimitEntries(course)) {
+    const count = counts.get(limit.grade) || 0;
+    if (limit.min !== null && count < limit.min) {
+      violations.push({ kind: "gradeMin", course, grade: limit.grade, count, min: limit.min, max: limit.max, members: (people || []).filter((person) => parseGrade(person.className) === limit.grade), label: `Jahrgang ${limit.grade}` });
+    }
+    if (limit.max !== null && count > limit.max) {
+      violations.push({ kind: "gradeMax", course, grade: limit.grade, count, min: limit.min, max: limit.max, members: (people || []).filter((person) => parseGrade(person.className) === limit.grade), label: `Jahrgang ${limit.grade}` });
+    }
+  }
+  return violations;
+}
+
+function cohortViolationsForPeople(event, course, people) {
+  const min = effectiveCohortMinimum(event, course);
+  if (!min) return [];
+  const groups = new Map();
+  for (const person of people || []) {
+    const key = cohortKey(person);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(person);
+  }
+  const violations = [];
+  for (const [key, members] of groups) {
+    if (members.length > 0 && members.length < min) violations.push({ kind: "cohort", course, key, count: members.length, min, members, label: cohortLabelFromKey(key) });
+  }
+  return violations;
+}
+
+function courseGradeLimitViolations(event, openSet, courseMap, assignments) {
+  const byCourse = peopleByCourse(event, assignments);
+  const violations = [];
+  for (const courseId of openSet) {
+    const course = courseMap.get(courseId);
+    if (!course) continue;
+    violations.push(...gradeLimitViolationsForPeople(course, byCourse.get(courseId) || []));
+  }
+  return violations;
+}
+
+function repairCourseGradeLimits(event, openSet, lockSet, courseMap, assignments, loads, targets) {
+  const maxPasses = Math.max(80, event.workshops.length * 20);
+  for (let pass = 0; pass < maxPasses; pass += 1) {
+    const byCourse = peopleByCourse(event, assignments);
+    const violations = courseGradeLimitViolations(event, openSet, courseMap, assignments);
+    if (!violations.length) return;
+    violations.sort((a, b) => {
+      const aSeverity = a.kind === "gradeMax" ? a.count - a.max : a.min - a.count;
+      const bSeverity = b.kind === "gradeMax" ? b.count - b.max : b.min - b.count;
+      return bSeverity - aSeverity || a.course.id.localeCompare(b.course.id, "de") || a.grade - b.grade;
+    });
+    let changed = false;
+    for (const violation of violations) {
+      const target = violation.course;
+      const targetPeople = byCourse.get(target.id) || [];
+      if (violation.kind === "gradeMin") {
+        if ((loads.get(target.id) || 0) >= target.max) continue;
+        const candidates = event.participants
+          .filter((person) => !person.fixed && parseGrade(person.className) === violation.grade)
+          .filter((person) => { const fromId = assignments.get(person.id) || ""; return fromId !== target.id && courseEligible(person, target, lockSet, event.settings.allowOutside); })
+          .map((person) => {
+            const fromId = assignments.get(person.id) || "";
+            const donor = fromId ? courseMap.get(fromId) : null;
+            const donorPeople = donor ? (byCourse.get(fromId) || []) : [];
+            const donorAfter = donor ? donorPeople.filter((item) => item.id !== person.id) : [];
+            if (donor && donorAfter.length < effectiveMinimum(donor)) return null;
+            if (donor) {
+              const donorBeforeState = hardRuleStateForCourse(event, donor, donorPeople);
+              const donorAfterState = hardRuleStateForCourse(event, donor, donorAfter);
+              if (!hardRuleStateNoWorse(donorBeforeState, donorAfterState)) return null;
+            }
+            const targetAfter = [...targetPeople, person];
+            if (targetAfter.length > target.max) return null;
+            if ((gradeCountsForPeople(targetAfter).get(violation.grade) || 0) > courseGradeMaximum(target, violation.grade)) return null;
+            const targetBeforeState = hardRuleStateForCourse(event, target, targetPeople);
+            const targetAfterState = hardRuleStateForCourse(event, target, targetAfter);
+            if (!hardRuleStateImproves(targetBeforeState, targetAfterState)) return null;
+            const currentCost = donor ? preferenceCost(person, donor) : PREFERENCE_COST.unassigned;
+            const balance = Math.round(event.settings.balanceWeight * Math.abs((loads.get(target.id) || 0) + 1 - (targets.get(target.id) || 0)));
+            return { person, fromId, score: preferenceCost(person, target) - currentCost + balance };
+          })
+          .filter(Boolean)
+          .sort((a, b) => a.score - b.score || a.person.id.localeCompare(b.person.id, "de"));
+        const chosen = candidates[0];
+        if (!chosen) continue;
+        if (chosen.fromId) loads.set(chosen.fromId, (loads.get(chosen.fromId) || 0) - 1);
+        assignments.set(chosen.person.id, target.id);
+        loads.set(target.id, (loads.get(target.id) || 0) + 1);
+        changed = true; break;
+      }
+      if (violation.kind === "gradeMax") {
+        const movable = violation.members.filter((person) => !person.fixed).map((person) => {
+          const targetAfter = targetPeople.filter((item) => item.id !== person.id);
+          if (targetAfter.length < effectiveMinimum(target)) return null;
+          const targetBeforeState = hardRuleStateForCourse(event, target, targetPeople);
+          const targetAfterState = hardRuleStateForCourse(event, target, targetAfter);
+          if (!hardRuleStateImproves(targetBeforeState, targetAfterState)) return null;
+          const destinations = [...openSet].map((id) => courseMap.get(id))
+            .filter((course) => course && course.id !== target.id)
+            .filter((course) => (loads.get(course.id) || 0) < course.max)
+            .filter((course) => courseEligible(person, course, lockSet, event.settings.allowOutside))
+            .map((course) => {
+              const existing = byCourse.get(course.id) || [];
+              const after = [...existing, person];
+              const grade = parseGrade(person.className);
+              if ((gradeCountsForPeople(after).get(grade) || 0) > courseGradeMaximum(course, grade)) return null;
+              const beforeState = hardRuleStateForCourse(event, course, existing);
+              const afterState = hardRuleStateForCourse(event, course, after);
+              if (!hardRuleStateNoWorse(beforeState, afterState)) return null;
+              const balance = Math.round(event.settings.balanceWeight * Math.abs((loads.get(course.id) || 0) + 1 - (targets.get(course.id) || 0)));
+              return { course, score: preferenceCost(person, course) - preferenceCost(person, target) + balance };
+            }).filter(Boolean).sort((a, b) => a.score - b.score || a.course.id.localeCompare(b.course.id, "de"));
+          if (destinations.length) return { person, toId: destinations[0].course.id, score: destinations[0].score };
+          return { person, toId: "", score: PREFERENCE_COST.unassigned - preferenceCost(person, target) };
+        }).filter(Boolean).sort((a, b) => a.score - b.score || a.person.id.localeCompare(b.person.id, "de"));
+        const chosen = movable[0];
+        if (!chosen) continue;
+        assignments.set(chosen.person.id, chosen.toId);
+        loads.set(target.id, (loads.get(target.id) || 0) - 1);
+        if (chosen.toId) loads.set(chosen.toId, (loads.get(chosen.toId) || 0) + 1);
+        changed = true; break;
+      }
+    }
+    if (!changed) {
+      const first = violations[0];
+      if (first.kind === "gradeMin") throw new Error(`${first.course.name}${first.course.session ? ` – Gruppe ${first.course.session}` : ""}: Jahrgang ${first.grade} benötigt mindestens ${first.min} Schüler, aktuell sind ${first.count} möglich. Diese harte Jahrgangs-Mindestbelegung kann mit den aktuellen Wünschen, Kapazitäten, Sperrungen und festen Setzungen nicht erfüllt werden.`);
+      throw new Error(`${first.course.name}${first.course.session ? ` – Gruppe ${first.course.session}` : ""}: Jahrgang ${first.grade} darf höchstens ${first.max} Schüler enthalten, aktuell sind es ${first.count}. Diese harte Jahrgangs-Maximalbelegung kann mit den aktuellen Vorgaben nicht erfüllt werden.`);
+    }
+  }
+  const remaining = courseGradeLimitViolations(event, openSet, courseMap, assignments);
+  if (remaining.length) throw new Error(`${remaining[0].course.name}: Jahrgangsbelegung konnte nach mehreren Reparaturschritten nicht stabil erfüllt werden.`);
+}
+
+
 function flexibleRuleGroupKey(rule, person) {
   const grade = parseGrade(person.className);
   if (rule.type === "class") return String(person.className || "").trim();
@@ -1170,13 +1396,13 @@ function flexibleRuleViolations(event, openSet, courseMap, assignments, mode = n
 
 function hardRuleStateForCourse(event, course, people) {
   const violations = [];
-  for (const rule of (event.settings.rules || []).filter((r) => r.enabled && r.mode === "hard")) {
-    violations.push(...violationsForFlexibleRule(rule, course, people));
-  }
-  return {
-    count: violations.length,
-    deficit: violations.reduce((sum, violation) => sum + Math.max(1, violation.min - violation.count), 0),
-  };
+  for (const rule of (event.settings.rules || []).filter((r) => r.enabled && r.mode === "hard")) violations.push(...violationsForFlexibleRule(rule, course, people));
+  violations.push(...gradeLimitViolationsForPeople(course, people));
+  violations.push(...cohortViolationsForPeople(event, course, people));
+  const totalMinDeficit = Math.max(0, effectiveMinimum(course) - people.length);
+  const totalMaxExcess = Math.max(0, people.length - course.max);
+  const deficit = violations.reduce((sum, violation) => violation.kind === "gradeMax" ? sum + Math.max(1, violation.count - violation.max) : sum + Math.max(1, (violation.min ?? 0) - violation.count), 0) + totalMinDeficit + totalMaxExcess;
+  return { count: violations.length + (totalMinDeficit ? 1 : 0) + (totalMaxExcess ? 1 : 0), deficit };
 }
 
 function hardRuleStateCompare(a, b) {
@@ -1404,6 +1630,7 @@ function optimizeEventSingle(raw) {
     assignMinimums(event, openSet, lockSet, courseMap, assignments, loads);
     assignRemaining(event, openSet, lockSet, courseMap, assignments, loads, targets);
     repairCohortMinimums(event, openSet, lockSet, courseMap, assignments, loads, targets);
+    repairCourseGradeLimits(event, openSet, lockSet, courseMap, assignments, loads, targets);
     repairFlexibleRules(event, openSet, lockSet, courseMap, assignments, loads, targets, "hard");
     const preferredRemaining = repairFlexibleRules(event, openSet, lockSet, courseMap, assignments, loads, targets, "preferred");
 
@@ -1441,6 +1668,7 @@ function optimizeEventSingle(raw) {
         deviation: open ? load - target : 0,
         cohortMinEffective: open ? effectiveCohortMinimum(event, course) : 0,
         cohorts: open ? cohortSummaryForCourse(event, course, assignments, personMap) : [],
+        gradeLimitSummary: open ? gradeLimitEntries(course).map((limit) => ({ ...limit, count: [...assignments.entries()].reduce((sum, [personId, assignedCourse]) => { if (assignedCourse !== course.id) return sum; const person = personMap.get(personId); return sum + (person && parseGrade(person.className) === limit.grade ? 1 : 0); }, 0) })) : [],
         status: open ? "Findet statt" : "Entfällt (optional)",
       };
     });
@@ -1626,6 +1854,8 @@ let saveTimer = null;
 let toastTimer = null;
 let selectedCourseId = "";
 let courseDetailTab = "assigned";
+let editingGradeLimitsWorkshopIndex = -1;
+let gradeLimitsDraft = {};
 const resultUndoStack = [];
 
 const $ = (selector) => document.querySelector(selector);
@@ -1715,6 +1945,63 @@ function courseTypes() {
 function workshopLabel(workshop) {
   if (!workshop) return "";
   return `${workshop.name}${workshop.session ? ` – Gruppe ${workshop.session}` : ""}`;
+}
+
+function gradeNumberFromClass(className) {
+  const match = String(className || "").trim().match(/^(\d{1,2})/);
+  return match ? Number(match[1]) : NaN;
+}
+function normalizeNullableLimit(value) {
+  if (value === "" || value === null || value === undefined) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.max(0, Math.min(500, Math.trunc(number))) : null;
+}
+function gradeLimitEntriesForWorkshop(workshop) {
+  return Object.entries(workshop?.gradeLimits || {}).map(([grade, limit]) => ({ grade: Number(grade), min: normalizeNullableLimit(limit?.min), max: normalizeNullableLimit(limit?.max) })).filter((item) => Number.isInteger(item.grade) && (item.min !== null || item.max !== null)).sort((a, b) => a.grade - b.grade);
+}
+function gradeLimitSummary(workshop) {
+  const entries = gradeLimitEntriesForWorkshop(workshop);
+  if (!entries.length) return "keine Vorgabe";
+  return entries.map((item) => item.min !== null && item.max !== null ? `Jg. ${item.grade}: ${item.min}–${item.max}` : item.min !== null ? `Jg. ${item.grade}: ≥ ${item.min}` : `Jg. ${item.grade}: ≤ ${item.max}`).join(" · ");
+}
+function openGradeLimitsDialog(index) {
+  const workshop = state.workshops[index];
+  if (!workshop) return;
+  editingGradeLimitsWorkshopIndex = index;
+  gradeLimitsDraft = JSON.parse(JSON.stringify(workshop.gradeLimits || {}));
+  $("#gradeLimitsTitle").textContent = `Jahrgangsbelegung: ${workshopLabel(workshop)}`;
+  $("#gradeLimitsSubtitle").textContent = `Harte Vorgaben pro Jahrgang. Leer bedeutet keine Vorgabe. Die gesamte Kursgröße bleibt zusätzlich zwischen ${workshop.min} und ${workshop.max}.`;
+  renderGradeLimitsDialog();
+  $("#gradeLimitsDialog").showModal();
+}
+function renderGradeLimitsDialog() {
+  const workshop = state.workshops[editingGradeLimitsWorkshopIndex];
+  if (!workshop) return;
+  const from = Math.max(1, Math.min(20, Number(workshop.gradeFrom) || 1));
+  const to = Math.max(from, Math.min(20, Number(workshop.gradeTo) || from));
+  const rows = [];
+  for (let grade = from; grade <= to; grade += 1) {
+    const limit = gradeLimitsDraft[String(grade)] || {};
+    rows.push(`<tr><td><strong>Jahrgang ${grade}</strong></td><td><input type="number" min="0" max="500" step="1" data-grade="${grade}" data-grade-limit="min" value="${limit.min ?? ""}" placeholder="–"></td><td><input type="number" min="0" max="500" step="1" data-grade="${grade}" data-grade-limit="max" value="${limit.max ?? ""}" placeholder="–"></td></tr>`);
+  }
+  $("#gradeLimitsTable").innerHTML = `<thead><tr><th>Jahrgang</th><th>Minimum (hart)</th><th>Maximum (hart)</th></tr></thead><tbody>${rows.join("")}</tbody>`;
+}
+function saveGradeLimitsDialog() {
+  const workshop = state.workshops[editingGradeLimitsWorkshopIndex];
+  if (!workshop) return;
+  const next = {};
+  for (const row of [...$("#gradeLimitsTable").querySelectorAll("tbody tr")]) {
+    const minInput = row.querySelector('[data-grade-limit="min"]');
+    const maxInput = row.querySelector('[data-grade-limit="max"]');
+    const grade = Number(minInput?.dataset.grade || maxInput?.dataset.grade);
+    const min = normalizeNullableLimit(minInput?.value);
+    const max = normalizeNullableLimit(maxInput?.value);
+    if (min !== null && max !== null && min > max) return showDialog("Jahrgangsbelegung prüfen", `Jahrgang ${grade}: Minimum ${min} darf nicht größer als Maximum ${max} sein.`, "warning");
+    if (min !== null && min > workshop.max) return showDialog("Jahrgangsbelegung prüfen", `Jahrgang ${grade}: Minimum ${min} ist größer als die gesamte Maximalbelegung ${workshop.max}.`, "warning");
+    if (min !== null || max !== null) next[String(grade)] = { min, max };
+  }
+  workshop.gradeLimits = next;
+  commit(); renderWorkshops(); $("#gradeLimitsDialog").close(); toast("Jahrgangsbelegung gespeichert.");
 }
 
 function nextSessionLabel(offerId) {
@@ -1824,12 +2111,13 @@ function renderWorkshops() {
       <td><input type="number" min="0" max="20" data-entity="workshop" data-field="cohortMin" value="${w.cohortMin ?? ""}" placeholder="global" title="leer = global, 0 = aus"></td>
       <td><input type="number" min="0" max="500" data-entity="workshop" data-field="min" value="${w.min}"></td>
       <td><input type="number" min="1" max="500" data-entity="workshop" data-field="max" value="${w.max}"></td>
+      <td class="grade-limit-cell"><button class="button compact-button grade-limit-button" type="button" data-action="edit-grade-limits" title="Harte Mindest- und Maximalzahlen je Jahrgang festlegen">Jahrgänge …</button><small>${escapeHtml(gradeLimitSummary(w))}</small></td>
       <td><select data-entity="workshop" data-field="mode">${["Pflicht", "Optional"].map((v) => option(v, w.mode)).join("")}</select></td>
       <td class="row-actions"><button class="icon-button" data-action="duplicate-workshop" title="Weitere Durchführung derselben Kursart">＋</button><button class="icon-button" data-action="delete-workshop" title="Löschen">×</button></td>
     </tr>`).join("");
   $("#workshopsTable").innerHTML = `
-    <thead><tr><th>#</th><th>Durchführungs-ID</th><th>Kursart-ID</th><th>Kursart</th><th>Gruppe</th><th>Klasse von</th><th>Klasse bis</th><th>Bildungsgang</th><th>Kohorte min. (hart, optional)</th><th>Minimum</th><th>Maximum</th><th>Pflicht/Optional</th><th></th></tr></thead>
-    <tbody>${rows || `<tr><td colspan="13">Keine Workshops eingetragen.</td></tr>`}</tbody>`;
+    <thead><tr><th>#</th><th>Durchführungs-ID</th><th>Kursart-ID</th><th>Kursart</th><th>Gruppe</th><th>Klasse von</th><th>Klasse bis</th><th>Bildungsgang</th><th>Kohorte min. (hart, optional)</th><th>Minimum</th><th>Maximum</th><th>Jahrgangsbelegung</th><th>Pflicht/Optional</th><th></th></tr></thead>
+    <tbody>${rows || `<tr><td colspan="14">Keine Workshops eingetragen.</td></tr>`}</tbody>`;
 }
 
 function renderParticipants() {
@@ -1995,6 +2283,13 @@ function hardViolationsForCourseFromResult(courseId) {
       }
     }
   }
+  const gradeCounts = new Map();
+  assigned.forEach((person) => { const grade = gradeNumberFromClass(person.className); if (Number.isFinite(grade)) gradeCounts.set(grade, (gradeCounts.get(grade) || 0) + 1); });
+  for (const limit of gradeLimitEntriesForWorkshop(course)) {
+    const count = gradeCounts.get(limit.grade) || 0;
+    if (limit.min !== null && count < limit.min) violations.push(`Jahrgang ${limit.grade}: ${count} < Minimum ${limit.min}`);
+    if (limit.max !== null && count > limit.max) violations.push(`Jahrgang ${limit.grade}: ${count} > Maximum ${limit.max}`);
+  }
   const legacyMin = course.cohortMin === null ? (state.settings.cohortMin || 0) : course.cohortMin;
   if (legacyMin >= 2) {
     const groups = new Map();
@@ -2149,9 +2444,11 @@ function renderCourseDetail() {
     [course.load, "Belegung"], [course.target, "Ziel"], [`${course.effectiveMin} / ${course.max}`, "Min / Max"], [quality, "Wünsche"]
   ].map(([value, label]) => `<div class="stat"><strong>${escapeHtml(value)}</strong><span>${label}</span></div>`).join("");
   const details = course.ruleDetails || [];
-  $("#courseRuleSummary").innerHTML = details.length
-    ? `<details><summary>${resultRuleBadge(course)} Regeldetails anzeigen</summary>${details.map((item) => `<div class="message ${item.mode === "hard" ? "error" : "warning"}">${escapeHtml(ruleTypeName(item.type))}: ${escapeHtml(item.label)} · ${item.count} von mindestens ${item.min}</div>`).join("")}</details>`
-    : `<span class="badge good">Regeln erfüllt</span>`;
+  const gradeLimits = course.gradeLimitSummary || [];
+  const gradeLimitHtml = gradeLimits.length ? `<div class="grade-limit-result"><strong>Harte Jahrgangsbelegung:</strong> ${gradeLimits.map((item) => { const bounds = item.min !== null && item.max !== null ? `${item.min}–${item.max}` : item.min !== null ? `mind. ${item.min}` : `max. ${item.max}`; return `Jg. ${item.grade}: ${item.count} (${bounds})`; }).join(" · ")}</div>` : "";
+  $("#courseRuleSummary").innerHTML = `${gradeLimitHtml}${details.length
+    ? `<details><summary>${resultRuleBadge(course)} Weitere Regeldetails anzeigen</summary>${details.map((item) => `<div class="message ${item.mode === "hard" ? "error" : "warning"}">${escapeHtml(ruleTypeName(item.type))}: ${escapeHtml(item.label)} · ${item.count} von mindestens ${item.min}</div>`).join("")}</details>`
+    : `<span class="badge good">Regeln erfüllt</span>`}`;
 
   $$(".detail-tab").forEach((button) => button.classList.toggle("active", button.dataset.detailTab === courseDetailTab));
   const assigned = result.participantResults.filter((row) => row.workshopId === course.id).sort((a,b) => a.lastName.localeCompare(b.lastName,"de") || a.firstName.localeCompare(b.firstName,"de"));
@@ -2228,7 +2525,7 @@ function addWorkshop() {
   const offerId = nextId("K", new Set(state.workshops.map((w) => w.offerId)));
   state.workshops.push({
     id, offerId, name: "Neuer Workshop", session: "A", gradeFrom: 7, gradeTo: 12,
-    schoolForm: "Alle", cohortMin: null, min: 0, max: 12, mode: state.settings.defaultMode,
+    schoolForm: "Alle", cohortMin: null, min: 0, max: 12, mode: state.settings.defaultMode, gradeLimits: {},
   });
   commit(); renderWorkshops(); renderParticipants(); renderLocks();
 }
@@ -2269,10 +2566,11 @@ function handleTableClick(event) {
   const button = event.target.closest("[data-action]");
   if (!button) return;
   const index = Number(button.closest("tr")?.dataset.index);
+  if (button.dataset.action === "edit-grade-limits") { openGradeLimitsDialog(index); return; }
   if (button.dataset.action === "duplicate-workshop") {
     if (state.workshops.length >= 30) return showDialog("Grenze erreicht", "Es können höchstens 30 Durchführungen eingetragen werden.", "warning");
     const source = state.workshops[index];
-    const copy = { ...source, id: nextId("W", new Set(state.workshops.map((w) => w.id))), session: nextSessionLabel(source.offerId), fixed: undefined };
+    const copy = { ...source, gradeLimits: JSON.parse(JSON.stringify(source.gradeLimits || {})), id: nextId("W", new Set(state.workshops.map((w) => w.id))), session: nextSessionLabel(source.offerId), fixed: undefined };
     state.workshops.splice(index + 1, 0, copy);
     commit(); renderWorkshops(); renderParticipants(); renderLocks();
   }
@@ -2347,6 +2645,7 @@ function worksheetObjects(worksheet, requiredHeader) {
 
 function parseExcelWorkbook(workbook) {
   const workshopSheet = workbook.getWorksheet("Workshops");
+  const gradeLimitSheet = workbook.getWorksheet("Jahrgangsbelegung") || workbook.getWorksheet("Jahrgangsgrenzen");
   const participantSheet = workbook.getWorksheet("Kursanwahl") || workbook.getWorksheet("Personen");
   const lockSheet = workbook.getWorksheet("Sperrungen");
 
@@ -2367,8 +2666,22 @@ function parseExcelWorkbook(workbook) {
       min: Number(getRowValue(row, ["Mindestbelegung", "Minimum", "Min"])) || 0,
       max: Number(getRowValue(row, ["Maximalbelegung", "Maximum", "Max"])) || 0,
       mode: String(getRowValue(row, ["Pflicht/Optional", "Durchführung", "Durchfuehrung"]) || state.settings.defaultMode).trim(),
+      gradeLimits: {},
     };
   }).filter((row) => row.id);
+  const gradeLimitRows = worksheetObjects(gradeLimitSheet, "Durchführungs-ID");
+  const gradeLimitMap = new Map();
+  for (const row of gradeLimitRows) {
+    const workshopId = String(getRowValue(row, ["Durchführungs-ID", "Durchfuehrungs-ID", "Workshop-ID", "ID"])).trim();
+    const grade = Number(getRowValue(row, ["Jahrgang", "Klassenstufe", "Jg."]));
+    const rawMin = getRowValue(row, ["Minimum", "Min", "Mindestens"]);
+    const rawMax = getRowValue(row, ["Maximum", "Max", "Höchstens", "Hoechstens"]);
+    const min = normalizeNullableLimit(rawMin), max = normalizeNullableLimit(rawMax);
+    if (!workshopId || !Number.isInteger(grade) || grade < 1 || grade > 20 || (min === null && max === null)) continue;
+    if (!gradeLimitMap.has(workshopId)) gradeLimitMap.set(workshopId, {});
+    gradeLimitMap.get(workshopId)[String(grade)] = { min, max };
+  }
+  importedWorkshops.forEach((workshop) => { workshop.gradeLimits = gradeLimitMap.get(workshop.id) || {}; });
 
   const participants = worksheetObjects(participantSheet, "Person-ID").map((row) => ({
     id: String(getRowValue(row, ["Person-ID", "ID"])).trim(),
@@ -2426,6 +2739,7 @@ async function exportExcel() {
     ["Klasse von", "gradeFrom"], ["Klasse bis", "gradeTo"], ["Bildungsgang", "schoolForm"], ["Kohortenminimum", "cohortMin"],
     ["Mindestbelegung", "min"], ["Maximalbelegung", "max"], ["Pflicht/Optional", "mode"],
   ], state.workshops);
+  addTableSheet("Jahrgangsbelegung", [["Durchführungs-ID", "workshopId"], ["Jahrgang", "grade"], ["Minimum", "min"], ["Maximum", "max"]], state.workshops.flatMap((workshop) => gradeLimitEntriesForWorkshop(workshop).map((limit) => ({ workshopId: workshop.id, grade: limit.grade, min: limit.min ?? "", max: limit.max ?? "" }))));
   addTableSheet("Personen", [
     ["Person-ID", "id"], ["Vorname", "firstName"], ["Nachname", "lastName"], ["Klasse", "className"], ["Bildungsgang", "schoolForm"],
     ["Erstwunsch", "wish1"], ["Zweitwunsch", "wish2"], ["Drittwunsch", "wish3"], ["Viertwunsch", "wish4"], ["Feste Setzung", "fixed"],
@@ -2599,11 +2913,13 @@ async function downloadCourseChoiceTemplate() {
   guide.addRow([]);
   guide.addRow(["Blatt", "Verwendung"]);
   guide.addRow(["Workshops", "Kurse und Durchführungen einschließlich Klassenbereich, Bildungsgang, Kohortenminimum sowie Mindest-/Maximalbelegung pflegen. Beim Import ersetzen diese Angaben die Workshops im aktuellen Projekt."]);
+  guide.addRow(["Jahrgangsbelegung", "Optionale harte Mindest- und Höchstzahlen je Jahrgang und Durchführung. Leere Felder bedeuten keine Vorgabe."]);
   guide.addRow(["Kursanwahl", "Teilnehmerdaten und vier Wünsche erfassen. Die Wünsche beziehen sich auf die Kursart-ID; die feste Setzung auf die konkrete Durchführungs-ID."]);
   guide.addRow(["Sperrungen", "Unerlaubte Kombinationen aus Person-ID und Durchführungs-ID eintragen. Ein vorhandenes Blatt Sperrungen ersetzt beim Import die Sperrungen des aktuellen Projekts."]);
   guide.addRow([]);
   guide.addRow(["Kohortenminimum", "Leer = globaler Wert der Anwendung, 0 = aus, ab 2 = eigener harter Wert für diese Durchführung."]);
-  guide.addRow(["Hinweis", "Die Vorlage enthält die aktuell im Projekt eingetragenen Workshops und Sperrungen. Änderungen können direkt in Excel vorgenommen und anschließend wieder importiert werden."]);
+  guide.addRow(["Jahrgangsbelegung", "Beispiel: Jahrgang 8 Minimum 7 = mindestens 7 Achtklässler müssen in diesem Kurs sein. Nur Maximum 4 = höchstens 4. Leer = keine Vorgabe."]);
+  guide.addRow(["Hinweis", "Die Vorlage enthält die aktuell im Projekt eingetragenen Workshops, Jahrgangsvorgaben und Sperrungen. Änderungen können direkt in Excel vorgenommen und anschließend wieder importiert werden."]);
   guide.getColumn(1).width = 24;
   guide.getColumn(2).width = 110;
   guide.getRow(1).font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
@@ -2643,6 +2959,15 @@ async function downloadCourseChoiceTemplate() {
     workshops.getCell(row, 7).dataValidation = { type: "list", allowBlank: false, formulae: ['"Alle,Regional,Gymnasial"'] };
     workshops.getCell(row, 11).dataValidation = { type: "list", allowBlank: false, formulae: ['"Pflicht,Optional"'] };
   }
+
+  const gradeLimitsSheet = workbook.addWorksheet("Jahrgangsbelegung");
+  gradeLimitsSheet.columns = [{ header: "Durchführungs-ID", key: "workshopId", width: 22 }, { header: "Jahrgang", key: "grade", width: 12 }, { header: "Minimum", key: "min", width: 14 }, { header: "Maximum", key: "max", width: 14 }];
+  for (const workshop of state.workshops) {
+    const from = Math.max(1, Math.min(20, Number(workshop.gradeFrom) || 1));
+    const to = Math.max(from, Math.min(20, Number(workshop.gradeTo) || from));
+    for (let grade = from; grade <= to; grade += 1) { const limit = workshop.gradeLimits?.[String(grade)] || {}; gradeLimitsSheet.addRow({ workshopId: workshop.id, grade, min: limit.min ?? "", max: limit.max ?? "" }); }
+  }
+  styleWorksheet(gradeLimitsSheet);
 
   const sheet = workbook.addWorksheet("Kursanwahl");
   sheet.columns = [
@@ -2695,6 +3020,8 @@ function bindEvents() {
   $("#addRuleBtn").addEventListener("click", addRule);
   $("#rulesTable").addEventListener("change", handleRuleChange);
   $("#rulesTable").addEventListener("click", handleRuleClick);
+  $("#gradeLimitsSaveBtn").addEventListener("click", saveGradeLimitsDialog);
+  $("#gradeLimitsCancelBtn").addEventListener("click", () => $("#gradeLimitsDialog").close());
   $("#workshopsTable").addEventListener("change", handleTableChange);
   $("#participantsTable").addEventListener("change", handleTableChange);
   $("#locksTable").addEventListener("change", handleTableChange);
