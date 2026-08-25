@@ -126,6 +126,7 @@
             <li>Bei <strong>Standard</strong> oder <strong>Gründlich</strong> werden mehrere zulässige Startvarianten berechnet und die beste Verteilung gewählt.</li>
             <li><strong>Wunschpriorität:</strong> Erst- und Zweitwünsche stehen im Mittelpunkt. Drittwünsche werden nur als Notlösung genutzt; Viertwünsche sind die absolute Notkategorie. Unvermeidbare Dritt-/Viertwünsche werden möglichst gleichmäßig auf die Kurse verteilt.</li>
             <li>Pflichtkurse und feste Setzungen werden zwingend geöffnet; Mindest- und Maximalbelegungen bleiben harte Grenzen.</li>
+            <li><strong>Jahrgangsbelegung pro Kurs:</strong> Eingetragene Min-/Max-Werte je Jahrgang sind ebenfalls harte Grenzen. Leere Felder haben keine Wirkung.</li>
             <li>Optionale Gruppenregeln können pro Klasse, Jahrgang oder Jahrgang + Bildungsgang wirken – standardmäßig als <strong>Bevorzugt</strong>, auf Wunsch als harte Bedingung.</li>
             <li>Optionale Durchführungen dürfen entfallen, wenn ihre Mindestbelegung nicht erreichbar ist.</li>
             <li>Kleine Kurse bis zur Ausgleichsschwelle erhalten ihre Maximalgröße als Ziel. Der Rest wird auf die größeren Kurse möglichst gleichmäßig verteilt.</li>
@@ -135,7 +136,7 @@
 
       <section class="panel" data-panel="workshops">
         <div class="panel-heading">
-          <div><p class="eyebrow">Maximal 30 Durchführungen</p><h2>Kursarten & Durchführungen</h2><p class="section-help">Gleiche Kursart-ID = derselbe Wunsch. Mit ＋ legst du eine weitere Gruppe derselben Kursart an.</p></div>
+          <div><p class="eyebrow">Maximal 30 Durchführungen</p><h2>Kursarten & Durchführungen</h2><p class="section-help">Gleiche Kursart-ID = derselbe Wunsch. Mit ＋ legst du eine weitere Gruppe derselben Kursart an. Über „Jahrgänge …“ kannst du harte Mindest- und Maximalzahlen je Jahrgang festlegen; leere Felder bedeuten keine Vorgabe.</p></div>
           <button id="addWorkshopBtn" class="button">Workshop hinzufügen</button>
         </div>
         <div class="table-wrap"><table id="workshopsTable"></table></div>
@@ -184,6 +185,18 @@
   <footer class="app-footer" aria-label="Copyright">· © 2026 Oliver Richter</footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="gradeLimitsDialog" class="grade-limits-dialog">
+    <div class="grade-limits-form">
+      <div class="detail-heading">
+        <div><p class="eyebrow">Harte Kursvorgaben</p><h2 id="gradeLimitsTitle">Jahrgangsbelegung</h2><p id="gradeLimitsSubtitle" class="section-help"></p></div>
+        <button id="gradeLimitsCancelBtn" class="button" type="button">Schließen</button>
+      </div>
+      <div class="message">Leer = keine Vorgabe. Ein eingetragenes Minimum oder Maximum ist für die Optimierung verbindlich.</div>
+      <div class="table-wrap"><table id="gradeLimitsTable" class="grade-limits-table"></table></div>
+      <div class="grade-limits-actions"><button id="gradeLimitsSaveBtn" class="button primary" type="button">Vorgaben übernehmen</button></div>
+    </div>
+  </dialog>
 
   <dialog id="courseDetailDialog" class="wide-dialog">
     <form method="dialog" class="course-detail-form">
