@@ -1,21 +1,51 @@
-# Start hier: Veröffentlichung auf GitHub Pages
+# Start hier – GitHub Pages Update
 
-## Ohne Kommandozeile
+## Wenn die Seite bereits läuft
 
-1. Auf GitHub ein neues, leeres Repository anlegen, zum Beispiel `workshop-zuteilung`.
-2. In diesem Ordner **alle Dateien und Ordner außer `node_modules`** auswählen und in das Repository hochladen.
-3. Darauf achten, dass der Branch `main` heißt.
-4. Im Repository **Settings → Pages** öffnen.
-5. Unter **Build and deployment → Source** die Auswahl **GitHub Actions** treffen.
-6. Den Reiter **Actions** öffnen und warten, bis „GitHub Pages bereitstellen“ grün abgeschlossen ist.
-7. Unter **Settings → Pages** erscheint anschließend die Adresse der Anwendung.
+Für dieses Update genügt es, die Dateien aus dem Patchpaket in dein Repository hochzuladen und vorhandene Dateien zu ersetzen.
 
-## Wichtig zum Datenschutz
+Geändert werden insbesondere:
 
-- Keine ausgefüllten Excel-, JSON- oder PDF-Dateien mit echten Namen in das Repository hochladen.
-- Die Anwendung speichert Eingaben im Browser des verwendeten Geräts.
-- Vor einem Gerätewechsel über **JSON sichern** oder **Excel exportieren** eine Sicherung anlegen.
+- `dist/index.html`
+- `dist/styles.css`
+- `dist/sw.js`
+- `dist/assets/app.js`
+- `dist/Kursanwahl_Vorlage.xlsx`
 
-## Aktualisieren
+Danach **Commit changes**. Der vorhandene GitHub-Pages-Workflow veröffentlicht automatisch neu.
 
-Geänderte Dateien wieder in den Branch `main` hochladen. GitHub Actions baut und veröffentlicht die Seite automatisch neu.
+Nach dem grünen Haken unter **Actions** die Website einmal hart neu laden:
+
+- Mac: `⌘ + Umschalt + R`
+
+Der neue Service-Worker verwendet einen neuen Cache-Namen, damit die alte Version ersetzt wird.
+
+## Neue Bedienung
+
+### Zwei gleiche Kurse
+
+Eine Kursart hat eine gemeinsame **Kursart-ID**. Mehrere tatsächliche Gruppen haben jeweils eine eigene **Durchführungs-ID**.
+
+Beispiel:
+
+- Kursart-ID: `DRACH`
+- Durchführungs-ID: `W10A`, Gruppe A
+- Durchführungs-ID: `W10B`, Gruppe B
+
+Die Schüler wählen nur `DRACH`. Das Programm verteilt später automatisch zwischen A und B.
+
+Im Bereich **Kursarten & Durchführungen** erzeugt der **＋-Knopf** direkt eine weitere Gruppe derselben Kursart.
+
+### Mindestgruppe Jahrgang + Bildungsgang
+
+Unter **Übersicht** gibt es den globalen Parameter. Empfohlen sind z. B. `2` oder `3`.
+
+Im Workshopbereich kann jede Durchführung den Wert überschreiben:
+
+- leer = global
+- 0 = aus
+- ab 2 = eigener Mindestwert
+
+## Datenschutz
+
+Ausgefüllte Schülerdateien weiterhin nur über die laufende Anwendung importieren. Nicht in das GitHub-Repository hochladen.

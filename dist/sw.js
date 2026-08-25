@@ -1,4 +1,4 @@
-const CACHE = "workshop-zuteilung-v9-1-fux-spalten-tolerant";
+const CACHE = "workshop-zuteilung-v9-2-1-importfix";
 const ASSETS = ["./", "./index.html", "./styles.css", "./assets/app.js", "./assets/jszip.min.js", "./assets/xlsx-import-fix.js", "./assets/project-delete.js", "./assets/survey-import.js", "./assets/table-sort.js", "./assets/attendance-check.js", "./favicon.svg", "./manifest.webmanifest"];
 self.addEventListener("install", (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS))));
 self.addEventListener("activate", (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))));
