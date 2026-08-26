@@ -129,6 +129,13 @@
     return "";
   }
 
+  function yesNo(value, fallback = false) {
+    const normalized = String(value ?? "").trim().toLowerCase();
+    if (["ja", "j", "yes", "true", "1", "an", "aktiv"].includes(normalized)) return true;
+    if (["nein", "n", "no", "false", "0", "aus", "inaktiv"].includes(normalized)) return false;
+    return fallback;
+  }
+
   function currentSettings() {
     const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     let existing = {};
@@ -191,6 +198,10 @@
         max: Number(get(row, ["Maximalbelegung", "Maximum", "Max"])) || 0,
         mode: String(get(row, ["Pflicht/Optional", "Durchführung", "Durchfuehrung"]) || settings.defaultMode).trim(),
         gradeLimits: {},
+        debateRule: {
+          enabled: yesNo(get(row, ["Vierergruppen 8/9 + 10+", "Vierergruppen", "Jugend debattiert"]), false),
+          balance: yesNo(get(row, ["Gruppenausgleich", "Wettbewerbsgruppen ausgleichen", "Ausgleich Debattiergruppen"]), true),
+        },
       };
     }).filter((row) => row.id);
 
