@@ -215,3 +215,14 @@ dialog form { display: grid; gap: 1rem; }
 .grade-limits-table input { width: 100%; min-width: 110px; }
 .grade-limits-actions { display: flex; justify-content: flex-end; }
 .grade-limit-result { margin-bottom: .65rem; padding: .65rem .75rem; border-radius: 9px; background: #edf5fb; border-left: 4px solid var(--navy); line-height: 1.5; }
+
+/* V9.3: Vierergruppen für Jugend debattiert */
+.debate-rule-card { display: grid; gap: .8rem; padding: 1rem; border: 1px solid #9ab6ca; border-radius: 12px; background: linear-gradient(135deg, #f4f9fc 0%, #eaf3f8 100%); }
+.debate-rule-card h3 { margin: 0 0 .25rem; color: var(--navy); }
+.debate-rule-card p { margin: 0; color: var(--muted); line-height: 1.45; }
+.checkbox-row { display: flex; align-items: flex-start; gap: .65rem; padding: .7rem .8rem; border-radius: 9px; background: rgba(255,255,255,.82); cursor: pointer; }
+.checkbox-row input { width: 1.15rem; height: 1.15rem; margin-top: .15rem; flex: 0 0 auto; accent-color: var(--navy); }
+.checkbox-row span { display: grid; gap: .2rem; }
+.checkbox-row small { color: var(--muted); line-height: 1.35; }
+.checkbox-row:has(input:disabled) { opacity: .58; cursor: not-allowed; }
+.debate-result { border-left-color: #547a65; background: #f0f7f2; }

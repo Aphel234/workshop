@@ -126,7 +126,7 @@
             <li>Bei <strong>Standard</strong> oder <strong>Gründlich</strong> werden mehrere zulässige Startvarianten berechnet und die beste Verteilung gewählt.</li>
             <li><strong>Wunschpriorität:</strong> Erst- und Zweitwünsche stehen im Mittelpunkt. Drittwünsche werden nur als Notlösung genutzt; Viertwünsche sind die absolute Notkategorie. Unvermeidbare Dritt-/Viertwünsche werden möglichst gleichmäßig auf die Kurse verteilt.</li>
             <li>Pflichtkurse und feste Setzungen werden zwingend geöffnet; Mindest- und Maximalbelegungen bleiben harte Grenzen.</li>
-            <li><strong>Jahrgangsbelegung pro Kurs:</strong> Eingetragene Min-/Max-Werte je Jahrgang sind ebenfalls harte Grenzen. Leere Felder haben keine Wirkung.</li>
+            <li><strong>Jahrgangs- und Debattierregeln:</strong> Min-/Max-Werte je Jahrgang sind harte Grenzen. Optional müssen die Blöcke 8+9 und 10 aufwärts jeweils durch 4 teilbar sein; ihr Größenausgleich bleibt ein weiches Ziel.</li>
             <li>Optionale Gruppenregeln können pro Klasse, Jahrgang oder Jahrgang + Bildungsgang wirken – standardmäßig als <strong>Bevorzugt</strong>, auf Wunsch als harte Bedingung.</li>
             <li>Optionale Durchführungen dürfen entfallen, wenn ihre Mindestbelegung nicht erreichbar ist.</li>
             <li>Kleine Kurse bis zur Ausgleichsschwelle erhalten ihre Maximalgröße als Ziel. Der Rest wird auf die größeren Kurse möglichst gleichmäßig verteilt.</li>
@@ -136,7 +136,7 @@
 
       <section class="panel" data-panel="workshops">
         <div class="panel-heading">
-          <div><p class="eyebrow">Maximal 30 Durchführungen</p><h2>Kursarten & Durchführungen</h2><p class="section-help">Gleiche Kursart-ID = derselbe Wunsch. Mit ＋ legst du eine weitere Gruppe derselben Kursart an. Über „Jahrgänge …“ kannst du harte Mindest- und Maximalzahlen je Jahrgang festlegen; leere Felder bedeuten keine Vorgabe.</p></div>
+          <div><p class="eyebrow">Maximal 30 Durchführungen</p><h2>Kursarten & Durchführungen</h2><p class="section-help">Gleiche Kursart-ID = derselbe Wunsch. Mit ＋ legst du eine weitere Gruppe derselben Kursart an. Über „Jahrgänge & Debatte …“ stellst du harte Jahrgangsgrenzen und bei Bedarf die Vierergruppen für Jugend debattiert ein.</p></div>
           <button id="addWorkshopBtn" class="button">Workshop hinzufügen</button>
         </div>
         <div class="table-wrap"><table id="workshopsTable"></table></div>
@@ -189,10 +189,18 @@
   <dialog id="gradeLimitsDialog" class="grade-limits-dialog">
     <div class="grade-limits-form">
       <div class="detail-heading">
-        <div><p class="eyebrow">Harte Kursvorgaben</p><h2 id="gradeLimitsTitle">Jahrgangsbelegung</h2><p id="gradeLimitsSubtitle" class="section-help"></p></div>
+        <div><p class="eyebrow">Kurszusammensetzung</p><h2 id="gradeLimitsTitle">Jahrgangs- und Debattierregeln</h2><p id="gradeLimitsSubtitle" class="section-help"></p></div>
         <button id="gradeLimitsCancelBtn" class="button" type="button">Schließen</button>
       </div>
-      <div class="message">Leer = keine Vorgabe. Ein eingetragenes Minimum oder Maximum ist für die Optimierung verbindlich.</div>
+      <section class="debate-rule-card" aria-labelledby="debateRuleHeading">
+        <div>
+          <h3 id="debateRuleHeading">Jugend debattiert · Variante A</h3>
+          <p>Die Summe aus Jahrgang 8+9 und die Summe aus Jahrgang 10 aufwärts müssen jeweils durch 4 teilbar sein.</p>
+        </div>
+        <label class="checkbox-row"><input id="debateRuleEnabled" type="checkbox"> <span><strong>Vierergruppen verbindlich aktivieren</strong><small>Harte Regel: Eine nicht passende Zuteilung wird nicht ausgegeben.</small></span></label>
+        <label class="checkbox-row"><input id="debateBalanceEnabled" type="checkbox" checked> <span><strong>Beide Wettbewerbsgruppen möglichst gleich groß</strong><small>Weiches Ziel: Wünsche und harte Regeln bleiben wichtiger.</small></span></label>
+      </section>
+      <div class="message">Die Felder unten sind zusätzliche harte Min-/Max-Vorgaben pro Einzeljahrgang. Leer bedeutet keine Vorgabe.</div>
       <div class="table-wrap"><table id="gradeLimitsTable" class="grade-limits-table"></table></div>
       <div class="grade-limits-actions"><button id="gradeLimitsSaveBtn" class="button primary" type="button">Vorgaben übernehmen</button></div>
     </div>
@@ -285,7 +293,6 @@
   <script src="assets/app.js" defer></script>
   <script src="assets/jszip.min.js" defer></script>
   <script src="assets/xlsx-import-fix.js" defer></script>
-  <script src="assets/project-delete.js" defer></script>
   <script src="assets/survey-import.js" defer></script>
   <script src="assets/table-sort.js" defer></script>
   <script src="assets/attendance-check.js" defer></script>
